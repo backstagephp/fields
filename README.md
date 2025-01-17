@@ -46,15 +46,14 @@ To make a resource page configurable, you need to add the `HasFieldsMapper` trai
 <?php
 
 namespace Vormkracht10\Backstage\Resources\SettingResource\Pages;
-    
+
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
-use Vormkracht10\Backstage\Resources\SettingResource;
-use Vormkracht10\Backstage\Resources\SettingResource;
 use Vormkracht10\FilamentFields\Concerns\HasFieldsMapper;
+
 class EditSetting extends EditRecord
 {
     protected static string $resource = SettingResource::class;
