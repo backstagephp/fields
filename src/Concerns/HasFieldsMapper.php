@@ -2,11 +2,12 @@
 
 namespace Vormkracht10\FilamentFields\Concerns;
 
-use Illuminate\Support\Collection;
+use Livewire\Attributes\On;
 use Vormkracht10\Fields\Fields;
+use Illuminate\Support\Collection;
 use Vormkracht10\FilamentFields\Enums\Field;
-use Vormkracht10\FilamentFields\Contracts\FieldInspector;
 use Vormkracht10\FilamentFields\Models\Field as Model;
+use Vormkracht10\FilamentFields\Contracts\FieldInspector;
 
 trait HasFieldsMapper
 {
@@ -33,6 +34,12 @@ trait HasFieldsMapper
     public function boot(): void
     {
         $this->fieldInspector = app(FieldInspector::class);
+    }
+
+    #[On('refreshFields')]
+    public function refresh(): void
+    {
+        //
     }
 
     protected function mutateFormDataBeforeFill(array $data): array
