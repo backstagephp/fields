@@ -8,12 +8,34 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('filament_fields_table', function (Blueprint $table) {
-            $table->id();
+        Schema::create('fields_table', function (Blueprint $table) {
+            $table->ulid('ulid')->primary();
+            $table->ulid('parent_ulid')->nullable();
 
-            // add fields
+            $table->string('model_type');
+            $table->string('model_key');
+
+            $table->string('slug');
+
+            $table->string('name');
+            $table->string('field_type');
+            $table->json('config')->nullable();
+
+            $table->unsignedInteger('position')->default(0);
 
             $table->timestamps();
+
+            $table->unique(['model_type', 'model_key', 'slug']);
         });
+
+        if (config('fields.is_tenant_aware')) {
+            $tenant = config('fields.tenant_relationship');
+            Schema::table('field_' . $tenant . '_table', function (Blueprint $table) use ($tenant) {
+                $table->foreignUlid($tenant . '_ulid')->constrained(table: $tenant . '_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
+                $table->foreignUlid('field_ulid')->constrained(table: 'fields_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
+
+                $table->index(['field_ulid', $tenant . '_ulid']);
+            });
+        }
     }
 };

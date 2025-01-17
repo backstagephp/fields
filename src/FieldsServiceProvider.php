@@ -13,7 +13,6 @@ use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Vormkracht10\Fields\Commands\FieldsCommand;
 use Vormkracht10\Fields\Testing\TestsFields;
 
 class FieldsServiceProvider extends PackageServiceProvider
@@ -112,7 +111,6 @@ class FieldsServiceProvider extends PackageServiceProvider
     protected function getCommands(): array
     {
         return [
-            FieldsCommand::class,
         ];
     }
 
