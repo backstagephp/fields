@@ -11,7 +11,7 @@ Hi! We are a web development agency from Nijmegen in the Netherlands and we use 
 
 ## About the package
 
-This package provides a simple way to add configurable fields to your Filament resources. We provide you all Filament Form fields and a way to add your own fields.
+This package provides a simple - yet extendable - way to add configurable fields to your Filament resources. We provide you all Filament Form fields and a way to add your own fields.
 
 ## Installation
 
@@ -38,8 +38,56 @@ php artisan migrate
 
 ## Usage
 
+### Making a resource page configurable
+
+To make a resource page configurable, you need to add the `HasFieldsMapper` trait to your page. For this example, we'll make a `EditSettings` page configurable.
+
 ```php
-// ...
+<?php
+
+namespace Vormkracht10\Backstage\Resources\SettingResource\Pages;
+    
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
+use Filament\Forms\Form;
+use Filament\Resources\Pages\EditRecord;
+use Vormkracht10\Backstage\Resources\SettingResource;
+use Vormkracht10\Backstage\Resources\SettingResource;
+use Vormkracht10\FilamentFields\Concerns\HasFieldsMapper;
+class EditSetting extends EditRecord
+{
+    protected static string $resource = SettingResource::class;
+
+    use HasFieldsMapper;
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Tabs::make('Tabs')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make('Setting')
+                            ->label(__('Setting'))
+                            ->schema([
+                                Grid::make()
+                                    ->columns(1)
+                                    ->schema($this->resolveFormFields()),
+                            ]),
+                        Tab::make('Configure')
+                            ->label(__('Configure'))
+                            ->schema([
+                                Grid::make()
+                                    ->columns(2)
+                                    ->schema(
+                                        SettingResource::fields(),
+                                    ),
+                            ]),
+                    ]),
+            ]);
+    }
+}
 ```
 
 ### Creating your own fields
