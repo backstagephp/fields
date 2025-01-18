@@ -12,7 +12,7 @@ Hi! We are a web development agency from Nijmegen in the Netherlands and we use 
 ## About the package
 
 This package provides a simple - yet extendable - way to add configurable fields to your Filament resources. We provide you all Filament Form fields and a way to add your own fields.
-
+[
 ## Installation
 
 You can install the package via composer:
@@ -37,6 +37,28 @@ php artisan migrate
 ```
 
 ## Usage
+
+### Adding configurable fields to a resource
+
+To add configurable fields to your related models, we provide a `FieldsRelationManager` that you can add to your resource.
+
+```php
+use Vormkracht10\Fields\Filament\RelationManagers\FieldsRelationManager;
+
+class SettingResource extends Resource
+{
+    protected static ?string $model = Setting::class;
+
+    // ...
+
+    public static function getRelations(): array
+    {
+        return [
+            FieldsRelationManager::class,
+        ];
+    }
+}
+```
 
 ### Making a resource page configurable
 
