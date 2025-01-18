@@ -5,7 +5,7 @@ namespace Vormkracht10\Fields\Shared;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 
-class HasPackageFactory
+trait HasPackageFactory
 {
     use HasFactory;
 
