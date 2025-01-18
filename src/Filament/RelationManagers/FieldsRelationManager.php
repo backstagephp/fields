@@ -15,9 +15,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Vormkracht10\Fields\Facades\Fields;
 use Vormkracht10\Fields\Concerns\HasConfigurableFields;
 use Vormkracht10\Fields\Concerns\HasFieldTypeResolver;
+use Vormkracht10\Fields\Facades\Fields;
 use Vormkracht10\Fields\Models\Field;
 
 class FieldsRelationManager extends RelationManager

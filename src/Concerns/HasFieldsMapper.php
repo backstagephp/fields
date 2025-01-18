@@ -4,9 +4,9 @@ namespace Vormkracht10\Fields\Concerns;
 
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
-use Vormkracht10\Fields\Fields;
 use Vormkracht10\Fields\Contracts\FieldInspector;
 use Vormkracht10\Fields\Enums\Field;
+use Vormkracht10\Fields\Fields;
 use Vormkracht10\Fields\Fields\Checkbox;
 use Vormkracht10\Fields\Fields\CheckboxList;
 use Vormkracht10\Fields\Fields\Color;
@@ -106,7 +106,7 @@ trait HasFieldsMapper
         $customFields = $this->resolveCustomFields();
 
         return $this->record->fields
-            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -115,7 +115,7 @@ trait HasFieldsMapper
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn($fieldClass) => new $fieldClass);
+            ->map(fn ($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object

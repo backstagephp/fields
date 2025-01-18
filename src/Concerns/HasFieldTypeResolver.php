@@ -4,8 +4,8 @@ namespace Vormkracht10\Fields\Concerns;
 
 use Exception;
 use Illuminate\Support\Str;
-use Vormkracht10\Fields\Facades\Fields;
 use Vormkracht10\Fields\Enums\Field;
+use Vormkracht10\Fields\Facades\Fields;
 
 trait HasFieldTypeResolver
 {
