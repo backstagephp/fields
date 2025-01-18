@@ -1,0 +1,212 @@
+<?php
+
+namespace Vormkracht10\FilamentFields\Fields;
+
+use Filament\Forms;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater as Input;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
+use Vormkracht10\Backstage\Backstage;
+use Vormkracht10\Backstage\Concerns\HasConfigurableFields;
+use Vormkracht10\Backstage\Concerns\HasFieldTypeResolver;
+use Vormkracht10\Backstage\Concerns\HasOptions;
+use Vormkracht10\FilamentFields\Contracts\FieldContract;
+use Vormkracht10\Backstage\Enums\Field as EnumsField;
+use Vormkracht10\Backstage\Fields\Select as FieldsSelect;
+use Vormkracht10\FilamentFields\Models\Field;
+
+class Repeater extends Base implements FieldContract
+{
+    use HasConfigurableFields;
+    use HasFieldTypeResolver;
+    use HasOptions;
+
+    private const FIELD_TYPE_MAP = [
+        'text' => Text::class,
+        'textarea' => Textarea::class,
+        'rich-editor' => RichEditor::class,
+        'repeater' => Repeater::class,
+        'select' => FieldsSelect::class,
+        'checkbox' => Checkbox::class,
+        'checkbox-list' => CheckboxList::class,
+        'media' => Media::class,
+        'key-value' => KeyValue::class,
+        'radio' => Radio::class,
+        'toggle' => Toggle::class,
+        'color' => Color::class,
+        'datetime' => DateTime::class,
+    ];
+
+    public static function getDefaultConfig(): array
+    {
+        return [
+            ...parent::getDefaultConfig(),
+            'addActionLabel' => __('Add row'),
+            'addable' => true,
+            'deletable' => true,
+            'reorderable' => false,
+            'reorderableWithButtons' => false,
+            'collapsible' => false,
+            'collapsed' => false,
+            'cloneable' => false,
+            'form' => [],
+        ];
+    }
+
+    public static function make(string $name, ?Field $field = null): Input
+    {
+        $input = self::applyDefaultSettings(Input::make($name), $field);
+
+        $input = $input->label($field->name ?? self::getDefaultConfig()['label'] ?? null)
+            ->addActionLabel($field->config['addActionLabel'] ?? self::getDefaultConfig()['addActionLabel'])
+            ->addable($field->config['addable'] ?? self::getDefaultConfig()['addable'])
+            ->deletable($field->config['deletable'] ?? self::getDefaultConfig()['deletable'])
+            ->reorderable($field->config['reorderable'] ?? self::getDefaultConfig()['reorderable'])
+            ->collapsible($field->config['collapsible'] ?? self::getDefaultConfig()['collapsible'])
+            ->cloneable($field->config['cloneable'] ?? self::getDefaultConfig()['cloneable']);
+
+        if ($field->config['reorderableWithButtons'] ?? self::getDefaultConfig()['reorderableWithButtons']) {
+            $input = $input->reorderableWithButtons();
+        }
+
+        if (count($field->children) > 0) {
+            $input = $input->schema(self::generateSchemaFromChildren($field->children));
+        }
+
+        return $input;
+    }
+
+    public function getForm(): array
+    {
+        return [
+            Forms\Components\Tabs::make()
+                ->schema([
+                    Forms\Components\Tabs\Tab::make('General')
+                        ->label(__('General'))
+                        ->schema([
+                            ...parent::getForm(),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Field specific')
+                        ->label(__('Field specific'))
+                        ->schema([
+                            Forms\Components\Toggle::make('config.addable')
+                                ->label(__('Addable'))
+                                ->inline(false),
+                            Forms\Components\Toggle::make('config.deletable')
+                                ->label(__('Deletable'))
+                                ->inline(false),
+                            Forms\Components\Grid::make(2)->schema([
+                                Forms\Components\Toggle::make('config.reorderable')
+                                    ->label(__('Reorderable'))
+                                    ->live()
+                                    ->inline(false),
+                                Forms\Components\Toggle::make('config.reorderableWithButtons')
+                                    ->label(__('Reorderable with buttons'))
+                                    ->dehydrated()
+                                    ->disabled(fn(Forms\Get $get): bool => $get('config.reorderable') === false)
+                                    ->inline(false),
+                            ]),
+                            Forms\Components\Toggle::make('config.collapsible')
+                                ->label(__('Collapsible'))
+                                ->inline(false),
+                            Forms\Components\Toggle::make('config.collapsed')
+                                ->label(__('Collapsed'))
+                                ->visible(fn(Forms\Get $get): bool => $get('config.collapsible') === true)
+                                ->inline(false),
+                            Forms\Components\Toggle::make('config.cloneable')
+                                ->label(__('Cloneable'))
+                                ->inline(false),
+                            Forms\Components\TextInput::make('config.addActionLabel')
+                                ->label(__('Add action label')),
+                            AdjacencyList::make('config.form')
+                                ->columnSpanFull()
+                                ->label(__('Fields'))
+                                ->orderColumn('position')
+                                ->relationship('children')
+                                ->live(debounce: 250)
+                                ->labelKey('name')
+                                ->maxDepth(0)
+                                ->addable(fn(string $operation) => $operation !== 'create')
+                                ->disabled(fn(string $operation) => $operation === 'create')
+                                ->hint(fn(string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
+                                ->hintColor('primary')
+                                ->form([
+                                    Section::make('Field')
+                                        ->columns(3)
+                                        ->schema([
+                                            Hidden::make('model_type')
+                                                ->default('field'),
+                                            Hidden::make('model_key')
+                                                ->default('slug'),
+                                            TextInput::make('name')
+                                                ->label(__('Name'))
+                                                ->required()
+                                                ->placeholder(__('Name'))
+                                                ->live(debounce: 250)
+                                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                            TextInput::make('slug')
+                                                ->readonly(),
+                                            Select::make('field_type')
+                                                ->searchable()
+                                                ->preload()
+                                                ->label(__('Field Type'))
+                                                ->live(debounce: 250)
+                                                ->reactive()
+                                                ->options(
+                                                    function () {
+                                                        $options = array_merge(
+                                                            EnumsField::array(),
+                                                            $this->prepareCustomFieldOptions(Backstage::getFields())
+                                                        );
+
+                                                        asort($options);
+
+                                                        return $options;
+                                                    }
+                                                )
+                                                ->required()
+                                                ->afterStateUpdated(function ($state, Set $set) {
+                                                    $set('config', []);
+
+                                                    $set('config', $this->initializeConfig($state));
+                                                }),
+                                        ])->columnSpanFull(),
+                                    Section::make('Configuration')
+                                        ->columns(3)
+                                        ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
+                                            $get('field_type')
+                                        ))
+                                        ->visible(fn(Get $get) => filled($get('field_type'))),
+                                ]),
+                        ])->columns(2),
+                ])->columnSpanFull(),
+        ];
+    }
+
+    private static function generateSchemaFromChildren(Collection $children): array
+    {
+        $schema = [];
+
+        $children = $children->sortBy('position');
+
+        foreach ($children as $child) {
+            $fieldType = $child['field_type'];
+
+            $field = self::resolveFieldTypeClassName($fieldType);
+
+            if ($field === null) {
+                continue;
+            }
+
+            $schema[] = $field::make($child['name'], $child);
+        }
+
+        return $schema;
+    }
+}

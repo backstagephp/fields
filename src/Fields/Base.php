@@ -1,13 +1,13 @@
 <?php
 
-namespace Vormkracht10\Backstage\Fields;
+namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Support\Colors\Color;
 use Vormkracht10\FilamentFields\Contracts\FieldContract;
 use Vormkracht10\FilamentFields\Models\Field;
 
-abstract class FieldBase implements FieldContract
+abstract class Base implements FieldContract
 {
     public function getForm(): array
     {

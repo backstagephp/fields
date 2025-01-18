@@ -2,33 +2,44 @@
 
 namespace Vormkracht10\FilamentFields\Concerns;
 
-use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use Vormkracht10\Fields\Fields;
-use Vormkracht10\FilamentFields\Contracts\FieldInspector;
+use Illuminate\Support\Collection;
 use Vormkracht10\FilamentFields\Enums\Field;
+use Vormkracht10\FilamentFields\Fields\Tags;
+use Vormkracht10\FilamentFields\Fields\Text;
+use Vormkracht10\FilamentFields\Fields\Color;
+use Vormkracht10\FilamentFields\Fields\Radio;
+use Vormkracht10\FilamentFields\Fields\Select;
+use Vormkracht10\FilamentFields\Fields\Toggle;
+use Vormkracht10\FilamentFields\Fields\Checkbox;
+use Vormkracht10\FilamentFields\Fields\DateTime;
+use Vormkracht10\FilamentFields\Fields\KeyValue;
+use Vormkracht10\FilamentFields\Fields\Repeater;
+use Vormkracht10\FilamentFields\Fields\Textarea;
+use Vormkracht10\FilamentFields\Fields\RichEditor;
+use Vormkracht10\FilamentFields\Fields\CheckboxList;
 use Vormkracht10\FilamentFields\Models\Field as Model;
+use Vormkracht10\FilamentFields\Contracts\FieldInspector;
 
 trait HasFieldsMapper
 {
     private FieldInspector $fieldInspector;
 
-    // TODO: Add the fields
     private const FIELD_TYPE_MAP = [
-        // 'text' => Text::class,
-        // 'textarea' => Textarea::class,
-        // 'rich-editor' => RichEditor::class,
-        // 'repeater' => Repeater::class,
-        // 'select' => FieldsSelect::class,
-        // 'checkbox' => Checkbox::class,
-        // 'checkbox-list' => CheckboxList::class,
-        // 'media' => Media::class,
-        // 'key-value' => KeyValue::class,
-        // 'radio' => Radio::class,
-        // 'toggle' => Toggle::class,
-        // 'color' => Color::class,
-        // 'datetime' => DateTime::class,
-        // 'tags' => Tags::class,
+        'text' => Text::class,
+        'textarea' => Textarea::class,
+        'rich-editor' => RichEditor::class,
+        'repeater' => Repeater::class,
+        // 'select' => Select::class, WIP
+        'checkbox' => Checkbox::class,
+        // 'checkbox-list' => CheckboxList::class, WIP
+        'key-value' => KeyValue::class,
+        'radio' => Radio::class,
+        'toggle' => Toggle::class,
+        'color' => Color::class,
+        'datetime' => DateTime::class,
+        'tags' => Tags::class,
     ];
 
     public function boot(): void
@@ -101,7 +112,7 @@ trait HasFieldsMapper
         $customFields = $this->resolveCustomFields();
 
         return $this->record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -110,11 +121,12 @@ trait HasFieldsMapper
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object
     {
+        // TODO: Setting. shoud be dynamic
         $inputName = "setting.{$field->slug}";
 
         // Try to resolve from standard field type map
