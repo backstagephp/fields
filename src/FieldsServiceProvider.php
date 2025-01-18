@@ -2,20 +2,20 @@
 
 namespace Vormkracht10\Fields;
 
-use Filament\Support\Assets\Js;
-use Filament\Support\Assets\Css;
-use Filament\Support\Assets\Asset;
-use Illuminate\Filesystem\Filesystem;
-use Spatie\LaravelPackageTools\Package;
-use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Assets\AlpineComponent;
-use Vormkracht10\Fields\Testing\TestsFields;
+use Filament\Support\Assets\Asset;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Facades\FilamentIcon;
+use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
-use Vormkracht10\Fields\Contracts\FieldInspector;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Vormkracht10\Fields\Contracts\FieldInspector;
 use Vormkracht10\Fields\Services\FieldInspectionService;
+use Vormkracht10\Fields\Testing\TestsFields;
 
 class FieldsServiceProvider extends PackageServiceProvider
 {
