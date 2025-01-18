@@ -2,11 +2,11 @@
 
 namespace Vormkracht10\Fields\Services;
 
-use ReflectionClass;
-use Vormkracht10\Fields\Contracts\FieldInspector;
 use Illuminate\Support\Str;
+use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use Vormkracht10\Fields\Contracts\FieldInspector;
 use Vormkracht10\Fields\Facades\Fields;
 
 class FieldInspectionService implements FieldInspector
