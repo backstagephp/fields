@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Models;
+namespace Vormkracht10\Fields\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;

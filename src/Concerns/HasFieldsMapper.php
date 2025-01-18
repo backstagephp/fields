@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Concerns;
+namespace Vormkracht10\Fields\Concerns;
 
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;

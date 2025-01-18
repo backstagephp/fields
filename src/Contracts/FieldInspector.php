@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Contracts;
+namespace Vormkracht10\Fields\Contracts;
 
 interface FieldInspector
 {

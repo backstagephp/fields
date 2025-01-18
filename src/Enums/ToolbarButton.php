@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Enums;
+namespace Vormkracht10\Fields\Enums;
 
 use Vormkracht10\Fields\Concerns\HasSerializableEnumArray;
 

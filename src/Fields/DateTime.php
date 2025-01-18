@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Fields;
+namespace Vormkracht10\Fields\Fields;
 
 use Baspa\Timezones\Facades\Timezones;
 use Filament\Forms;

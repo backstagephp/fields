@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Fields;
+namespace Vormkracht10\Fields\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\Toggle as Input;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentFields\Shared;
+namespace Vormkracht10\Fields\Shared;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
