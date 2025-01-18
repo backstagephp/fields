@@ -3,11 +3,11 @@
 namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
-use Filament\Support\Facades\FilamentColor;
-use Vormkracht10\FilamentFields\Models\Field;
 use Filament\Forms\Components\Toggle as Input;
-use Vormkracht10\FilamentFields\Enums\ToggleColor;
+use Filament\Support\Facades\FilamentColor;
 use Vormkracht10\FilamentFields\Contracts\FieldContract;
+use Vormkracht10\FilamentFields\Enums\ToggleColor;
+use Vormkracht10\FilamentFields\Models\Field;
 
 class Toggle extends Base implements FieldContract
 {
