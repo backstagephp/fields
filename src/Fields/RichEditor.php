@@ -4,8 +4,8 @@ namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
 use Vormkracht10\Backstage\Enums\ToolbarButton;
+use Vormkracht10\FilamentFields\Contracts\FieldContract;
 use Vormkracht10\FilamentFields\Models\Field;
 
 class RichEditor extends Base implements FieldContract
