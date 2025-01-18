@@ -80,12 +80,6 @@ trait HasFieldsMapper
             return $data;
         });
 
-        // TODO: Change this
-        // Move settings to values
-        $fields = $data['setting'] ?? [];
-        unset($data['setting']);
-        $data['values'] = $fields;
-
         return $data;
     }
 
@@ -126,8 +120,7 @@ trait HasFieldsMapper
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object
     {
-        // TODO: Setting. shoud be dynamic
-        $inputName = "setting.{$field->slug}";
+        $inputName = "values.{$field->slug}";
 
         // Try to resolve from standard field type map
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
