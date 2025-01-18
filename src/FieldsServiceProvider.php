@@ -143,7 +143,7 @@ class FieldsServiceProvider extends PackageServiceProvider
     protected function getMigrations(): array
     {
         return [
-            'create_filament-fields_table',
+            'create_fields_table',
         ];
     }
 }
