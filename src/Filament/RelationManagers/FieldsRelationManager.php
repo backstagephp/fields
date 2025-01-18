@@ -2,23 +2,24 @@
 
 namespace Vormkracht10\Fields\Filament\RelationManagers;
 
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Livewire\Component;
-use Vormkracht10\Fields\Concerns\HasConfigurableFields;
-use Vormkracht10\Fields\Concerns\HasFieldTypeResolver;
-use Vormkracht10\Fields\Facades\Fields;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Vormkracht10\Fields\Models\Field;
+use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Model;
+use Vormkracht10\Fields\Facades\Fields;
+use Filament\Forms\Components\TextInput;
+use Vormkracht10\Fields\Enums\Field as FieldEnum;
+use Vormkracht10\Fields\Concerns\HasFieldTypeResolver;
+use Vormkracht10\Fields\Concerns\HasConfigurableFields;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class FieldsRelationManager extends RelationManager
 {
@@ -56,7 +57,7 @@ class FieldsRelationManager extends RelationManager
                                     ->options(
                                         function () {
                                             $options = array_merge(
-                                                Fields::array(),
+                                                FieldEnum::array(),
                                                 $this->prepareCustomFieldOptions(Fields::getFields())
                                             );
 
