@@ -4,8 +4,8 @@ namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\Checkbox as Input;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Models\Field;
 
 class Checkbox extends Base implements FieldContract
 {

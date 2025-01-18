@@ -5,7 +5,7 @@ namespace Vormkracht10\FilamentFields\Concerns;
 use Exception;
 use Illuminate\Support\Str;
 use Vormkracht10\Fields\Facades\Fields;
-use Vormkracht10\FilamentFields\Enums\Field;
+use Vormkracht10\Fields\Enums\Field;
 
 trait HasFieldTypeResolver
 {

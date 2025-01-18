@@ -4,8 +4,8 @@ namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Support\Colors\Color;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Models\Field;
 
 abstract class Base implements FieldContract
 {

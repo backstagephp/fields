@@ -52,7 +52,7 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
-use Vormkracht10\FilamentFields\Concerns\HasFieldsMapper;
+use Vormkracht10\Fields\Concerns\HasFieldsMapper;
 
 class EditSetting extends EditRecord
 {

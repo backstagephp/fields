@@ -5,22 +5,22 @@ namespace Vormkracht10\FilamentFields\Concerns;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use Vormkracht10\Fields\Fields;
-use Vormkracht10\FilamentFields\Contracts\FieldInspector;
-use Vormkracht10\FilamentFields\Enums\Field;
-use Vormkracht10\FilamentFields\Fields\Checkbox;
-use Vormkracht10\FilamentFields\Fields\CheckboxList;
-use Vormkracht10\FilamentFields\Fields\Color;
-use Vormkracht10\FilamentFields\Fields\DateTime;
-use Vormkracht10\FilamentFields\Fields\KeyValue;
-use Vormkracht10\FilamentFields\Fields\Radio;
-use Vormkracht10\FilamentFields\Fields\Repeater;
-use Vormkracht10\FilamentFields\Fields\RichEditor;
-use Vormkracht10\FilamentFields\Fields\Select;
-use Vormkracht10\FilamentFields\Fields\Tags;
-use Vormkracht10\FilamentFields\Fields\Text;
-use Vormkracht10\FilamentFields\Fields\Textarea;
-use Vormkracht10\FilamentFields\Fields\Toggle;
-use Vormkracht10\FilamentFields\Models\Field as Model;
+use Vormkracht10\Fields\Contracts\FieldInspector;
+use Vormkracht10\Fields\Enums\Field;
+use Vormkracht10\Fields\Fields\Checkbox;
+use Vormkracht10\Fields\Fields\CheckboxList;
+use Vormkracht10\Fields\Fields\Color;
+use Vormkracht10\Fields\Fields\DateTime;
+use Vormkracht10\Fields\Fields\KeyValue;
+use Vormkracht10\Fields\Fields\Radio;
+use Vormkracht10\Fields\Fields\Repeater;
+use Vormkracht10\Fields\Fields\RichEditor;
+use Vormkracht10\Fields\Fields\Select;
+use Vormkracht10\Fields\Fields\Tags;
+use Vormkracht10\Fields\Fields\Text;
+use Vormkracht10\Fields\Fields\Textarea;
+use Vormkracht10\Fields\Fields\Toggle;
+use Vormkracht10\Fields\Models\Field as Model;
 
 trait HasFieldsMapper
 {
@@ -106,7 +106,7 @@ trait HasFieldsMapper
         $customFields = $this->resolveCustomFields();
 
         return $this->record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -115,7 +115,7 @@ trait HasFieldsMapper
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object

@@ -4,8 +4,8 @@ namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\Textarea as Input;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Models\Field;
 
 class Textarea extends Base implements FieldContract
 {

@@ -2,7 +2,7 @@
 
 namespace Vormkracht10\FilamentFields\Enums;
 
-use Vormkracht10\FilamentFields\Concerns\HasSerializableEnumArray;
+use Vormkracht10\Fields\Concerns\HasSerializableEnumArray;
 
 enum ColorFormat: string
 {

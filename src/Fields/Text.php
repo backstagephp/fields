@@ -4,9 +4,9 @@ namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\TextInput as Input;
-use Vormkracht10\FilamentFields\Concerns\HasAffixes;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Concerns\HasAffixes;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Models\Field;
 
 class Text extends Base implements FieldContract
 {
@@ -112,7 +112,7 @@ class Text extends Base implements FieldContract
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Step'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'numeric'),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.type') === 'numeric'),
                                     Forms\Components\Select::make('config.inputMode')
                                         ->label(__('Input mode'))
                                         ->options([
@@ -125,13 +125,13 @@ class Text extends Base implements FieldContract
                                             'email' => __('Email'),
                                             'url' => __('URL'),
                                         ])
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'numeric'),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.type') === 'numeric'),
                                     Forms\Components\Toggle::make('config.revealable')
                                         ->label(__('Revealable'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'password'),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.type') === 'password'),
                                     Forms\Components\TextInput::make('config.telRegex')
                                         ->label(__('Telephone regex'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'tel'),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.type') === 'tel'),
                                 ]),
                         ]),
                 ])->columnSpanFull(),

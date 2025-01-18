@@ -4,9 +4,9 @@ namespace Vormkracht10\FilamentFields\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker as Input;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Enums\ColorFormat;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Enums\ColorFormat;
+use Vormkracht10\Fields\Models\Field;
 
 /**
  * For validation regex patterns, check the Filament documentation.

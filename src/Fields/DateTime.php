@@ -5,9 +5,9 @@ namespace Vormkracht10\FilamentFields\Fields;
 use Baspa\Timezones\Facades\Timezones;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker as Input;
-use Vormkracht10\FilamentFields\Concerns\HasAffixes;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Concerns\HasAffixes;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Models\Field;
 
 class DateTime extends Base implements FieldContract
 {

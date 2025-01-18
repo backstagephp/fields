@@ -2,7 +2,7 @@
 
 namespace Vormkracht10\FilamentFields\Contracts;
 
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Models\Field;
 
 interface FieldContract
 {

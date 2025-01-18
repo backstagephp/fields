@@ -5,8 +5,8 @@ namespace Vormkracht10\FilamentFields\Fields;
 use Filament\Forms;
 use Filament\Forms\Components\Radio as Input;
 use Vormkracht10\Backstage\Concerns\HasOptions;
-use Vormkracht10\FilamentFields\Contracts\FieldContract;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Vormkracht10\Fields\Models\Field;
 
 class Radio extends Base implements FieldContract
 {

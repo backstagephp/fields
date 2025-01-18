@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Vormkracht10\Fields\Facades\Fields;
-use Vormkracht10\FilamentFields\Concerns\HasConfigurableFields;
-use Vormkracht10\FilamentFields\Concerns\HasFieldTypeResolver;
-use Vormkracht10\FilamentFields\Models\Field;
+use Vormkracht10\Fields\Concerns\HasConfigurableFields;
+use Vormkracht10\Fields\Concerns\HasFieldTypeResolver;
+use Vormkracht10\Fields\Models\Field;
 
 class FieldsRelationManager extends RelationManager
 {

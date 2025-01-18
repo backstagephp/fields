@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Config;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
-use Vormkracht10\FilamentFields\Shared\HasPackageFactory;
+use Vormkracht10\Fields\Shared\HasPackageFactory;
 
 class Field extends Model
 {
