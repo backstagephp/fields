@@ -3,12 +3,14 @@
 namespace Vormkracht10\Fields\Concerns;
 
 use Illuminate\Support\Str;
+use Vormkracht10\Fields\Facades\Fields;
 
 trait HasConfigurableFields
 {
     private function initializeConfig(string $fieldType): array
     {
-        $className = 'Vormkracht10\\Fields\\Fields\\' . Str::studly($fieldType);
+        $className = Fields::getFields()[$fieldType] ??
+            'Vormkracht10\\Fields\\Fields\\' . Str::studly($fieldType);
 
         if (! class_exists($className)) {
             return [];
