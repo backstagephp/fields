@@ -100,8 +100,8 @@ class FieldsServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('filament-fields', __DIR__ . '/../resources/dist/components/filament-fields.js'),
-            Css::make('filament-fields-styles', __DIR__ . '/../resources/dist/filament-fields.css'),
-            Js::make('filament-fields-scripts', __DIR__ . '/../resources/dist/filament-fields.js'),
+            // Css::make('filament-fields-styles', __DIR__ . '/../resources/dist/filament-fields.css'),
+            // Js::make('filament-fields-scripts', __DIR__ . '/../resources/dist/filament-fields.js'),
         ];
     }
 
@@ -110,8 +110,7 @@ class FieldsServiceProvider extends PackageServiceProvider
      */
     protected function getCommands(): array
     {
-        return [
-        ];
+        return [];
     }
 
     /**
