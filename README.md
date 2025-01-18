@@ -94,6 +94,16 @@ class EditSetting extends EditRecord
 
 ...
 
+### Registering your own fields
+
+To register your own fields, you can add them to the `filament-fields.fields` config array.
+
+```php
+'fields' => [
+    App\Fields\CustomField::class,
+],
+```
+
 ## Testing
 
 ```bash

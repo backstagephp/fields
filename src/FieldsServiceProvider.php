@@ -90,6 +90,11 @@ class FieldsServiceProvider extends PackageServiceProvider
         Testable::mixin(new TestsFields);
 
         $this->app->bind(FieldInspector::class, FieldInspectionService::class);
+
+        collect($this->app['config']['filament-fields']['fields'] ?? [])
+            ->each(function ($field) {
+                Fields::registerField($field);
+            });
     }
 
     protected function getAssetPackageName(): ?string

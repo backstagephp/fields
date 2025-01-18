@@ -9,4 +9,8 @@ return [
     'tenant_relationship' => 'tenant',
 
     // 'tenant_model' => \App\Models\Tenant::class,
+
+    'fields' => [
+        // App\Fields\CustomField::class,
+    ],
 ];
