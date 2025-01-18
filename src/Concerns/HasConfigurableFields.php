@@ -8,7 +8,7 @@ trait HasConfigurableFields
 {
     private function initializeConfig(string $fieldType): array
     {
-        $className = 'Vormkracht10\\FilamentFields\\Fields\\' . Str::studly($fieldType);
+        $className = 'Vormkracht10\\Fields\\Fields\\' . Str::studly($fieldType);
 
         if (! class_exists($className)) {
             return [];

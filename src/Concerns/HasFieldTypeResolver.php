@@ -32,7 +32,7 @@ trait HasFieldTypeResolver
     protected static function resolveFieldTypeClassName(string $fieldType): ?string
     {
         if (Field::tryFrom($fieldType)) {
-            return sprintf('Vormkracht10\\FilamentFields\\Fields\\%s', Str::studly($fieldType));
+            return sprintf('Vormkracht10\\Fields\\Fields\\%s', Str::studly($fieldType));
         }
 
         return Fields::getFields()[$fieldType] ?? null;
