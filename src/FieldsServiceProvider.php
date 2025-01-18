@@ -2,18 +2,20 @@
 
 namespace Vormkracht10\Fields;
 
-use Filament\Support\Assets\AlpineComponent;
-use Filament\Support\Assets\Asset;
-use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
-use Filament\Support\Facades\FilamentAsset;
-use Filament\Support\Facades\FilamentIcon;
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Asset;
 use Illuminate\Filesystem\Filesystem;
-use Livewire\Features\SupportTesting\Testable;
-use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Filament\Support\Facades\FilamentIcon;
+use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Assets\AlpineComponent;
 use Vormkracht10\Fields\Testing\TestsFields;
+use Livewire\Features\SupportTesting\Testable;
+use Vormkracht10\Fields\Contracts\FieldInspector;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
+use Vormkracht10\Fields\Services\FieldInspectionService;
 
 class FieldsServiceProvider extends PackageServiceProvider
 {
@@ -86,6 +88,8 @@ class FieldsServiceProvider extends PackageServiceProvider
 
         // Testing
         Testable::mixin(new TestsFields);
+
+        $this->app->bind(FieldInspector::class, FieldInspectionService::class);
     }
 
     protected function getAssetPackageName(): ?string
