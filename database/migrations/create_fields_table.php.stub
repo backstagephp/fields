@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('fields_table', function (Blueprint $table) {
+        Schema::create('fields', function (Blueprint $table) {
             $table->ulid('ulid')->primary();
             $table->ulid('parent_ulid')->nullable();
 
@@ -30,7 +30,7 @@ return new class extends Migration
 
         if (config('fields.is_tenant_aware')) {
             $tenant = config('fields.tenant_relationship');
-            Schema::create('field_' . $tenant . '_table', function (Blueprint $table) use ($tenant) {
+            Schema::create('field_' . $tenant, function (Blueprint $table) use ($tenant) {
                 $table->foreignUlid($tenant . '_ulid')->constrained(table: $tenant . '_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
                 $table->foreignUlid('field_ulid')->constrained(table: 'fields_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
 
