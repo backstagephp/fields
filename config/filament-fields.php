@@ -17,6 +17,6 @@ return [
     'select' => [
         'resource_options' => [
             // App\Filament\Resources\ContentResource::class,
-        ]
-    ]
+        ],
+    ],
 ];
