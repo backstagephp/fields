@@ -12,7 +12,36 @@ Hi! We are a web development agency from Nijmegen in the Netherlands and we use 
 ## About the package
 
 This package provides a simple - yet extendable - way to add configurable fields to your Filament resources. We provide you all Filament Form fields and a way to add your own fields.
-[
+
+## Features
+
+- 🎯 **Easy Integration**: Seamlessly integrates with your Filament resources
+- 🔧 **Configurable Fields**: Add and manage custom fields for your models
+- 🎨 **Built-in Field Types**: Includes common Filament form fields like:
+  - Text
+  - Textarea 
+  - Rich Text Editor
+  - Select
+  - Checkbox
+  - Checkbox List
+  - Key-Value
+  - Radio
+  - Toggle
+  - Color Picker
+  - DateTime
+  - Tags
+- ✨ **Extensible**: Create your own custom field types
+- 🔄 **Data Mutation**: Hooks to modify field data before filling forms or saving
+- 🏢 **Multi-tenant Support**: Built-in support for multi-tenant applications
+- 🛡️ **Type Safe**: Leverages PHP enums for field types
+
+This package is perfect for scenarios where you need to:
+- Add dynamic custom fields to your models
+- Allow users to configure form fields through the admin panel
+- Build flexible content management systems
+- Create customizable settings pages
+
+
 ## Installation
 
 You can install the package via composer:
@@ -88,6 +117,22 @@ class EditSetting extends EditRecord
             ->schema($this->resolveFormFields());
     }
 }
+```
+
+### Add resources as options for select fields
+
+To add resources as options for select fields, you can add them to the `filament-fields.select.resource_options` config array.
+
+```php
+return [
+    // ...
+    
+    'select' => [
+        'resource_options' => [
+            App\Filament\Resources\ContentResource::class,
+        ]
+    ]
+];
 ```
 
 ### Creating your own fields
