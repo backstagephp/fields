@@ -56,7 +56,7 @@ You should publish the config file first with:
 php artisan vendor:publish --tag="filament-fields-config"
 ```
 
-This will create a `fields.php` file in your `config` directory. Make sure to fill in the tenant relationship and the tenant model. When running the migrations, the fields table will be created with the correct tenant relationship.
+This will create a `fields.php` file in your `config` directory. Make sure to fill in the tenant relationship and the tenant model (if you're using multi-tenancy). When running the migrations, the fields table will be created with the correct tenant relationship.
 
 You can publish and run the migrations with:
 
@@ -66,6 +66,27 @@ php artisan migrate
 ```
 
 ## Usage
+
+### Define the relation with your models
+
+When one of your models has configurable fields, you need to define the relation with the `Fields` model.
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Vormkracht10\Fields\Models\Field;
+
+class Content extends Model
+{
+    // ...
+
+    public function fields(): MorphMany
+    {
+        return $this->morphMany(Field::class, 'slug', 'model_type', 'model_key')
+            ->orderBy('position');
+    }
+}
+```
 
 ### Adding configurable fields to a resource
 
