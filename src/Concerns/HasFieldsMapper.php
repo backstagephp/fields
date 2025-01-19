@@ -30,7 +30,7 @@ trait HasFieldsMapper
         'text' => Text::class,
         'textarea' => Textarea::class,
         'rich-editor' => RichEditor::class,
-        // 'repeater' => Repeater::class, WIP
+        'repeater' => Repeater::class,
         'select' => Select::class,
         'checkbox' => Checkbox::class,
         'checkbox-list' => CheckboxList::class,
