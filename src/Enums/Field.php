@@ -18,7 +18,6 @@ enum Field: string
     case KeyValue = 'key-value';
     case Link = 'link';
     case MarkdownEditor = 'markdown-editor';
-    case Media = 'media';
     case Radio = 'radio';
     case Repeater = 'repeater';
     case RichEditor = 'rich-editor';
