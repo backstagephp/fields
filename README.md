@@ -65,6 +65,12 @@ php artisan vendor:publish --tag="filament-fields-migrations"
 php artisan migrate
 ```
 
+## Ready to use custom fields
+
+We provide a few ready to use custom fields. You can use them as is or use them as a starting point to create your own custom fields.
+
+- [Uploadcare Field](https://github.com/vormkracht10/backstage-uploadcare-field)
+
 ## Usage
 
 ### Adding configurable fields to a resource
