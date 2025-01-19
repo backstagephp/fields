@@ -3,11 +3,11 @@
 namespace Vormkracht10\Fields\Concerns;
 
 use Filament\Forms;
-use Illuminate\Support\Str;
-use Filament\Forms\Components\Grid;
-use Illuminate\Support\Facades\Schema;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 trait HasOptions
 {
@@ -19,17 +19,18 @@ trait HasOptions
             foreach ($field->config['relations'] as $relation) {
                 $resources = config('filament-fields.select.resource_options');
                 $resourceClass = collect($resources)->first(function ($resource) use ($relation) {
-                    $res = new $resource();
+                    $res = new $resource;
                     $model = $res->getModel();
-                    $model = new $model();
+                    $model = new $model;
+
                     return $model->getTable() === $relation['resource'];
                 });
 
-                if (!$resourceClass) {
+                if (! $resourceClass) {
                     continue;
                 }
 
-                $resource = new $resourceClass();
+                $resource = new $resourceClass;
                 $model = $resource->getModel();
                 $query = $model::query();
 
@@ -57,7 +58,7 @@ trait HasOptions
                 $options[] = $opts;
             }
 
-            if (!empty($options)) {
+            if (! empty($options)) {
                 $options = array_merge(...$options);
                 $input->options($options);
             }
@@ -104,8 +105,8 @@ trait HasOptions
                         Forms\Components\KeyValue::make('config.options')
                             ->label(__('Options'))
                             ->columnSpanFull()
-                            ->visible(fn(Forms\Get $get): bool => $get('config.optionType') == 'array')
-                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'array'),
+                            ->visible(fn (Forms\Get $get): bool => $get('config.optionType') == 'array')
+                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'array'),
                         // Relationship options
                         Repeater::make('config.relations')
                             ->label(__('Relations'))
@@ -122,19 +123,20 @@ trait HasOptions
                                             ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
                                                 $resources = config('filament-fields.select.resource_options');
                                                 $resourceClass = collect($resources)->first(function ($resource) use ($state) {
-                                                    $res = new $resource();
+                                                    $res = new $resource;
                                                     $model = $res->getModel();
-                                                    $model = new $model();
+                                                    $model = new $model;
+
                                                     return $model->getTable() === $state;
                                                 });
 
-                                                if (!$resourceClass) {
+                                                if (! $resourceClass) {
                                                     return;
                                                 }
 
-                                                $resource = new $resourceClass();
+                                                $resource = new $resourceClass;
                                                 $model = $resource->getModel();
-                                                $model = new $model();
+                                                $model = new $model;
 
                                                 // Get all column names from the table
                                                 $columns = Schema::getColumnListing($model->getTable());
@@ -151,31 +153,31 @@ trait HasOptions
                                                 $resources = config('filament-fields.select.resource_options');
 
                                                 return collect($resources)->map(function ($resource) {
-                                                    $res = new $resource();
+                                                    $res = new $resource;
                                                     $model = $res->getModel();
-                                                    $model = new $model();
+                                                    $model = new $model;
 
                                                     return [
-                                                        $model->getTable() => Str::title($model->getTable())
+                                                        $model->getTable() => Str::title($model->getTable()),
                                                     ];
                                                 })
                                                     ->collapse()
                                                     ->toArray();
                                             })
                                             ->noSearchResultsMessage(__('No types found'))
-                                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
                                         Forms\Components\Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
-                                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
                                         Forms\Components\Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
-                                            ->visible(fn(Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
                                             ->schema([
                                                 Forms\Components\Grid::make(3)
                                                     ->schema([
                                                         Forms\Components\Select::make('column')
-                                                            ->options(fn(\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
+                                                            ->options(fn (\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
                                                                 'slug' => __('Slug'),
                                                                 'name' => __('Name'),
                                                             ])
@@ -198,23 +200,24 @@ trait HasOptions
                                                                 $resource = $get('../../resource');
                                                                 $column = $get('column');
 
-                                                                if (!$resource || !$column) {
+                                                                if (! $resource || ! $column) {
                                                                     return [];
                                                                 }
 
                                                                 $resources = config('filament-fields.select.resource_options');
                                                                 $resourceClass = collect($resources)->first(function ($r) use ($resource) {
-                                                                    $res = new $r();
+                                                                    $res = new $r;
                                                                     $model = $res->getModel();
-                                                                    $model = new $model();
+                                                                    $model = new $model;
+
                                                                     return $model->getTable() === $resource;
                                                                 });
 
-                                                                if (!$resourceClass) {
+                                                                if (! $resourceClass) {
                                                                     return [];
                                                                 }
 
-                                                                $resource = new $resourceClass();
+                                                                $resource = new $resourceClass;
                                                                 $model = $resource->getModel();
 
                                                                 return $model::query()
@@ -224,12 +227,12 @@ trait HasOptions
                                                                     ->toArray();
                                                             })
                                                             ->label(__('Value')),
-                                                    ])
+                                                    ]),
                                             ])
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->visible(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship')
+                            ->visible(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship')
                             ->columnSpanFull(),
                     ]),
             ]);
