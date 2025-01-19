@@ -3,20 +3,20 @@
 namespace Vormkracht10\Fields\Fields;
 
 use Filament\Forms;
-use Filament\Forms\Components\CheckboxList as Input;
-use Vormkracht10\Backstage\Concerns\HasOptions;
-use Vormkracht10\Fields\Contracts\FieldContract;
 use Vormkracht10\Fields\Models\Field;
+use Vormkracht10\Fields\Concerns\HasOptions;
+use Vormkracht10\Fields\Contracts\FieldContract;
+use Filament\Forms\Components\CheckboxList as Input;
 
 class CheckboxList extends Base implements FieldContract
 {
-    // use HasOptions;
+    use HasOptions;
 
     public static function getDefaultConfig(): array
     {
         return [
             ...parent::getDefaultConfig(),
-            // ...self::getOptionsConfig(),
+            ...self::getOptionsConfig(),
             'searchable' => false,
             'allowHtml' => false,
             'columns' => 1,
@@ -47,7 +47,7 @@ class CheckboxList extends Base implements FieldContract
             $input->searchDebounce($field->config['searchDebounce']);
         }
 
-        // $input = self::addOptionsToInput($input, $field);
+        $input = self::addOptionsToInput($input, $field);
 
         return $input;
     }
@@ -78,7 +78,7 @@ class CheckboxList extends Base implements FieldContract
                                         ->label(__('Bulk toggle'))
                                         ->inline(false),
                                 ]),
-                            // self::optionFormFields(),
+                            self::optionFormFields(),
                             Forms\Components\Grid::make(2)
                                 ->schema([
                                     Forms\Components\TextInput::make('config.columns')
@@ -94,16 +94,16 @@ class CheckboxList extends Base implements FieldContract
                                     //
                                     Forms\Components\TextInput::make('config.noSearchResultsMessage')
                                         ->label(__('No search results message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchPrompt')
                                         ->label(__('Search prompt'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchDebounce')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(100)
                                         ->label(__('Search debounce'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                 ]),
                         ]),
                 ])->columnSpanFull(),

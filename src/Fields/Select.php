@@ -3,23 +3,23 @@
 namespace Vormkracht10\Fields\Fields;
 
 use Filament\Forms;
-use Filament\Forms\Components\Select as Input;
-use Vormkracht10\Backstage\Concerns\HasOptions;
-use Vormkracht10\Fields\Concerns\HasAffixes;
-use Vormkracht10\Fields\Contracts\FieldContract;
 use Vormkracht10\Fields\Models\Field;
+use Vormkracht10\Fields\Concerns\HasAffixes;
+use Vormkracht10\Fields\Concerns\HasOptions;
+use Filament\Forms\Components\Select as Input;
+use Vormkracht10\Fields\Contracts\FieldContract;
 
 class Select extends Base implements FieldContract
 {
     use HasAffixes;
-    // use HasOptions;
+    use HasOptions;
 
     public static function getDefaultConfig(): array
     {
         return [
             ...parent::getDefaultConfig(),
             ...self::getAffixesConfig(),
-            // ...self::getOptionsConfig(),
+            ...self::getOptionsConfig(),
             'searchable' => false,
             'multiple' => false,
             'preload' => false,
@@ -53,7 +53,7 @@ class Select extends Base implements FieldContract
             ->searchingMessage($field->config['searchingMessage'] ?? self::getDefaultConfig()['searchingMessage']);
 
         $input = self::addAffixesToInput($input, $field);
-        // $input = self::addOptionsToInput($input, $field);
+        $input = self::addOptionsToInput($input, $field);
 
         if (isset($field->config['searchDebounce'])) {
             $input->searchDebounce($field->config['searchDebounce']);
@@ -87,61 +87,64 @@ class Select extends Base implements FieldContract
                     Forms\Components\Tabs\Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.searchable')
-                                ->label(__('Searchable'))
-                                ->live(debounce: 250)
-                                ->inline(false),
-                            Forms\Components\Toggle::make('config.multiple')
-                                ->label(__('Multiple'))
-                                ->inline(false),
-                            Forms\Components\Toggle::make('config.allowHtml')
-                                ->label(__('Allow HTML'))
-                                ->inline(false),
-                            Forms\Components\Toggle::make('config.selectablePlaceholder')
-                                ->label(__('Selectable placeholder'))
-                                ->inline(false),
-                            Forms\Components\Toggle::make('config.preload')
-                                ->label(__('Preload'))
-                                ->live()
-                                ->inline(false)
-                                ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
-                            // self::optionFormFields(),
+                            Forms\Components\Grid::make(3)
+                                ->schema([
+                                    Forms\Components\Toggle::make('config.searchable')
+                                        ->label(__('Searchable'))
+                                        ->live(debounce: 250)
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.multiple')
+                                        ->label(__('Multiple'))
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.allowHtml')
+                                        ->label(__('Allow HTML'))
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.selectablePlaceholder')
+                                        ->label(__('Selectable placeholder'))
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.preload')
+                                        ->label(__('Preload'))
+                                        ->live()
+                                        ->inline(false)
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
+                                ])->columnSpanFull(),
+                            self::optionFormFields(),
                             self::affixFormFields(),
                             Forms\Components\Grid::make(2)
                                 ->schema([
                                     Forms\Components\TextInput::make('config.loadingMessage')
                                         ->label(__('Loading message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.noSearchResultsMessage')
                                         ->label(__('No search results message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchPrompt')
                                         ->label(__('Search prompt'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchingMessage')
                                         ->label(__('Searching message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchDebounce')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(100)
                                         ->label(__('Search debounce'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.optionsLimit')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Options limit'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.minItemsForSearch')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Min items for search'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.maxItemsForSearch')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Max items for search'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                 ]),
                         ]),
                 ])->columnSpanFull(),

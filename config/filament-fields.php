@@ -13,4 +13,10 @@ return [
     'fields' => [
         // App\Fields\CustomField::class,
     ],
+
+    'select' => [
+        'resource_options' => [
+            // App\Filament\Resources\ContentResource::class,
+        ]
+    ]
 ];

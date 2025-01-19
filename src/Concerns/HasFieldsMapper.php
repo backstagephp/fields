@@ -31,9 +31,9 @@ trait HasFieldsMapper
         'textarea' => Textarea::class,
         'rich-editor' => RichEditor::class,
         // 'repeater' => Repeater::class, WIP
-        // 'select' => Select::class, WIP
+        'select' => Select::class,
         'checkbox' => Checkbox::class,
-        // 'checkbox-list' => CheckboxList::class, WIP
+        'checkbox-list' => CheckboxList::class,
         'key-value' => KeyValue::class,
         'radio' => Radio::class,
         'toggle' => Toggle::class,
@@ -106,7 +106,7 @@ trait HasFieldsMapper
         $customFields = $this->resolveCustomFields();
 
         return $this->record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -115,7 +115,7 @@ trait HasFieldsMapper
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object
