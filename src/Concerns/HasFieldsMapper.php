@@ -55,7 +55,7 @@ trait HasFieldsMapper
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if ($this->record->fields->isEmpty()) {
+        if (! isset($this->record) || $this->record->fields->isEmpty()) {
             return $data;
         }
 
@@ -72,6 +72,10 @@ trait HasFieldsMapper
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        if (! isset($this->record)) {
+            return $data;
+        }
+
         $data = $this->mutateFormData($data, function ($field, $fieldConfig, $fieldInstance, $data) {
             if (! empty($fieldConfig['methods']['mutateBeforeSaveCallback'])) {
                 return $fieldInstance->mutateBeforeSaveCallback($this->record, $field, $data);
@@ -99,14 +103,14 @@ trait HasFieldsMapper
 
     private function resolveFormFields(): array
     {
-        if ($this->record->fields->isEmpty()) {
+        if (! isset($this->record) || $this->record->fields->isEmpty()) {
             return [];
         }
 
         $customFields = $this->resolveCustomFields();
 
         return $this->record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -115,7 +119,7 @@ trait HasFieldsMapper
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object
