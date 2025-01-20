@@ -30,11 +30,13 @@ return new class extends Migration
 
         if (config('filament-fields.tenancy.is_tenant_aware')) {
             $tenant = config('filament-fields.tenancy.relationship');
-            Schema::create('field_' . $tenant, function (Blueprint $table) use ($tenant) {
-                $table->foreignUlid($tenant . '_ulid')->constrained(table: $tenant . '_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
+            $key = config('filament-fields.tenancy.key');
+
+            Schema::create('field_' . $tenant, function (Blueprint $table) use ($tenant, $key) {
+                $table->foreignUlid($tenant . '_' . $key)->constrained(table: $tenant, column: $key)->cascadeOnUpdate()->cascadeOnDelete();
                 $table->foreignUlid('field_ulid')->constrained(table: 'fields_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
 
-                $table->index(['field_ulid', $tenant . '_ulid']);
+                $table->index(['field_ulid', $tenant . '_' . $key]);
             });
         }
     }
