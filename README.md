@@ -33,7 +33,6 @@ This package empowers you to add dynamic, configurable fields to your Filament r
 - ✨ **Extensible**: Create your own custom field types
 - 🔄 **Data Mutation**: Hooks to modify field data before filling forms or saving
 - 🏢 **Multi-tenant Support**: Built-in support for multi-tenant applications
-- 🛡️ **Type Safe**: Leverages PHP enums for field types
 
 This package is perfect for scenarios where you need to:
 - Add dynamic custom fields to your models
