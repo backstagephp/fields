@@ -68,7 +68,7 @@ php artisan migrate
 
 ### Define the relation with your models
 
-When one of your models has configurable fields, you need to define the relation with the `Fields` model.
+When one of your models has configurable fields, you need to add the `HasFields` trait to your model.
 
 ```php
 use Illuminate\Database\Eloquent\Model;
@@ -77,13 +77,9 @@ use Vormkracht10\Fields\Models\Field;
 
 class Content extends Model
 {
-    // ...
+    use HasFields;
 
-    public function fields(): MorphMany
-    {
-        return $this->morphMany(Field::class, 'slug', 'model_type', 'model_key')
-            ->orderBy('position');
-    }
+    // ...
 }
 ```
 
