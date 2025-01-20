@@ -2,8 +2,8 @@
 
 namespace Vormkracht10\Fields\Concerns;
 
-use Vormkracht10\Fields\Models\Field;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Vormkracht10\Fields\Models\Field;
 
 trait HasFields
 {
