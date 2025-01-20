@@ -11,7 +11,7 @@ Hi! We are a web development agency from Nijmegen in the Netherlands and we use 
 
 ## About the package
 
-This package empowers you to add dynamic, configurable fields to your Filament resources with minimal setup. It comes with all standard Filament Form fields out of the box, while providing a flexible architecture for creating custom fields. By giving users the ability to define and customize form fields through an intuitive interface, this package essentially enables user-driven form building within your Filament admin panel.
+This package aims to help you add dynamic, configurable fields to your Filament resources with minimal setup. It comes with all standard Filament Form fields out of the box, while providing a flexible architecture for creating custom fields. By giving users the ability to define and customize form fields through an intuitive interface, this package essentially enables user-driven form building within your Filament admin panel.
 
 ## Features
 
