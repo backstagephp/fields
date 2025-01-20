@@ -91,7 +91,7 @@ class FieldsServiceProvider extends PackageServiceProvider
 
         $this->app->bind(FieldInspector::class, FieldInspectionService::class);
 
-        collect($this->app['config']['filament-fields']['fields'] ?? [])
+        collect($this->app['config']['filament-fields']['custom_fields'] ?? [])
             ->each(function ($field) {
                 Fields::registerField($field);
             });

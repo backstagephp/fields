@@ -55,7 +55,33 @@ You should publish the config file first with:
 php artisan vendor:publish --tag="filament-fields-config"
 ```
 
-This will create a `fields.php` file in your `config` directory. Make sure to fill in the tenant relationship and the tenant model (if you're using multi-tenancy). When running the migrations, the fields table will be created with the correct tenant relationship.
+This will create a `filament-fields.php` file in your `config` directory. Make sure to fill in the tenant relationship and the tenant model (if you're using multi-tenancy). When running the migrations, the fields table will be created with the correct tenant relationship.
+
+The content of the `filament-fields.php` file is as follows:
+
+```php
+<?php
+
+return [
+    
+    'tenancy' => [
+        'is_tenant_aware' => true,
+
+        'relationship' => 'tenant',
+
+        // 'model' => \App\Models\Tenant::class,
+    ],
+
+    'custom_fields' => [
+        // App\Fields\CustomField::class,
+    ],
+
+    // When populating the select field, this will be used to build the relationship options.
+    'selectable_resources' => [
+        // App\Filament\Resources\ContentResource::class,
+    ],
+];
+```
 
 You can publish and run the migrations with:
 
@@ -137,7 +163,7 @@ class EditSetting extends EditRecord
 
 ### Add resources as options for select fields
 
-To add resources as options for select fields, you can add them to the `filament-fields.select.resource_options` config array.
+To add resources as options for select fields, you can add them to the `filament-fields.selectable_resources` config array.
 
 ```php
 return [
@@ -160,7 +186,7 @@ return [
 To register your own fields, you can add them to the `filament-fields.fields` config array.
 
 ```php
-'fields' => [
+'custom_fields' => [
     App\Fields\CustomField::class,
 ],
 ```

@@ -40,8 +40,8 @@ class Field extends Model
 
     public function tenant(): ?BelongsTo
     {
-        $tenantRelationship = Config::get('fields.tenant_relationship');
-        $tenantModel = Config::get('fields.tenant_model');
+        $tenantRelationship = Config::get('filament-fields.tenancy.relationship');
+        $tenantModel = Config::get('filament-fields.tenancy.model');
 
         if ($tenantRelationship && class_exists($tenantModel)) {
             return $this->belongsTo($tenantModel, $tenantRelationship . '_ulid');

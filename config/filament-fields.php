@@ -2,21 +2,20 @@
 
 return [
 
-    'is_tenant_aware' => true,
+    'tenancy' => [
+        'is_tenant_aware' => true,
 
-    'tenant_ownership_relationship_name' => 'tenant',
+        'relationship' => 'tenant',
 
-    'tenant_relationship' => 'tenant',
+        // 'model' => \App\Models\Tenant::class,
+    ],
 
-    // 'tenant_model' => \App\Models\Tenant::class,
-
-    'fields' => [
+    'custom_fields' => [
         // App\Fields\CustomField::class,
     ],
 
-    'select' => [
-        'resource_options' => [
-            // App\Filament\Resources\ContentResource::class,
-        ],
+    // When populating the select field, this will be used to build the relationship options.
+    'selectable_resources' => [
+        // App\Filament\Resources\ContentResource::class,
     ],
 ];
