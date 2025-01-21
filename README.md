@@ -70,6 +70,9 @@ return [
         'relationship' => 'tenant',
 
         // 'model' => \App\Models\Tenant::class,
+
+        // The key (id, ulid, uuid) to use for the tenant relationship
+        'key' => 'id',
     ],
 
     'custom_fields' => [
