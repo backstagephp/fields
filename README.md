@@ -164,6 +164,30 @@ class EditContent extends EditRecord
 }
 ```
 
+#### Conditionally show the fields relation manager
+
+To conditionally show the fields relation manager, you can override the `canViewForRecord` method in your relation manager.
+
+```php
+<?php
+
+namespace App\Filament\Resources\ContentResource\RelationManagers;
+
+use Illuminate\Database\Eloquent\Model;
+use Vormkracht10\Fields\Filament\RelationManagers\FieldsRelationManager as RelationManagersFieldsRelationManager;
+
+class FieldsRelationManager extends RelationManagersFieldsRelationManager
+{
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        parent::canViewForRecord($ownerRecord, $pageClass);
+
+        // Add your own logic here
+        return ! $ownerRecord->hasPdf();
+    }
+}
+```
+
 ### Making a custom page configurable
 
 To make a custom page configurable, you need to add the `HasFieldsMapper` trait to your page and set the `record` property on the page. This way the fields will be populated with the fields of the record.
