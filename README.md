@@ -116,9 +116,9 @@ To add configurable fields to your related models, we provide a `FieldsRelationM
 ```php
 use Vormkracht10\Fields\Filament\RelationManagers\FieldsRelationManager;
 
-class SettingResource extends Resource
+class ContentResource extends Resource
 {
-    protected static ?string $model = Setting::class;
+    protected static ?string $model = Content::class;
 
     // ...
 
@@ -133,12 +133,12 @@ class SettingResource extends Resource
 
 ### Making a resource page configurable
 
-To make a resource page configurable, you need to add the `HasFieldsMapper` trait to your page. For this example, we'll make a `EditSettings` page configurable.
+To make a resource page configurable, you need to add the `HasFieldsMapper` trait to your page. For this example, we'll make a `EditContent` page configurable.
 
 ```php
 <?php
 
-namespace Vormkracht10\Backstage\Resources\SettingResource\Pages;
+namespace Vormkracht10\Backstage\Resources\ContentResource\Pages;
 
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
@@ -147,9 +147,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
 use Vormkracht10\Fields\Concerns\HasFieldsMapper;
 
-class EditSetting extends EditRecord
+class EditContent extends EditRecord
 {
-    protected static string $resource = SettingResource::class;
+    protected static string $resource = ContentResource::class;
 
     use HasFieldsMapper;
 
@@ -161,18 +161,34 @@ class EditSetting extends EditRecord
 }
 ```
 
+### Making a custom page configurable
+
+To make a custom page configurable, you need to add the `HasFieldsMapper` trait to your page and set the `record` property on the page. This way the fields will be populated with the fields of the record.
+
+```php
+class YourCustomPage extends Page
+{
+    use HasFieldsMapper;
+
+    public $record;
+
+    public function mount()
+    {
+        $this->record = YourModel::find($this->recordId);
+    }
+}
+```
+
 ### Add resources as options for select fields
 
-To add resources as options for select fields, you can add them to the `filament-fields.selectable_resources` config array.
+When using select fields, you may want to populate the options with relations in your application. To be able to do this, you need to add the resources to the `filament-fields.selectable_resources` config array. We then get the options from the table that belongs to the resource and model.
 
 ```php
 return [
     // ...
     
-    'select' => [
-        'resource_options' => [
-            App\Filament\Resources\ContentResource::class,
-        ]
+    'selectable_resources' => [
+        App\Filament\Resources\ContentResource::class,
     ]
 ];
 ```
