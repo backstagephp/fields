@@ -136,7 +136,7 @@ class ContentResource extends Resource
 
 ### Making a resource page configurable
 
-To make a resource page configurable, you need to add the `HasFieldsMapper` trait to your page. For this example, we'll make a `EditContent` page configurable.
+To make a resource page configurable, you need to add the `CanMapDynamicFields` trait to your page. For this example, we'll make a `EditContent` page configurable.
 
 ```php
 <?php
@@ -148,13 +148,13 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
-use Vormkracht10\Fields\Concerns\HasFieldsMapper;
+use Vormkracht10\Fields\Concerns\CanMapDynamicFields;
 
 class EditContent extends EditRecord
 {
     protected static string $resource = ContentResource::class;
 
-    use HasFieldsMapper;
+    use CanMapDynamicFields;
 
     public function form(Form $form): Form
     {
@@ -190,12 +190,12 @@ class FieldsRelationManager extends RelationManagersFieldsRelationManager
 
 ### Making a custom page configurable
 
-To make a custom page configurable, you need to add the `HasFieldsMapper` trait to your page and set the `record` property on the page. This way the fields will be populated with the fields of the record.
+To make a custom page configurable, you need to add the `CanMapDynamicFields` trait to your page and set the `record` property on the page. This way the fields will be populated with the fields of the record.
 
 ```php
 class YourCustomPage extends Page
 {
-    use HasFieldsMapper;
+    use CanMapDynamicFields;
 
     public $record;
 
