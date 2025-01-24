@@ -34,7 +34,7 @@ return new class extends Migration
 
             Schema::create('field_' . $tenant, function (Blueprint $table) use ($tenant, $key) {
                 $table->foreignUlid($tenant . '_' . $key)->constrained(table: $tenant, column: $key)->cascadeOnUpdate()->cascadeOnDelete();
-                $table->foreignUlid('field_ulid')->constrained(table: 'fields_table', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
+                $table->foreignUlid('field_ulid')->constrained(table: 'fields', column: 'ulid')->cascadeOnUpdate()->cascadeOnDelete();
 
                 $table->index(['field_ulid', $tenant . '_' . $key]);
             });
