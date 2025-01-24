@@ -40,10 +40,8 @@ class FieldsServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('vormkracht10/filament-fields');
             });
 
-        // $configFileName = $package->shortName();
-
         if (file_exists($package->basePath('/../config/fields.php'))) {
-            $package->hasConfigFile();
+            $package->hasConfigFile('fields');
         }
 
         if (file_exists($package->basePath('/../database/migrations'))) {
@@ -91,7 +89,7 @@ class FieldsServiceProvider extends PackageServiceProvider
 
         $this->app->bind(FieldInspector::class, FieldInspectionService::class);
 
-        collect($this->app['config']['filament-fields']['custom_fields'] ?? [])
+        collect($this->app['config']['fields']['custom_fields'] ?? [])
             ->each(function ($field) {
                 Fields::registerField($field);
             });
