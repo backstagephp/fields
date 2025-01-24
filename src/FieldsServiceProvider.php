@@ -40,9 +40,9 @@ class FieldsServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('vormkracht10/filament-fields');
             });
 
-        $configFileName = $package->shortName();
+        // $configFileName = $package->shortName();
 
-        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
+        if (file_exists($package->basePath("/../config/fields.php"))) {
             $package->hasConfigFile();
         }
 
