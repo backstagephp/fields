@@ -99,10 +99,13 @@ php artisan migrate
 
 When one of your models has configurable fields, you need to add the `HasFields` trait to your model.
 
+The trait will add a `fields` relation to your model, and define the `valueColumn` property. This is the column that will be used to store the field values. Because the values are stored as json, you should cast this column to an array.
+
+If you want to use any other column name for the values, you can set the `valueColumn` property in your model.
+
 ```php
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Vormkracht10\Fields\Models\Field;
+use Vormkracht10\Fields\Concerns\HasFields;
 
 class Content extends Model
 {

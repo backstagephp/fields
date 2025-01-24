@@ -64,7 +64,7 @@ trait CanMapDynamicFields
                 return $fieldInstance->mutateFormDataCallback($this->record, $field, $data);
             }
 
-            $data['values'][$field->slug] = $this->record->values[$field->slug] ?? null;
+            $data[$this->record->valueColumn][$field->slug] = $this->record->values[$field->slug] ?? null;
 
             return $data;
         });
@@ -124,7 +124,7 @@ trait CanMapDynamicFields
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object
     {
-        $inputName = "values.{$field->slug}";
+        $inputName = "{$this->record->valueColumn}.{$field->slug}";
 
         // Try to resolve from standard field type map
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
