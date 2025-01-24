@@ -42,7 +42,7 @@ class FieldsServiceProvider extends PackageServiceProvider
 
         // $configFileName = $package->shortName();
 
-        if (file_exists($package->basePath("/../config/fields.php"))) {
+        if (file_exists($package->basePath('/../config/fields.php'))) {
             $package->hasConfigFile();
         }
 
