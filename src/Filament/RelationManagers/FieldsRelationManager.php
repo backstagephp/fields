@@ -167,6 +167,7 @@ class FieldsRelationManager extends RelationManager
                     }),
                 Tables\Actions\DeleteAction::make()
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
+                        dd($record->valueColumn, $this->ownerRecord, $record, $data, $arguments);
                         $this->ownerRecord->update([
                             $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->ulid)->toArray(),
                         ]);
