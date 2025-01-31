@@ -3,7 +3,7 @@
 return [
 
     'tenancy' => [
-        'is_tenant_aware' => true,
+        'is_tenant_aware' => false,
 
         'relationship' => 'tenant',
 
