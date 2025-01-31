@@ -43,7 +43,7 @@ class FieldsRelationManager extends RelationManager
                                     ->required()
                                     ->placeholder(__('Name'))
                                     ->live(debounce: 250)
-                                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
                                     ->readonly(),
@@ -75,10 +75,10 @@ class FieldsRelationManager extends RelationManager
                             ]),
                         Section::make('Configuration')
                             ->columns(3)
-                            ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
+                            ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
                                 $get('field_type')
                             ))
-                            ->visible(fn (Get $get) => filled($get('field_type'))),
+                            ->visible(fn(Get $get) => filled($get('field_type'))),
                     ]),
             ]);
     }
@@ -159,17 +159,16 @@ class FieldsRelationManager extends RelationManager
                         return [
                             ...$data,
                             'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->slug,
+                            'model_key' => $this->ownerRecord->ulid,
                         ];
                     })
-                    ->mutateFormDataUsing(fn (array $data, Model $record): array => $this->transferValuesOnSlugChange($data, $record))
                     ->after(function (Component $livewire) {
                         $livewire->dispatch('refreshFields');
                     }),
                 Tables\Actions\DeleteAction::make()
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
                         $this->ownerRecord->update([
-                            'values' => collect($this->ownerRecord->values)->forget($record->slug)->toArray(),
+                            $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->ulid)->toArray(),
                         ]);
                         $livewire->dispatch('refreshFields');
                     }),
@@ -197,32 +196,5 @@ class FieldsRelationManager extends RelationManager
     public static function getPluralModelLabel(): string
     {
         return __('Fields');
-    }
-
-    private function transferValuesOnSlugChange(array $data, Model $record): array
-    {
-        $oldSlug = $record->slug;
-        $newSlug = $data['slug'];
-
-        if ($newSlug === $oldSlug) {
-            return $data;
-        }
-
-        $existingValues = $this->ownerRecord->values;
-
-        // Handle slug update in existing values
-        if (isset($existingValues[$oldSlug])) {
-            // Transfer value from old slug to new slug
-            $existingValues[$newSlug] = $existingValues[$oldSlug];
-            unset($existingValues[$oldSlug]);
-
-            $this->ownerRecord->update([
-                'values' => $existingValues,
-            ]);
-        } else {
-            $existingValues[$newSlug] = null;
-        }
-
-        return $data;
     }
 }

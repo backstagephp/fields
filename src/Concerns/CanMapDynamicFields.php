@@ -64,7 +64,7 @@ trait CanMapDynamicFields
                 return $fieldInstance->mutateFormDataCallback($this->record, $field, $data);
             }
 
-            $data[$this->record->valueColumn][$field->slug] = $this->record->values[$field->slug] ?? null;
+            $data[$this->record->valueColumn][$field->ulid] = $this->record->values[$field->ulid] ?? null;
 
             return $data;
         });
@@ -76,15 +76,13 @@ trait CanMapDynamicFields
             return $data;
         }
 
-        $data = $this->mutateFormData($data, function ($field, $fieldConfig, $fieldInstance, $data) {
+        return $this->mutateFormData($data, function ($field, $fieldConfig, $fieldInstance, $data) {
             if (! empty($fieldConfig['methods']['mutateBeforeSaveCallback'])) {
                 return $fieldInstance->mutateBeforeSaveCallback($this->record, $field, $data);
             }
 
             return $data;
         });
-
-        return $data;
     }
 
     protected function mutateFormData(array $data, callable $mutationStrategy): array
@@ -110,7 +108,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $this->record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -119,7 +117,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields): ?object

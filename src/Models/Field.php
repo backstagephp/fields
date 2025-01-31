@@ -30,7 +30,7 @@ class Field extends Model
 
     public function model(): MorphTo
     {
-        return $this->morphTo('model', 'model_type', 'model_key', 'slug');
+        return $this->morphTo('model', 'model_type', 'model_key', 'ulid');
     }
 
     public function children(): HasMany
