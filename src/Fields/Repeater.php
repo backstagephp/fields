@@ -55,6 +55,7 @@ class Repeater extends Base implements FieldContract
             'collapsible' => false,
             'collapsed' => false,
             'cloneable' => false,
+            'columns' => 1,
             'form' => [],
         ];
     }
@@ -69,7 +70,8 @@ class Repeater extends Base implements FieldContract
             ->deletable($field->config['deletable'] ?? self::getDefaultConfig()['deletable'])
             ->reorderable($field->config['reorderable'] ?? self::getDefaultConfig()['reorderable'])
             ->collapsible($field->config['collapsible'] ?? self::getDefaultConfig()['collapsible'])
-            ->cloneable($field->config['cloneable'] ?? self::getDefaultConfig()['cloneable']);
+            ->cloneable($field->config['cloneable'] ?? self::getDefaultConfig()['cloneable'])
+            ->columns($field->config['columns'] ?? self::getDefaultConfig()['columns']);
 
         if ($field->config['reorderableWithButtons'] ?? self::getDefaultConfig()['reorderableWithButtons']) {
             $input = $input->reorderableWithButtons();
@@ -124,6 +126,10 @@ class Repeater extends Base implements FieldContract
                                 ->inline(false),
                             Forms\Components\TextInput::make('config.addActionLabel')
                                 ->label(__('Add action label')),
+                            Forms\Components\TextInput::make('config.columns')
+                                ->label(__('Columns'))
+                                ->default(1)
+                                ->numeric(),
                             AdjacencyList::make('config.form')
                                 ->columnSpanFull()
                                 ->label(__('Fields'))
