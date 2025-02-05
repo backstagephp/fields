@@ -110,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields, $record))
             ->filter()
             ->values()
             ->all();
