@@ -99,9 +99,8 @@ trait CanMapDynamicFields
         return $data;
     }
 
-    private function resolveFormFields(?Model $record = null): array
+    private function resolveFormFields(mixed $record = null): array
     {
-
         $record = $record ?? $this->record;
 
         if (! isset($record->fields) || $record->fields->isEmpty()) {
@@ -111,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields))
             ->filter()
             ->values()
             ->all();
@@ -120,10 +119,10 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
-    private function resolveFieldInput(Model $field, Collection $customFields, ?Model $record = null): ?object
+    private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null): ?object
     {
         $record = $record ?? $this->record;
 
