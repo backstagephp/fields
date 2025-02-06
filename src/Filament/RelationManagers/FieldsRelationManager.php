@@ -43,7 +43,7 @@ class FieldsRelationManager extends RelationManager
                                     ->required()
                                     ->placeholder(__('Name'))
                                     ->live(debounce: 250)
-                                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
                                     ->readonly(),
@@ -75,10 +75,10 @@ class FieldsRelationManager extends RelationManager
                             ]),
                         Section::make('Configuration')
                             ->columns(3)
-                            ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
+                            ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
                                 $get('field_type')
                             ))
-                            ->visible(fn (Get $get) => filled($get('field_type'))),
+                            ->visible(fn(Get $get) => filled($get('field_type'))),
                     ]),
             ]);
     }
@@ -123,6 +123,8 @@ class FieldsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(25)
+            ->paginationPageOptions([25, 50, 100])
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
@@ -169,7 +171,8 @@ class FieldsRelationManager extends RelationManager
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
                         if (isset($record->valueColumn) && $this->ownerRecord->getConnection()
                             ->getSchemaBuilder()
-                            ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)) {
+                            ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
+                        ) {
 
                             $this->ownerRecord->update([
                                 $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->ulid)->toArray(),
