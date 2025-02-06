@@ -38,7 +38,7 @@ trait CanMapDynamicFields
         'radio' => Radio::class,
         'toggle' => Toggle::class,
         'color' => Color::class,
-        'datetime' => DateTime::class,
+        'date-time' => DateTime::class,
         'tags' => Tags::class,
     ];
 
@@ -110,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields, $record))
             ->filter()
             ->values()
             ->all();
@@ -119,7 +119,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null): ?object
