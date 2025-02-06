@@ -12,7 +12,7 @@ enum Field: string
     case Checkbox = 'checkbox';
     case CheckboxList = 'checkbox-list';
     case Color = 'color';
-    case DateTime = 'datetime';
+    case DateTime = 'date-time';
     case File = 'file-upload';
     case Hidden = 'hidden';
     case KeyValue = 'key-value';
