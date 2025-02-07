@@ -1,6 +1,6 @@
 <?php
 
-namespace Backstage\Fields;
+namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToggleColor;
@@ -8,7 +8,7 @@ use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Toggle as Input;
 use Filament\Support\Facades\FilamentColor;
-use Backstage\Fields\Base;
+
 
 class Toggle extends Base implements FieldContract
 {

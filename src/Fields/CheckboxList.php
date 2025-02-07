@@ -1,13 +1,13 @@
 <?php
 
-namespace Backstage\Fields;
+namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\CheckboxList as Input;
-use Backstage\Fields\Base;
+
 
 class CheckboxList extends Base implements FieldContract
 {

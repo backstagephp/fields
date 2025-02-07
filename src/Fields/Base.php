@@ -1,6 +1,6 @@
 <?php
 
-namespace Backstage\Fields;
+namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;

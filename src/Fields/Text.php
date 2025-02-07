@@ -1,9 +1,9 @@
 <?php
 
-namespace Backstage\Fields;
+namespace Backstage\Fields\Fields;
 
 use Filament\Forms;
-use Backstage\Fields\Base;
+
 use Backstage\Fields\Models\Field;
 use Backstage\Fields\Concerns\HasAffixes;
 use Backstage\Fields\Contracts\FieldContract;

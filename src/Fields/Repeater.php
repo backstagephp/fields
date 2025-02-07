@@ -1,6 +1,6 @@
 <?php
 
-namespace Backstage\Fields;
+namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
@@ -21,7 +21,7 @@ use Filament\Forms\Set;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
-use Backstage\Fields\Base;
+
 
 class Repeater extends Base implements FieldContract
 {
