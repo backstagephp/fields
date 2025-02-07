@@ -7,7 +7,6 @@ use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Textarea as Input;
 
-
 class Textarea extends Base implements FieldContract
 {
     public static function getDefaultConfig(): array

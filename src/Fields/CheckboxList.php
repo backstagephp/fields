@@ -8,7 +8,6 @@ use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\CheckboxList as Input;
 
-
 class CheckboxList extends Base implements FieldContract
 {
     use HasOptions;

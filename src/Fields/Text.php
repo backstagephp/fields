@@ -2,11 +2,10 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Forms;
-
-use Backstage\Fields\Models\Field;
 use Backstage\Fields\Concerns\HasAffixes;
 use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Models\Field;
+use Filament\Forms;
 use Filament\Forms\Components\TextInput as Input;
 
 class Text extends Base implements FieldContract

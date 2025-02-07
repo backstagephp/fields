@@ -8,7 +8,6 @@ use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker as Input;
 
-
 /**
  * For validation regex patterns, check the Filament documentation.
  *

@@ -9,7 +9,6 @@ use Filament\Forms;
 use Filament\Forms\Components\Toggle as Input;
 use Filament\Support\Facades\FilamentColor;
 
-
 class Toggle extends Base implements FieldContract
 {
     public static function getDefaultConfig(): array

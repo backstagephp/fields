@@ -22,7 +22,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
 
-
 class Repeater extends Base implements FieldContract
 {
     use HasConfigurableFields;
