@@ -8,7 +8,6 @@ enum Field: string
 {
     use HasSerializableEnumArray;
 
-    case Builder = 'builder';
     case Checkbox = 'checkbox';
     case CheckboxList = 'checkbox-list';
     case Color = 'color';
