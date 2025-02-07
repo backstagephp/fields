@@ -7,7 +7,6 @@ use Backstage\Fields\Enums\ColorFormat;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker as Input;
-use Backstage\Fields\Base;
 
 /**
  * For validation regex patterns, check the Filament documentation.

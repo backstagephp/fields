@@ -6,7 +6,6 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\TagsInput as Input;
-use Backstage\Fields\Base;
 
 class Tags extends Base implements FieldContract
 {

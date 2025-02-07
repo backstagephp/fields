@@ -6,7 +6,6 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\KeyValue as Input;
-use Backstage\Fields\Base;
 
 class KeyValue extends Base implements FieldContract
 {
