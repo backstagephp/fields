@@ -40,8 +40,8 @@ class FieldsServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('backstage/fields');
             });
 
-        if (file_exists($package->basePath('/../config/fields.php'))) {
-            $package->hasConfigFile('fields');
+        if (file_exists($package->basePath('/../config/backstage/fields.php'))) {
+            $package->hasConfigFile('backstage/fields');
         }
 
         if (file_exists($package->basePath('/../database/migrations'))) {
@@ -89,7 +89,7 @@ class FieldsServiceProvider extends PackageServiceProvider
 
         $this->app->bind(FieldInspector::class, FieldInspectionService::class);
 
-        collect($this->app['config']['fields']['custom_fields'] ?? [])
+        collect($this->app['config']['backstage.fields.custom_fields'] ?? [])
             ->each(function ($field) {
                 Fields::registerField($field);
             });
