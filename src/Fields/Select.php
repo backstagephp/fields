@@ -3,11 +3,12 @@
 namespace Backstage\Fields;
 
 use Filament\Forms;
-use Filament\Forms\Components\Select as Input;
+use Backstage\Fields\Base;
+use Backstage\Fields\Models\Field;
 use Backstage\Fields\Concerns\HasAffixes;
 use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
-use Backstage\Fields\Models\Field;
+use Filament\Forms\Components\Select as Input;
 
 class Select extends Base implements FieldContract
 {
