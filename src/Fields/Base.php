@@ -2,10 +2,10 @@
 
 namespace Backstage\Fields;
 
-use Filament\Forms;
-use Filament\Support\Colors\Color;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
+use Filament\Forms;
+use Filament\Support\Colors\Color;
 
 abstract class Base implements FieldContract
 {

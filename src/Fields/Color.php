@@ -2,11 +2,11 @@
 
 namespace Backstage\Fields;
 
-use Filament\Forms;
-use Filament\Forms\Components\ColorPicker as Input;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ColorFormat;
 use Backstage\Fields\Models\Field;
+use Filament\Forms;
+use Filament\Forms\Components\ColorPicker as Input;
 
 /**
  * For validation regex patterns, check the Filament documentation.

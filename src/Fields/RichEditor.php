@@ -2,11 +2,11 @@
 
 namespace Backstage\Fields;
 
-use Filament\Forms;
-use Filament\Forms\Components\RichEditor as Input;
 use Backstage\Backstage\Enums\ToolbarButton;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
+use Filament\Forms;
+use Filament\Forms\Components\RichEditor as Input;
 
 class RichEditor extends Base implements FieldContract
 {
