@@ -48,27 +48,27 @@ class Text extends Base implements FieldContract
             ->telRegex($field->config['telRegex'] ?? self::getDefaultConfig()['telRegex'])
             ->revealable($field->config['revealable'] ?? self::getDefaultConfig()['revealable']);
 
-        if ($field->config['type'] === 'email') {
+        if ($field->config && $field->config['type'] === 'email') {
             $input->email();
         }
 
-        if ($field->config['type'] === 'tel') {
+        if ($field->config && $field->config['type'] === 'tel') {
             $input->tel();
         }
 
-        if ($field->config['type'] === 'url') {
+        if ($field->config && $field->config['type'] === 'url') {
             $input->url();
         }
 
-        if ($field->config['type'] === 'password') {
+        if ($field->config && $field->config['type'] === 'password') {
             $input->password();
         }
 
-        if ($field->config['type'] === 'numeric') {
+        if ($field->config && $field->config['type'] === 'numeric') {
             $input->numeric();
         }
 
-        if ($field->config['type'] === 'integer') {
+        if ($field->config && $field->config['type'] === 'integer') {
             $input->integer();
         }
 
