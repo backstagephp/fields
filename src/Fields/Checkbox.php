@@ -2,10 +2,10 @@
 
 namespace Backstage\Fields;
 
-use Filament\Forms;
-use Filament\Forms\Components\Checkbox as Input;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
+use Filament\Forms;
+use Filament\Forms\Components\Checkbox as Input;
 
 class Checkbox extends Base implements FieldContract
 {

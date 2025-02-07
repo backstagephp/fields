@@ -2,8 +2,8 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Illuminate\Support\Str;
 use Backstage\Fields\Facades\Fields;
+use Illuminate\Support\Str;
 
 trait HasConfigurableFields
 {

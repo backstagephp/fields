@@ -2,12 +2,12 @@
 
 namespace Backstage\Fields\Services;
 
+use Backstage\Fields\Contracts\FieldInspector;
+use Backstage\Fields\Facades\Fields;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
-use Backstage\Fields\Contracts\FieldInspector;
-use Backstage\Fields\Facades\Fields;
 
 class FieldInspectionService implements FieldInspector
 {

@@ -2,10 +2,10 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Exception;
-use Illuminate\Support\Str;
 use Backstage\Fields\Enums\Field;
 use Backstage\Fields\Facades\Fields;
+use Exception;
+use Illuminate\Support\Str;
 
 trait HasFieldTypeResolver
 {

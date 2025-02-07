@@ -2,8 +2,8 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Backstage\Fields\Models\Field;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait HasFields
 {

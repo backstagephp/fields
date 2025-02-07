@@ -2,8 +2,6 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Illuminate\Support\Collection;
-use Livewire\Attributes\On;
 use Backstage\Fields\Contracts\FieldInspector;
 use Backstage\Fields\Enums\Field;
 use Backstage\Fields\Fields;
@@ -21,6 +19,8 @@ use Backstage\Fields\Fields\Text;
 use Backstage\Fields\Fields\Textarea;
 use Backstage\Fields\Fields\Toggle;
 use Backstage\Fields\Models\Field as Model;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\On;
 
 trait CanMapDynamicFields
 {
@@ -110,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn($field) => $this->resolveFieldInput($field, $customFields, $record))
+            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record))
             ->filter()
             ->values()
             ->all();
@@ -119,7 +119,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn($fieldClass) => new $fieldClass);
+            ->map(fn ($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null): ?object
