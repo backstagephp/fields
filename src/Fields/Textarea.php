@@ -6,6 +6,7 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Textarea as Input;
+use Backstage\Fields\Base;
 
 class Textarea extends Base implements FieldContract
 {
