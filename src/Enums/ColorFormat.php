@@ -1,8 +1,8 @@
 <?php
 
-namespace Vormkracht10\Fields\Enums;
+namespace Backstage\Fields\Enums;
 
-use Vormkracht10\Fields\Concerns\HasSerializableEnumArray;
+use Backstage\Fields\Concerns\HasSerializableEnumArray;
 
 enum ColorFormat: string
 {

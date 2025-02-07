@@ -1,15 +1,15 @@
 {
-    "name": "vormkracht10/filament-fields",
-    "description": "This is my package filament-fields",
+    "name": "backstage/fields",
+    "description": "This is my package fields",
     "keywords": [
-        "vormkracht10",
+        "backstage",
         "laravel",
-        "filament-fields"
+        "fields"
     ],
-    "homepage": "https://github.com/vormkracht10/filament-fields",
+    "homepage": "https://github.com/backstagephp/fields",
     "support": {
-        "issues": "https://github.com/vormkracht10/filament-fields/issues",
-        "source": "https://github.com/vormkracht10/filament-fields"
+        "issues": "https://github.com/backstagephp/fields/issues",
+        "source": "https://github.com/backstagephp/fields"
     },
     "license": "MIT",
     "authors": [
@@ -41,13 +41,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Vormkracht10\\Fields\\": "src/",
-            "Vormkracht10\\Fields\\Database\\Factories\\": "database/factories/"
+            "Backstage\\Fields\\": "src/",
+            "Backstage\\Fields\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Vormkracht10\\Fields\\Tests\\": "tests/"
+            "Backstage\\Fields\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -67,10 +67,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Vormkracht10\\Fields\\FieldsServiceProvider"
+                "Backstage\\Fields\\FieldsServiceProvider"
             ],
             "aliases": {
-                "Fields": "Vormkracht10\\Fields\\Facades\\Fields"
+                "Fields": "Backstage\\Fields\\Facades\\Fields"
             }
         }
     },

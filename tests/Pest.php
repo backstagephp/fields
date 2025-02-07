@@ -1,5 +1,5 @@
 <?php
 
-use Vormkracht10\Fields\Tests\TestCase;
+use Backstage\Fields\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

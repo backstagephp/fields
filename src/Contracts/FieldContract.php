@@ -1,8 +1,8 @@
 <?php
 
-namespace Vormkracht10\Fields\Contracts;
+namespace Backstage\Fields\Contracts;
 
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Fields\Models\Field;
 
 interface FieldContract
 {

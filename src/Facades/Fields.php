@@ -1,16 +1,16 @@
 <?php
 
-namespace Vormkracht10\Fields\Facades;
+namespace Backstage\Fields\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Vormkracht10\Fields\Fields
+ * @see \Backstage\Fields\Fields
  */
 class Fields extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Vormkracht10\Fields\Fields::class;
+        return \Backstage\Fields\Fields::class;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields;
+namespace Backstage\Fields;
 
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
@@ -13,15 +13,15 @@ use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Vormkracht10\Fields\Contracts\FieldInspector;
-use Vormkracht10\Fields\Services\FieldInspectionService;
-use Vormkracht10\Fields\Testing\TestsFields;
+use Backstage\Fields\Contracts\FieldInspector;
+use Backstage\Fields\Services\FieldInspectionService;
+use Backstage\Fields\Testing\TestsFields;
 
 class FieldsServiceProvider extends PackageServiceProvider
 {
-    public static string $name = 'filament-fields';
+    public static string $name = 'fields';
 
-    public static string $viewNamespace = 'filament-fields';
+    public static string $viewNamespace = 'fields';
 
     public function configurePackage(Package $package): void
     {
@@ -37,7 +37,7 @@ class FieldsServiceProvider extends PackageServiceProvider
                     ->publishConfigFile()
                     ->publishMigrations()
                     ->askToRunMigrations()
-                    ->askToStarRepoOnGitHub('vormkracht10/filament-fields');
+                    ->askToStarRepoOnGitHub('backstage/fields');
             });
 
         if (file_exists($package->basePath('/../config/fields.php'))) {
@@ -79,8 +79,8 @@ class FieldsServiceProvider extends PackageServiceProvider
         if (app()->runningInConsole()) {
             foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path("stubs/filament-fields/{$file->getFilename()}"),
-                ], 'filament-fields-stubs');
+                    $file->getRealPath() => base_path("stubs/fields/{$file->getFilename()}"),
+                ], 'fields-stubs');
             }
         }
 
@@ -97,7 +97,7 @@ class FieldsServiceProvider extends PackageServiceProvider
 
     protected function getAssetPackageName(): ?string
     {
-        return 'vormkracht10/filament-fields';
+        return 'backstage/fields';
     }
 
     /**
@@ -106,9 +106,9 @@ class FieldsServiceProvider extends PackageServiceProvider
     protected function getAssets(): array
     {
         return [
-            // AlpineComponent::make('filament-fields', __DIR__ . '/../resources/dist/components/filament-fields.js'),
-            // Css::make('filament-fields-styles', __DIR__ . '/../resources/dist/filament-fields.css'),
-            // Js::make('filament-fields-scripts', __DIR__ . '/../resources/dist/filament-fields.js'),
+            // AlpineComponent::make('fields', __DIR__ . '/../resources/dist/components/fields.js'),
+            // Css::make('fields-styles', __DIR__ . '/../resources/dist/fields.css'),
+            // Js::make('fields-scripts', __DIR__ . '/../resources/dist/fields.js'),
         ];
     }
 

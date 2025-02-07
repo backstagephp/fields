@@ -1,9 +1,9 @@
 <?php
 
-namespace Vormkracht10\Fields\Concerns;
+namespace Backstage\Fields\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Fields\Models\Field;
 
 trait HasFields
 {

@@ -1,11 +1,11 @@
-# Filament Fields
+# Fields
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/vormkracht10/filament-fields.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/filament-fields)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/vormkracht10/filament-fields/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/vormkracht10/filament-fields/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/vormkracht10/filament-fields/fix-php-code-styling.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/vormkracht10/filament-fields/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/vormkracht10/filament-fields.svg?style=flat-square)](https://packagist.org/packages/vormkracht10/filament-fields)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/backstage/fields.svg?style=flat-square)](https://packagist.org/packages/backstage/fields)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/backstage/fields/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/backstagephp/fields/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/backstage/fields/fix-php-code-styling.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/backstagephp/fields/actions?query=workflow%3A"Fix+PHP+code+styling"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/backstage/fields.svg?style=flat-square)](https://packagist.org/packages/backstage/fields)
 
-## Nice to meet you, we're [Vormkracht10](https://vormkracht10.nl)
+## Nice to meet you, we're [Backstage](https://Backstage.nl)
 
 Hi! We are a web development agency from Nijmegen in the Netherlands and we use Laravel for everything: advanced websites with a lot of bells and whitles and large web applications.
 
@@ -46,18 +46,18 @@ This package is perfect for scenarios where you need to:
 You can install the package via composer:
 
 ```bash
-composer require vormkracht10/filament-fields
+composer require backstage/fields
 ```
 
 You should publish the config file first with:
 
 ```bash
-php artisan vendor:publish --tag="filament-fields-config"
+php artisan vendor:publish --tag="fields-config"
 ```
 
-This will create a `filament-fields.php` file in your `config` directory. Make sure to fill in the tenant relationship and the tenant model (if you're using multi-tenancy). When running the migrations, the fields table will be created with the correct tenant relationship.
+This will create a `fields.php` file in your `config` directory. Make sure to fill in the tenant relationship and the tenant model (if you're using multi-tenancy). When running the migrations, the fields table will be created with the correct tenant relationship.
 
-The content of the `filament-fields.php` file is as follows:
+The content of the `fields.php` file is as follows:
 
 ```php
 <?php
@@ -89,7 +89,7 @@ return [
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="filament-fields-migrations"
+php artisan vendor:publish --tag="fields-migrations"
 php artisan migrate
 ```
 
@@ -105,7 +105,7 @@ If you want to use any other column name for the values, you can set the `valueC
 
 ```php
 use Illuminate\Database\Eloquent\Model;
-use Vormkracht10\Fields\Concerns\HasFields;
+use Backstage\Fields\Concerns\HasFields;
 
 class Content extends Model
 {
@@ -120,7 +120,7 @@ class Content extends Model
 To add configurable fields to your related models, we provide a `FieldsRelationManager` that you can add to your resource.
 
 ```php
-use Vormkracht10\Fields\Filament\RelationManagers\FieldsRelationManager;
+use Backstage\Fields\Filament\RelationManagers\FieldsRelationManager;
 
 class ContentResource extends Resource
 {
@@ -144,14 +144,14 @@ To make a resource page configurable, you need to add the `CanMapDynamicFields` 
 ```php
 <?php
 
-namespace Vormkracht10\Backstage\Resources\ContentResource\Pages;
+namespace Backstage\Resources\ContentResource\Pages;
 
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
-use Vormkracht10\Fields\Concerns\CanMapDynamicFields;
+use Backstage\Fields\Concerns\CanMapDynamicFields;
 
 class EditContent extends EditRecord
 {
@@ -177,7 +177,7 @@ To conditionally show the fields relation manager, you can override the `canView
 namespace App\Filament\Resources\ContentResource\RelationManagers;
 
 use Illuminate\Database\Eloquent\Model;
-use Vormkracht10\Fields\Filament\RelationManagers\FieldsRelationManager as RelationManagersFieldsRelationManager;
+use Backstage\Fields\Filament\RelationManagers\FieldsRelationManager as RelationManagersFieldsRelationManager;
 
 class FieldsRelationManager extends RelationManagersFieldsRelationManager
 {
@@ -211,7 +211,7 @@ class YourCustomPage extends Page
 
 ### Add resources as options for select fields
 
-When using select fields, you may want to populate the options with relations in your application. To be able to do this, you need to add the resources to the `filament-fields.selectable_resources` config array. We then get the options from the table that belongs to the resource and model.
+When using select fields, you may want to populate the options with relations in your application. To be able to do this, you need to add the resources to the `fields.selectable_resources` config array. We then get the options from the table that belongs to the resource and model.
 
 ```php
 return [
@@ -229,7 +229,7 @@ return [
 
 ### Registering your own fields
 
-To register your own fields, you can add them to the `filament-fields.fields` config array.
+To register your own fields, you can add them to the `fields.fields` config array.
 
 ```php
 'custom_fields' => [
@@ -257,7 +257,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Baspa](https://github.com/vormkracht10)
+- [Baspa](https://github.com/Backstage)
 - [All Contributors](../../contributors)
 
 ## License

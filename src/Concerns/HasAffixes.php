@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields\Concerns;
+namespace Backstage\Fields\Concerns;
 
 use Filament\Forms;
 use Filament\Forms\Components\Fieldset;

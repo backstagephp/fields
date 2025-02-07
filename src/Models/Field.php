@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields\Models;
+namespace Backstage\Fields\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Config;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
-use Vormkracht10\Fields\Shared\HasPackageFactory;
+use Backstage\Fields\Shared\HasPackageFactory;
 
 class Field extends Model
 {

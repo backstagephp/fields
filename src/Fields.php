@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields;
+namespace Backstage\Fields;
 
 use Illuminate\Support\Str;
 

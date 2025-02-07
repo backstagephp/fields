@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields\Tests;
+namespace Backstage\Fields\Tests;
 
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
-use Vormkracht10\Fields\FieldsServiceProvider;
+use Backstage\Fields\FieldsServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -25,7 +25,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Vormkracht10\\Fields\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+            fn(string $modelName) => 'Backstage\\Fields\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
@@ -53,7 +53,7 @@ class TestCase extends Orchestra
         config()->set('database.default', 'testing');
 
         /*
-        $migration = include __DIR__.'/../database/migrations/create_filament-fields_table.php.stub';
+        $migration = include __DIR__.'/../database/migrations/create_fields_table.php.stub';
         $migration->up();
         */
     }

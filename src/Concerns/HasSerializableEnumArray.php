@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields\Concerns;
+namespace Backstage\Fields\Concerns;
 
 trait HasSerializableEnumArray
 {

@@ -1,26 +1,26 @@
 <?php
 
-namespace Vormkracht10\Fields\Concerns;
+namespace Backstage\Fields\Concerns;
 
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
-use Vormkracht10\Fields\Contracts\FieldInspector;
-use Vormkracht10\Fields\Enums\Field;
-use Vormkracht10\Fields\Fields;
-use Vormkracht10\Fields\Fields\Checkbox;
-use Vormkracht10\Fields\Fields\CheckboxList;
-use Vormkracht10\Fields\Fields\Color;
-use Vormkracht10\Fields\Fields\DateTime;
-use Vormkracht10\Fields\Fields\KeyValue;
-use Vormkracht10\Fields\Fields\Radio;
-use Vormkracht10\Fields\Fields\Repeater;
-use Vormkracht10\Fields\Fields\RichEditor;
-use Vormkracht10\Fields\Fields\Select;
-use Vormkracht10\Fields\Fields\Tags;
-use Vormkracht10\Fields\Fields\Text;
-use Vormkracht10\Fields\Fields\Textarea;
-use Vormkracht10\Fields\Fields\Toggle;
-use Vormkracht10\Fields\Models\Field as Model;
+use Backstage\Fields\Contracts\FieldInspector;
+use Backstage\Fields\Enums\Field;
+use Backstage\Fields\Fields;
+use Backstage\Fields\Fields\Checkbox;
+use Backstage\Fields\Fields\CheckboxList;
+use Backstage\Fields\Fields\Color;
+use Backstage\Fields\Fields\DateTime;
+use Backstage\Fields\Fields\KeyValue;
+use Backstage\Fields\Fields\Radio;
+use Backstage\Fields\Fields\Repeater;
+use Backstage\Fields\Fields\RichEditor;
+use Backstage\Fields\Fields\Select;
+use Backstage\Fields\Fields\Tags;
+use Backstage\Fields\Fields\Text;
+use Backstage\Fields\Fields\Textarea;
+use Backstage\Fields\Fields\Toggle;
+use Backstage\Fields\Models\Field as Model;
 
 trait CanMapDynamicFields
 {
@@ -110,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields, $record))
             ->filter()
             ->values()
             ->all();
@@ -119,7 +119,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null): ?object

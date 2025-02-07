@@ -1,9 +1,9 @@
 <?php
 
-namespace Vormkracht10\Fields\Database\Factories;
+namespace Backstage\Fields\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Fields\Models\Field;
 
 class FieldFactory extends Factory
 {

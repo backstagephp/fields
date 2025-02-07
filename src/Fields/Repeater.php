@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields\Fields;
+namespace Backstage\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\Hidden;
@@ -13,14 +13,14 @@ use Filament\Forms\Set;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
-use Vormkracht10\Fields\Concerns\HasConfigurableFields;
-use Vormkracht10\Fields\Concerns\HasFieldTypeResolver;
-use Vormkracht10\Fields\Concerns\HasOptions;
-use Vormkracht10\Fields\Contracts\FieldContract;
-use Vormkracht10\Fields\Enums\Field as FieldEnum;
-use Vormkracht10\Fields\Facades\Fields;
-use Vormkracht10\Fields\Fields\Select as FieldsSelect;
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
+use Backstage\Fields\Concerns\HasOptions;
+use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
+use Backstage\Fields\Fields\Select as FieldsSelect;
+use Backstage\Fields\Models\Field;
 
 class Repeater extends Base implements FieldContract
 {
@@ -111,7 +111,7 @@ class Repeater extends Base implements FieldContract
                                 Forms\Components\Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
-                                    ->disabled(fn (Forms\Get $get): bool => $get('config.reorderable') === false)
+                                    ->disabled(fn(Forms\Get $get): bool => $get('config.reorderable') === false)
                                     ->inline(false),
                             ]),
                             Forms\Components\Toggle::make('config.collapsible')
@@ -119,7 +119,7 @@ class Repeater extends Base implements FieldContract
                                 ->inline(false),
                             Forms\Components\Toggle::make('config.collapsed')
                                 ->label(__('Collapsed'))
-                                ->visible(fn (Forms\Get $get): bool => $get('config.collapsible') === true)
+                                ->visible(fn(Forms\Get $get): bool => $get('config.collapsible') === true)
                                 ->inline(false),
                             Forms\Components\Toggle::make('config.cloneable')
                                 ->label(__('Cloneable'))
@@ -138,9 +138,9 @@ class Repeater extends Base implements FieldContract
                                 ->live(debounce: 250)
                                 ->labelKey('name')
                                 ->maxDepth(0)
-                                ->addable(fn (string $operation) => $operation !== 'create')
-                                ->disabled(fn (string $operation) => $operation === 'create')
-                                ->hint(fn (string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
+                                ->addable(fn(string $operation) => $operation !== 'create')
+                                ->disabled(fn(string $operation) => $operation === 'create')
+                                ->hint(fn(string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
                                 ->hintColor('primary')
                                 ->form([
                                     Section::make('Field')
@@ -155,7 +155,7 @@ class Repeater extends Base implements FieldContract
                                                 ->required()
                                                 ->placeholder(__('Name'))
                                                 ->live(debounce: 250)
-                                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
                                             TextInput::make('slug')
                                                 ->readonly(),
                                             Select::make('field_type')
@@ -185,10 +185,10 @@ class Repeater extends Base implements FieldContract
                                         ])->columnSpanFull(),
                                     Section::make('Configuration')
                                         ->columns(3)
-                                        ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
+                                        ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
                                             $get('field_type')
                                         ))
-                                        ->visible(fn (Get $get) => filled($get('field_type'))),
+                                        ->visible(fn(Get $get) => filled($get('field_type'))),
                                 ]),
                         ])->columns(2),
                 ])->columnSpanFull(),

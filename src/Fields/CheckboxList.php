@@ -1,12 +1,12 @@
 <?php
 
-namespace Vormkracht10\Fields\Fields;
+namespace Backstage\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\CheckboxList as Input;
-use Vormkracht10\Fields\Concerns\HasOptions;
-use Vormkracht10\Fields\Contracts\FieldContract;
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Fields\Concerns\HasOptions;
+use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Models\Field;
 
 class CheckboxList extends Base implements FieldContract
 {
@@ -94,16 +94,16 @@ class CheckboxList extends Base implements FieldContract
                                     //
                                     Forms\Components\TextInput::make('config.noSearchResultsMessage')
                                         ->label(__('No search results message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchPrompt')
                                         ->label(__('Search prompt'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchDebounce')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(100)
                                         ->label(__('Search debounce'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                 ]),
                         ]),
                 ])->columnSpanFull(),

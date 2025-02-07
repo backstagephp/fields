@@ -1,12 +1,12 @@
 <?php
 
-namespace Vormkracht10\Fields\Fields;
+namespace Backstage\Fields;
 
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
-use Vormkracht10\Backstage\Enums\ToolbarButton;
-use Vormkracht10\Fields\Contracts\FieldContract;
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Backstage\Enums\ToolbarButton;
+use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Models\Field;
 
 class RichEditor extends Base implements FieldContract
 {

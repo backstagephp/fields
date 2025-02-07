@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields;
+namespace Backstage\Fields;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
@@ -9,7 +9,7 @@ class FieldsPlugin implements Plugin
 {
     public function getId(): string
     {
-        return 'filament-fields';
+        return 'fields';
     }
 
     public function register(Panel $panel): void

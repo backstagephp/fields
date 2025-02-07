@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\Fields\Filament\RelationManagers;
+namespace Backstage\Fields\Filament\RelationManagers;
 
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
@@ -15,11 +15,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Vormkracht10\Fields\Concerns\HasConfigurableFields;
-use Vormkracht10\Fields\Concerns\HasFieldTypeResolver;
-use Vormkracht10\Fields\Enums\Field as FieldEnum;
-use Vormkracht10\Fields\Facades\Fields;
-use Vormkracht10\Fields\Models\Field;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
+use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
+use Backstage\Fields\Models\Field;
 
 class FieldsRelationManager extends RelationManager
 {
@@ -43,7 +43,7 @@ class FieldsRelationManager extends RelationManager
                                     ->required()
                                     ->placeholder(__('Name'))
                                     ->live(debounce: 250)
-                                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
                                     ->readonly(),
@@ -75,10 +75,10 @@ class FieldsRelationManager extends RelationManager
                             ]),
                         Section::make('Configuration')
                             ->columns(3)
-                            ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
+                            ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
                                 $get('field_type')
                             ))
-                            ->visible(fn (Get $get) => filled($get('field_type'))),
+                            ->visible(fn(Get $get) => filled($get('field_type'))),
                     ]),
             ]);
     }
@@ -96,7 +96,7 @@ class FieldsRelationManager extends RelationManager
 
     private function initializeDefaultConfig(string $fieldType): array
     {
-        $className = 'Vormkracht10\\Fields\\Fields\\' . Str::studly($fieldType);
+        $className = 'Backstage\\Fields\\Fields\\' . Str::studly($fieldType);
 
         if (! class_exists($className)) {
             return [];
@@ -169,7 +169,8 @@ class FieldsRelationManager extends RelationManager
                     }),
                 Tables\Actions\DeleteAction::make()
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
-                        if (isset($record->valueColumn) && $this->ownerRecord->getConnection()
+                        if (
+                            isset($record->valueColumn) && $this->ownerRecord->getConnection()
                             ->getSchemaBuilder()
                             ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
                         ) {
