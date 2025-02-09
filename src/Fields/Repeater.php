@@ -77,7 +77,7 @@ class Repeater extends Base implements FieldContract
             $input = $input->reorderableWithButtons();
         }
 
-        if ($field && !$field->relationLoaded('children')) {
+        if ($field && ! $field->relationLoaded('children')) {
             $field->load('children');
         }
 
