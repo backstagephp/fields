@@ -77,7 +77,11 @@ class Repeater extends Base implements FieldContract
             $input = $input->reorderableWithButtons();
         }
 
-        if (count($field->children) > 0) {
+        if ($field && !$field->relationLoaded('children')) {
+            $field->load('children');
+        }
+
+        if ($field && $field->children->count() > 0) {
             $input = $input->schema(self::generateSchemaFromChildren($field->children));
         }
 
