@@ -99,7 +99,7 @@ trait CanMapDynamicFields
         return $data;
     }
 
-    private function resolveFormFields(mixed $record = null): array
+    private function resolveFormFields(mixed $record = null, bool $isNested = false): array
     {
         $record = $record ?? $this->record;
 
@@ -110,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record))
+            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record, $isNested))
             ->filter()
             ->values()
             ->all();
@@ -122,11 +122,11 @@ trait CanMapDynamicFields
             ->map(fn ($fieldClass) => new $fieldClass);
     }
 
-    private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null): ?object
+    private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
     {
         $record = $record ?? $this->record;
 
-        $inputName = "{$record->valueColumn}.{$field->ulid}";
+        $inputName = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
 
         // Try to resolve from standard field type map
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
