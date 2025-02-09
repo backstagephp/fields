@@ -57,11 +57,11 @@ class FieldsRelationManager extends RelationManager
                                     ->options(function () {
                                         return collect([
                                             ...FieldEnum::array(),
-                                            ...$this->prepareCustomFieldOptions(Fields::getFields())
+                                            ...$this->prepareCustomFieldOptions(Fields::getFields()),
                                         ])
                                             ->sortBy(fn ($value) => $value)
                                             ->mapWithKeys(fn ($value, $key) => [
-                                                $key => Str::headline($value)
+                                                $key => Str::headline($value),
                                             ])
                                             ->toArray();
                                     })
