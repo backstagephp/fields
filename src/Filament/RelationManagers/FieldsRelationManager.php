@@ -54,18 +54,17 @@ class FieldsRelationManager extends RelationManager
                                     ->label(__('Field Type'))
                                     ->live(debounce: 250)
                                     ->reactive()
-                                    ->options(
-                                        function () {
-                                            $options = array_merge(
-                                                FieldEnum::array(),
-                                                $this->prepareCustomFieldOptions(Fields::getFields())
-                                            );
-
-                                            asort($options);
-
-                                            return $options;
-                                        }
-                                    )
+                                    ->options(function () {
+                                        return collect([
+                                            ...FieldEnum::array(),
+                                            ...$this->prepareCustomFieldOptions(Fields::getFields())
+                                        ])
+                                            ->sortBy(fn ($value) => $value)
+                                            ->mapWithKeys(fn ($value, $key) => [
+                                                $key => Str::headline($value)
+                                            ])
+                                            ->toArray();
+                                    })
                                     ->required()
                                     ->afterStateUpdated(function ($state, Set $set) {
                                         $set('config', []);
