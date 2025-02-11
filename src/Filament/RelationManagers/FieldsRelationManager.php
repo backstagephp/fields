@@ -160,10 +160,13 @@ class FieldsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
+
+                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+
                         return [
                             ...$data,
                             'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->ulid,
+                            'model_key' => $this->ownerRecord->{$key},
                         ];
                     })
                     ->after(function (Component $livewire) {
@@ -177,8 +180,10 @@ class FieldsRelationManager extends RelationManager
                                 ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
                         ) {
 
+                            $key = $this->ownerRecord->getKeyName() ?? 'id';
+
                             $this->ownerRecord->update([
-                                $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->ulid)->toArray(),
+                                $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->{$key})->toArray(),
                             ]);
                         }
 
