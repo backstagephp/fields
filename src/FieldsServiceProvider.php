@@ -151,6 +151,7 @@ class FieldsServiceProvider extends PackageServiceProvider
     {
         return [
             'create_fields_table',
+            'remove_slug_from_unique_constraint_in_fields_table',
         ];
     }
 }
