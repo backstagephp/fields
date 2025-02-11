@@ -142,9 +142,12 @@ class FieldsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->slideOver()
                     ->mutateFormDataUsing(function (array $data) {
+
+                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+
                         return [
                             ...$data,
-                            'position' => Field::where('model_key', $this->ownerRecord->id)->get()->max('position') + 1,
+                            'position' => Field::where('model_key', $key)->get()->max('position') + 1,
                             'model_type' => 'setting',
                             'model_key' => $this->ownerRecord->slug,
                         ];
