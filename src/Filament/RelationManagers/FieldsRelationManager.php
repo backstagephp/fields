@@ -43,16 +43,10 @@ class FieldsRelationManager extends RelationManager
                                     ->required()
                                     ->placeholder(__('Name'))
                                     ->live(debounce: 250)
-                                    ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old) {
-                                        $currentSlug = $get('slug');
-
-                                        if (! $currentSlug || $currentSlug === Str::slug($old)) {
-                                            $set('slug', Str::slug($state));
-                                        }
-                                    }),
+                                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
-                                    ->required(),
+                                    ->readonly(),
 
                                 Select::make('field_type')
                                     ->searchable()
