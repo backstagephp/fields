@@ -130,12 +130,12 @@ trait CanMapDynamicFields
 
         // Try to resolve from standard field type map
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
-            return $fieldClass::make(name: $inputName, field: $field);
+            return $fieldClass::make(name: $field->ulid ?? $inputName, field: $field);
         }
 
         // Try to resolve from custom fields
         if ($customField = $customFields->get($field->field_type)) {
-            return $customField::make($inputName, $field);
+            return $customField::make(name: $field->ulid ?? $inputName, field: $field);
         }
 
         return null;
