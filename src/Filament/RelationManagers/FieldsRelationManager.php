@@ -45,7 +45,7 @@ class FieldsRelationManager extends RelationManager
                                     ->live(debounce: 250)
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old) {
                                         $currentSlug = $get('slug');
-                                        
+
                                         if (! $currentSlug || $currentSlug === Str::slug($old)) {
                                             $set('slug', Str::slug($state));
                                         }
