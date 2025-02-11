@@ -153,7 +153,7 @@ class Repeater extends Base implements FieldContract
                                             Hidden::make('model_type')
                                                 ->default('field'),
                                             Hidden::make('model_key')
-                                                ->default('slug'),
+                                                ->default('ulid'),
                                             TextInput::make('name')
                                                 ->label(__('Name'))
                                                 ->required()
