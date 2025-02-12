@@ -35,7 +35,7 @@ class DateTime extends Base implements FieldContract
 
     public static function make(string $name, Field $field): Input
     {
-        $input = self::applyDefaultSettings(input: Input::make($field->ulid ?? $name), field: $field);
+        $input = self::applyDefaultSettings(input: Input::make($name), field: $field);
 
         $input = $input->label($field->name ?? self::getDefaultConfig()['label'] ?? null)
             ->format($field->config['format'] ?? self::getDefaultConfig()['format'])

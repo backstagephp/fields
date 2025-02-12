@@ -30,7 +30,7 @@ class CheckboxList extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
-        $input = self::applyDefaultSettings(input: Input::make($field->ulid ?? $name), field: $field);
+        $input = self::applyDefaultSettings(input: Input::make($name), field: $field);
 
         $input = $input->label($field->name ?? null)
             ->searchable($field->config['searchable'] ?? self::getDefaultConfig()['searchable'])
@@ -94,16 +94,16 @@ class CheckboxList extends Base implements FieldContract
                                     //
                                     Forms\Components\TextInput::make('config.noSearchResultsMessage')
                                         ->label(__('No search results message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchPrompt')
                                         ->label(__('Search prompt'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                     Forms\Components\TextInput::make('config.searchDebounce')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(100)
                                         ->label(__('Search debounce'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn(Forms\Get $get): bool => $get('config.searchable')),
                                 ]),
                         ]),
                 ])->columnSpanFull(),

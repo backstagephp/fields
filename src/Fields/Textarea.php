@@ -26,7 +26,7 @@ class Textarea extends Base implements FieldContract
 
     public static function make(string $name, Field $field): Input
     {
-        $input = self::applyDefaultSettings(input: Input::make($field->ulid ?? $name), field: $field);
+        $input = self::applyDefaultSettings(input: Input::make($name), field: $field);
 
         $input = $input->label($field->name)
             ->readOnly($field->config['readOnly'] ?? self::getDefaultConfig()['readOnly'])
