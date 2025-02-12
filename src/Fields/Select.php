@@ -38,7 +38,7 @@ class Select extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
-        $input = self::applyDefaultSettings(Input::make(input: $field->ulid ?? $name), field: $field);
+        $input = self::applyDefaultSettings(input: Input::make($field->ulid ?? $name), field: $field);
 
         $input = $input->label($field->name ?? null)
             ->options($field->config['options'] ?? self::getDefaultConfig()['options'])
