@@ -9,7 +9,6 @@ use Illuminate\Support\Str;
 use Backstage\Fields\Models\Field;
 use Illuminate\Support\Collection;
 use Backstage\Fields\Facades\Fields;
-use Backstage\Fields\Fields\Builder;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
@@ -17,20 +16,20 @@ use Filament\Forms\Components\TextInput;
 use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
-use Filament\Forms\Components\Repeater as Input;
+use Filament\Forms\Components\Builder as Input;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Fields\Select as FieldsSelect;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
 
-class Repeater extends Base implements FieldContract
+class Builder extends Base implements FieldContract
 {
     use HasConfigurableFields;
     use HasFieldTypeResolver;
     use HasOptions;
 
     private const FIELD_TYPE_MAP = [
-        'builder' => Builder::class,
+        'builder' => Input::class,
         'text' => Text::class,
         'textarea' => Textarea::class,
         'rich-editor' => RichEditor::class,
