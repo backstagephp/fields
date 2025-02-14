@@ -70,7 +70,7 @@ trait CanMapDynamicFields
         });
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateBeforeSave(array $data): array
     {
         if (! isset($this->record)) {
             return $data;
@@ -110,7 +110,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record, $isNested))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields, $record, $isNested))
             ->filter()
             ->values()
             ->all();
@@ -119,7 +119,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
