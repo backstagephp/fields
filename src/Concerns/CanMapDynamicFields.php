@@ -105,7 +105,7 @@ trait CanMapDynamicFields
             ['config' => $fieldConfig, 'instance' => $fieldInstance] = $this->resolveFieldConfigAndInstance($field);
             $data = $mutationStrategy($field, $fieldConfig, $fieldInstance, $data);
 
-            if (!empty($field->children)) {
+            if (! empty($field->children)) {
                 foreach ($field->children as $nestedField) {
                     ['config' => $nestedFieldConfig, 'instance' => $nestedFieldInstance] = $this->resolveFieldConfigAndInstance($nestedField);
                     $data = $mutationStrategy($nestedField, $nestedFieldConfig, $nestedFieldInstance, $data);
