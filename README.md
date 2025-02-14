@@ -164,6 +164,13 @@ class EditContent extends EditRecord
         return $form
             ->schema($this->resolveFormFields());
     }
+
+    public function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->mutateBeforeSave($data);
+        
+        return $data;
+    }
 }
 ```
 
