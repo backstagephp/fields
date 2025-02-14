@@ -105,10 +105,13 @@ trait CanMapDynamicFields
             ['config' => $fieldConfig, 'instance' => $fieldInstance] = $this->resolveFieldConfigAndInstance($field);
             $data = $mutationStrategy($field, $fieldConfig, $fieldInstance, $data);
 
-            if (! empty($field->children)) {
-                foreach ($field->children as $nestedField) {
-                    ['config' => $nestedFieldConfig, 'instance' => $nestedFieldInstance] = $this->resolveFieldConfigAndInstance($nestedField);
-                    $data = $mutationStrategy($nestedField, $nestedFieldConfig, $nestedFieldInstance, $data);
+            if ($field->field_type == Field::Builder->value) {
+                foreach ($data[$this->record->valueColumn][$field->ulid] as $child) {
+                    foreach ($child['data'] as $ulid => $value) {
+                        $field = Model::find($ulid);
+                        ['config' => $fieldConfig, 'instance' => $fieldInstance] = $this->resolveFieldConfigAndInstance($field);
+                        $data = $mutationStrategy($field, $fieldConfig, $fieldInstance, $data);
+                    }
                 }
             }
         }
@@ -127,7 +130,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record, $isNested))
+            ->map(fn($field) => $this->resolveFieldInput($field, $customFields, $record, $isNested))
             ->filter()
             ->values()
             ->all();
@@ -136,7 +139,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->map(fn($fieldClass) => new $fieldClass);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
