@@ -23,7 +23,7 @@ trait HasOptions
                     $model = $res->getModel();
                     $model = new $model;
 
-                    if (!isset($relation['resource'])) {
+                    if (! isset($relation['resource'])) {
                         return false;
                     }
 
@@ -109,8 +109,8 @@ trait HasOptions
                         Forms\Components\KeyValue::make('config.options')
                             ->label(__('Options'))
                             ->columnSpanFull()
-                            ->visible(fn(Forms\Get $get): bool => $get('config.optionType') == 'array')
-                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'array'),
+                            ->visible(fn (Forms\Get $get): bool => $get('config.optionType') == 'array')
+                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'array'),
                         // Relationship options
                         Repeater::make('config.relations')
                             ->label(__('Relations'))
@@ -169,19 +169,19 @@ trait HasOptions
                                                     ->toArray();
                                             })
                                             ->noSearchResultsMessage(__('No types found'))
-                                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
                                         Forms\Components\Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
-                                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
                                         Forms\Components\Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
-                                            ->visible(fn(Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
                                             ->schema([
                                                 Forms\Components\Grid::make(3)
                                                     ->schema([
                                                         Forms\Components\Select::make('column')
-                                                            ->options(fn(\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
+                                                            ->options(fn (\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
                                                                 'slug' => __('Slug'),
                                                                 'name' => __('Name'),
                                                             ])
@@ -236,7 +236,7 @@ trait HasOptions
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->visible(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship')
+                            ->visible(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship')
                             ->columnSpanFull(),
                     ]),
             ]);
