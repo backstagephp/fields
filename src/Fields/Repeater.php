@@ -159,7 +159,7 @@ class Repeater extends Base implements FieldContract
                                                 ->label(__('Name'))
                                                 ->required()
                                                 ->placeholder(__('Name'))
-                                                ->live(debounce: 250)
+                                                ->live(onBlur: true)
                                                 ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                                             TextInput::make('slug')
                                                 ->readonly(),
@@ -169,6 +169,7 @@ class Repeater extends Base implements FieldContract
                                                 ->label(__('Field Type'))
                                                 ->live(debounce: 250)
                                                 ->reactive()
+                                                ->default(FieldEnum::Text->value)
                                                 ->options(
                                                     function () {
                                                         $options = array_merge(
@@ -215,7 +216,7 @@ class Repeater extends Base implements FieldContract
                 continue;
             }
 
-            $schema[] = $field::make($child['name'], $child);
+            $schema[] = $field::make($child['slug'], $child);
         }
 
         return $schema;

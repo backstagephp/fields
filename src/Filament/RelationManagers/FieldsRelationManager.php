@@ -42,7 +42,7 @@ class FieldsRelationManager extends RelationManager
                                     ->label(__('Name'))
                                     ->required()
                                     ->placeholder(__('Name'))
-                                    ->live(debounce: 250)
+                                    ->live(onBlur: true)
                                     ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
                                 TextInput::make('slug')
@@ -54,6 +54,7 @@ class FieldsRelationManager extends RelationManager
                                     ->label(__('Field Type'))
                                     ->live(debounce: 250)
                                     ->reactive()
+                                    ->default(FieldEnum::Text->value)
                                     ->options(function () {
                                         return collect([
                                             ...FieldEnum::array(),

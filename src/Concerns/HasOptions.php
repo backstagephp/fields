@@ -17,11 +17,15 @@ trait HasOptions
             $options = [];
 
             foreach ($field->config['relations'] as $relation) {
-                $resources = config('fields.selectable_resources');
+                $resources = config('backstage.fields.selectable_resources');
                 $resourceClass = collect($resources)->first(function ($resource) use ($relation) {
                     $res = new $resource;
                     $model = $res->getModel();
                     $model = new $model;
+
+                    if (! isset($relation['resource'])) {
+                        return false;
+                    }
 
                     return $model->getTable() === $relation['resource'];
                 });
@@ -121,7 +125,7 @@ trait HasOptions
                                             ->columnSpanFull()
                                             ->live(debounce: 250)
                                             ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
-                                                $resources = config('fields.selectable_resources');
+                                                $resources = config('backstage.fields.selectable_resources');
                                                 $resourceClass = collect($resources)->first(function ($resource) use ($state) {
                                                     $res = new $resource;
                                                     $model = $res->getModel();
@@ -150,7 +154,7 @@ trait HasOptions
                                                 $set('relationValue_options', $columnOptions);
                                             })
                                             ->options(function () {
-                                                $resources = config('fields.selectable_resources');
+                                                $resources = config('backstage.fields.selectable_resources');
 
                                                 return collect($resources)->map(function ($resource) {
                                                     $res = new $resource;
@@ -204,7 +208,7 @@ trait HasOptions
                                                                     return [];
                                                                 }
 
-                                                                $resources = config('fields.selectable_resources');
+                                                                $resources = config('backstage.fields.selectable_resources');
                                                                 $resourceClass = collect($resources)->first(function ($r) use ($resource) {
                                                                     $res = new $r;
                                                                     $model = $res->getModel();
