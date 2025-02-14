@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('fields', function (Blueprint $table) {
+        Schema::table('fields', function (Blueprint $table) {
             $table->dropUnique(['model_type', 'model_key', 'slug']);
 
             $table->string('model_type', 191)->change();
