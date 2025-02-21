@@ -70,6 +70,10 @@ class FieldsRelationManager extends RelationManager
                                     ->afterStateUpdated(function ($state, Set $set) {
                                         $set('config', []);
 
+                                        if (blank($state)) {
+                                            return;
+                                        }
+
                                         $set('config', $this->initializeConfig($state));
                                     }),
                             ]),
