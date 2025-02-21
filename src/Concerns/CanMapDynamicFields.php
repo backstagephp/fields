@@ -106,6 +106,7 @@ trait CanMapDynamicFields
             $data = $mutationStrategy($field, $fieldConfig, $fieldInstance, $data);
 
             if ($field->field_type == Field::Builder->value) {
+                // Performance optimization: improve query performance by loading children in a single query
                 foreach ($data[$this->record->valueColumn][$field->ulid] as $child) {
                     foreach ($child['data'] as $ulid => $value) {
                         $field = Model::find($ulid);
