@@ -53,7 +53,7 @@ trait CanMapDynamicFields
         //
     }
 
-    protected function mutateFormDataBeforeFill(array $data): array
+    protected function mutateBeforeFill(array $data): array
     {
         if (! isset($this->record) || $this->record->fields->isEmpty()) {
             return $data;
