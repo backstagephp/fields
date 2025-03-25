@@ -69,8 +69,8 @@ class FieldsRelationManager extends RelationManager
                                             ...FieldEnum::array(),
                                             ...$this->prepareCustomFieldOptions(Fields::getFields()),
                                         ])
-                                            ->sortBy(fn($value) => $value)
-                                            ->mapWithKeys(fn($value, $key) => [
+                                            ->sortBy(fn ($value) => $value)
+                                            ->mapWithKeys(fn ($value, $key) => [
                                                 $key => Str::headline($value),
                                             ])
                                             ->toArray();
@@ -88,10 +88,10 @@ class FieldsRelationManager extends RelationManager
                             ]),
                         Section::make('Configuration')
                             ->columns(3)
-                            ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
+                            ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
                                 $get('field_type')
                             ))
-                            ->visible(fn(Get $get) => filled($get('field_type'))),
+                            ->visible(fn (Get $get) => filled($get('field_type'))),
                     ]),
             ]);
     }
@@ -190,8 +190,8 @@ class FieldsRelationManager extends RelationManager
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
                         if (
                             isset($record->valueColumn) && $this->ownerRecord->getConnection()
-                            ->getSchemaBuilder()
-                            ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
+                                ->getSchemaBuilder()
+                                ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
                         ) {
 
                             $key = $this->ownerRecord->getKeyName() ?? 'id';
