@@ -110,8 +110,8 @@ trait HasDatalist
                             ->label(__('Options'))
                             ->columnSpanFull()
                             ->placeholder(__('Add option'))
-                            ->visible(fn(Forms\Get $get): bool => $get('config.datalistType') == 'array')
-                            ->required(fn(Forms\Get $get): bool => $get('config.datalistType') == 'array'),
+                            ->visible(fn (Forms\Get $get): bool => $get('config.datalistType') == 'array')
+                            ->required(fn (Forms\Get $get): bool => $get('config.datalistType') == 'array'),
                         // Relationship options
                         Repeater::make('config.relations')
                             ->label(__('Relations'))
@@ -170,25 +170,25 @@ trait HasDatalist
                                                     ->toArray();
                                             })
                                             ->noSearchResultsMessage(__('No types found'))
-                                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
                                         Forms\Components\Select::make('relationValue')
                                             ->label(__('Column'))
-                                            ->options(fn(Forms\Get $get) => $get('relationValue_options') ?? [])
+                                            ->options(fn (Forms\Get $get) => $get('relationValue_options') ?? [])
                                             ->searchable()
-                                            ->visible(fn(Forms\Get $get): bool => ! empty($get('resource')))
-                                            ->required(fn(Forms\Get $get): bool => ! empty($get('resource'))),
+                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->required(fn (Forms\Get $get): bool => ! empty($get('resource'))),
                                         Forms\Components\Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
-                                            ->required(fn(Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get('config.optionType') == 'relationship'),
                                         Forms\Components\Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
-                                            ->visible(fn(Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
                                             ->schema([
                                                 Forms\Components\Grid::make(3)
                                                     ->schema([
                                                         Forms\Components\Select::make('column')
-                                                            ->options(fn(\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
+                                                            ->options(fn (\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
                                                                 'slug' => __('Slug'),
                                                                 'name' => __('Name'),
                                                             ])
@@ -243,7 +243,7 @@ trait HasDatalist
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->visible(fn(Forms\Get $get): bool => $get('config.datalistType') == 'relationship')
+                            ->visible(fn (Forms\Get $get): bool => $get('config.datalistType') == 'relationship')
                             ->columnSpanFull(),
                     ]),
             ]);
