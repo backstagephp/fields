@@ -108,8 +108,8 @@ trait HasSelectableValues
                         $arrayComponent::make('config.options')
                             ->label(__('Options'))
                             ->columnSpanFull()
-                            ->visible(fn(Forms\Get $get): bool => $get("config.{$type}") == 'array')
-                            ->required(fn(Forms\Get $get): bool => $get("config.{$type}") == 'array'),
+                            ->visible(fn (Forms\Get $get): bool => $get("config.{$type}") == 'array')
+                            ->required(fn (Forms\Get $get): bool => $get("config.{$type}") == 'array'),
                         // Relationship options
                         Repeater::make('config.relations')
                             ->label(__('Relations'))
@@ -168,25 +168,25 @@ trait HasSelectableValues
                                                     ->toArray();
                                             })
                                             ->noSearchResultsMessage(__('No types found'))
-                                            ->required(fn(Forms\Get $get): bool => $get("config.{$type}") == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get("config.{$type}") == 'relationship'),
                                         Forms\Components\Select::make('relationValue')
                                             ->label(__('Column'))
-                                            ->options(fn(Forms\Get $get) => $get('relationValue_options') ?? [])
+                                            ->options(fn (Forms\Get $get) => $get('relationValue_options') ?? [])
                                             ->searchable()
-                                            ->visible(fn(Forms\Get $get): bool => ! empty($get('resource')))
-                                            ->required(fn(Forms\Get $get): bool => ! empty($get('resource'))),
+                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->required(fn (Forms\Get $get): bool => ! empty($get('resource'))),
                                         Forms\Components\Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
-                                            ->required(fn(Forms\Get $get): bool => $get("config.{$type}") == 'relationship'),
+                                            ->required(fn (Forms\Get $get): bool => $get("config.{$type}") == 'relationship'),
                                         Forms\Components\Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
-                                            ->visible(fn(Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
                                             ->schema([
                                                 Forms\Components\Grid::make(3)
                                                     ->schema([
                                                         Forms\Components\Select::make('column')
-                                                            ->options(fn(\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
+                                                            ->options(fn (\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
                                                                 'slug' => __('Slug'),
                                                                 'name' => __('Name'),
                                                             ])
@@ -241,7 +241,7 @@ trait HasSelectableValues
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->visible(fn(Forms\Get $get): bool => $get("config.{$type}") == 'relationship')
+                            ->visible(fn (Forms\Get $get): bool => $get("config.{$type}") == 'relationship')
                             ->columnSpanFull(),
                     ]),
             ]);
