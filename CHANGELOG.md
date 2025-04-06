@@ -2,6 +2,14 @@
 
 All notable changes to `fields` will be documented in this file.
 
+## v0.3.0 - 2025-04-06
+
+### What's Changed
+
+* [Feature] Datalists for text inputs and drop PHP 8.1 support by @Baspa in https://github.com/backstagephp/fields/pull/4
+
+**Full Changelog**: https://github.com/backstagephp/fields/compare/v0.2.0...v0.3.0
+
 ## v0.2.0 - 2025-02-07
 
 ### What's Changed
