@@ -22,7 +22,7 @@
     "require": {
         "php": "^8.2",
         "baspa/laravel-timezones": "^1.2",
-        "filament/filament": "3.3.2",
+        "filament/filament": "^3",
         "saade/filament-adjacency-list": "^3.2",
         "spatie/laravel-package-tools": "^1.15.0",
         "staudenmeir/laravel-adjacency-list": "^1.0"
