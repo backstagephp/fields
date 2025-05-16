@@ -77,7 +77,11 @@ class Repeater extends Base implements FieldContract
             $input = $input->reorderableWithButtons();
         }
 
-        if (count($field->children) > 0) {
+        if ($field && ! $field->relationLoaded('children')) {
+            $field->load('children');
+        }
+
+        if ($field && $field->children->count() > 0) {
             $input = $input->schema(self::generateSchemaFromChildren($field->children));
         }
 
@@ -149,13 +153,23 @@ class Repeater extends Base implements FieldContract
                                             Hidden::make('model_type')
                                                 ->default('field'),
                                             Hidden::make('model_key')
-                                                ->default('slug'),
+                                                ->default('ulid'),
                                             TextInput::make('name')
                                                 ->label(__('Name'))
                                                 ->required()
                                                 ->placeholder(__('Name'))
-                                                ->live(debounce: 250)
-                                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                                ->live(onBlur: true)
+                                                ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?Field $record) {
+                                                    if (! $record || blank($get('slug'))) {
+                                                        $set('slug', Str::slug($state));
+                                                    }
+
+                                                    $currentSlug = $get('slug');
+
+                                                    if (! $record?->slug && (! $currentSlug || $currentSlug === Str::slug($old))) {
+                                                        $set('slug', Str::slug($state));
+                                                    }
+                                                }),
                                             TextInput::make('slug')
                                                 ->readonly(),
                                             Select::make('field_type')
@@ -164,6 +178,7 @@ class Repeater extends Base implements FieldContract
                                                 ->label(__('Field Type'))
                                                 ->live(debounce: 250)
                                                 ->reactive()
+                                                ->default(FieldEnum::Text->value)
                                                 ->options(
                                                     function () {
                                                         $options = array_merge(
@@ -210,7 +225,7 @@ class Repeater extends Base implements FieldContract
                 continue;
             }
 
-            $schema[] = $field::make($child['name'], $child);
+            $schema[] = $field::make($child['slug'], $child);
         }
 
         return $schema;

@@ -42,11 +42,20 @@ class FieldsRelationManager extends RelationManager
                                     ->label(__('Name'))
                                     ->required()
                                     ->placeholder(__('Name'))
-                                    ->live(debounce: 250)
-                                    ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?Field $record) {
+                                        if (! $record || blank($get('slug'))) {
+                                            $set('slug', Str::slug($state));
+                                        }
 
-                                TextInput::make('slug')
-                                    ->readonly(),
+                                        $currentSlug = $get('slug');
+
+                                        if (! $record?->slug && (! $currentSlug || $currentSlug === Str::slug($old))) {
+                                            $set('slug', Str::slug($state));
+                                        }
+                                    }),
+
+                                TextInput::make('slug'),
 
                                 Select::make('field_type')
                                     ->searchable()
@@ -54,21 +63,25 @@ class FieldsRelationManager extends RelationManager
                                     ->label(__('Field Type'))
                                     ->live(debounce: 250)
                                     ->reactive()
-                                    ->options(
-                                        function () {
-                                            $options = array_merge(
-                                                FieldEnum::array(),
-                                                $this->prepareCustomFieldOptions(Fields::getFields())
-                                            );
-
-                                            asort($options);
-
-                                            return $options;
-                                        }
-                                    )
+                                    ->default(FieldEnum::Text->value)
+                                    ->options(function () {
+                                        return collect([
+                                            ...FieldEnum::array(),
+                                            ...$this->prepareCustomFieldOptions(Fields::getFields()),
+                                        ])
+                                            ->sortBy(fn ($value) => $value)
+                                            ->mapWithKeys(fn ($value, $key) => [
+                                                $key => Str::headline($value),
+                                            ])
+                                            ->toArray();
+                                    })
                                     ->required()
                                     ->afterStateUpdated(function ($state, Set $set) {
                                         $set('config', []);
+
+                                        if (blank($state)) {
+                                            return;
+                                        }
 
                                         $set('config', $this->initializeConfig($state));
                                     }),
@@ -143,9 +156,12 @@ class FieldsRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->slideOver()
                     ->mutateFormDataUsing(function (array $data) {
+
+                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+
                         return [
                             ...$data,
-                            'position' => Field::where('model_key', $this->ownerRecord->id)->get()->max('position') + 1,
+                            'position' => Field::where('model_key', $key)->get()->max('position') + 1,
                             'model_type' => 'setting',
                             'model_key' => $this->ownerRecord->slug,
                         ];
@@ -158,10 +174,13 @@ class FieldsRelationManager extends RelationManager
                 Tables\Actions\EditAction::make()
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
+
+                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+
                         return [
                             ...$data,
                             'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->ulid,
+                            'model_key' => $this->ownerRecord->{$key},
                         ];
                     })
                     ->after(function (Component $livewire) {
@@ -175,8 +194,10 @@ class FieldsRelationManager extends RelationManager
                                 ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
                         ) {
 
+                            $key = $this->ownerRecord->getKeyName() ?? 'id';
+
                             $this->ownerRecord->update([
-                                $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->ulid)->toArray(),
+                                $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->{$key})->toArray(),
                             ]);
                         }
 

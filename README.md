@@ -1,4 +1,4 @@
-# Fields
+# Backstage: Fields in Filament
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/backstage/fields.svg?style=flat-square)](https://packagist.org/packages/backstage/fields)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/backstage/fields/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/backstagephp/fields/actions?query=workflow%3Arun-tests+branch%3Amain)
@@ -163,6 +163,13 @@ class EditContent extends EditRecord
     {
         return $form
             ->schema($this->resolveFormFields());
+    }
+
+    public function mutateFormDataBeforeSave(array $data): array
+    {
+        $this->mutateBeforeSave($data);
+        
+        return $data;
     }
 }
 ```

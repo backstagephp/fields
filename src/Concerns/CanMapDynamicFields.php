@@ -53,7 +53,7 @@ trait CanMapDynamicFields
         //
     }
 
-    protected function mutateFormDataBeforeFill(array $data): array
+    protected function mutateBeforeFill(array $data): array
     {
         if (! isset($this->record) || $this->record->fields->isEmpty()) {
             return $data;
@@ -70,7 +70,7 @@ trait CanMapDynamicFields
         });
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateBeforeSave(array $data): array
     {
         if (! isset($this->record)) {
             return $data;
@@ -85,21 +85,38 @@ trait CanMapDynamicFields
         });
     }
 
+    private function resolveFieldConfigAndInstance(Model $field): array
+    {
+        $fieldConfig = Field::tryFrom($field->field_type)
+            ? $this->fieldInspector->initializeDefaultField($field->field_type)
+            : $this->fieldInspector->initializeCustomField($field->field_type);
+
+        return [
+            'config' => $fieldConfig,
+            'instance' => new $fieldConfig['class'],
+        ];
+    }
+
     protected function mutateFormData(array $data, callable $mutationStrategy): array
     {
         foreach ($this->record->fields as $field) {
-            $fieldConfig = Field::tryFrom($field->field_type)
-                ? $this->fieldInspector->initializeDefaultField($field->field_type)
-                : $this->fieldInspector->initializeCustomField($field->field_type);
+            $field->load('children');
 
-            $fieldInstance = new $fieldConfig['class'];
+            ['config' => $fieldConfig, 'instance' => $fieldInstance] = $this->resolveFieldConfigAndInstance($field);
             $data = $mutationStrategy($field, $fieldConfig, $fieldInstance, $data);
+
+            if (! empty($field->children)) {
+                foreach ($field->children as $nestedField) {
+                    ['config' => $nestedFieldConfig, 'instance' => $nestedFieldInstance] = $this->resolveFieldConfigAndInstance($nestedField);
+                    $data = $mutationStrategy($nestedField, $nestedFieldConfig, $nestedFieldInstance, $data);
+                }
+            }
         }
 
         return $data;
     }
 
-    private function resolveFormFields(mixed $record = null): array
+    private function resolveFormFields(mixed $record = null, bool $isNested = false): array
     {
         $record = $record ?? $this->record;
 
@@ -110,7 +127,7 @@ trait CanMapDynamicFields
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
-            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record))
+            ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record, $isNested))
             ->filter()
             ->values()
             ->all();
@@ -122,11 +139,11 @@ trait CanMapDynamicFields
             ->map(fn ($fieldClass) => new $fieldClass);
     }
 
-    private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null): ?object
+    private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
     {
         $record = $record ?? $this->record;
 
-        $inputName = "{$record->valueColumn}.{$field->ulid}";
+        $inputName = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
 
         // Try to resolve from standard field type map
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {

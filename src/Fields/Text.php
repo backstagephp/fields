@@ -3,6 +3,7 @@
 namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Concerns\HasAffixes;
+use Backstage\Fields\Concerns\HasDatalist;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
@@ -11,12 +12,14 @@ use Filament\Forms\Components\TextInput as Input;
 class Text extends Base implements FieldContract
 {
     use HasAffixes;
+    use HasDatalist;
 
     public static function getDefaultConfig(): array
     {
         return [
             ...parent::getDefaultConfig(),
             ...self::getAffixesConfig(),
+            ...self::getDatalistConfig(),
             'readOnly' => false,
             'autocapitalize' => 'none',
             'autocomplete' => null,
@@ -73,6 +76,7 @@ class Text extends Base implements FieldContract
         }
 
         $input = self::addAffixesToInput($input, $field);
+        $input = self::addDatalistToInput($input, $field);
 
         return $input;
     }
@@ -107,6 +111,7 @@ class Text extends Base implements FieldContract
                                         ->default(false)
                                         ->label(__('Autocomplete')),
                                     self::affixFormFields(),
+                                    self::datalistFormFields(),
                                     Forms\Components\TextInput::make('config.placeholder')
                                         ->label(__('Placeholder')),
                                     Forms\Components\TextInput::make('config.mask')
