@@ -171,6 +171,7 @@ trait HasSelectableValues
                                             ->required(fn (Forms\Get $get): bool => $get("config.{$type}") == 'relationship'),
                                         Forms\Components\Select::make('relationValue')
                                             ->label(__('Column'))
+                                            ->helperText(__('The column to use as name for the options'))
                                             ->options(fn (Forms\Get $get) => $get('relationValue_options') ?? [])
                                             ->searchable()
                                             ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
