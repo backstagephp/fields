@@ -167,6 +167,7 @@ class FieldsRelationManager extends RelationManager
             ->groups([
                 Group::make('group')
                     ->label(__('Group'))
+                    ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-')
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
