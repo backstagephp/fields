@@ -31,11 +31,15 @@ trait HasFieldTypeResolver
 
     protected static function resolveFieldTypeClassName(string $fieldType): ?string
     {
+        if (isset(Fields::getFields()[$fieldType])) {
+            return Fields::getFields()[$fieldType];
+        }
+
         if (Field::tryFrom($fieldType)) {
             return sprintf('Backstage\\Fields\\Fields\\%s', Str::studly($fieldType));
         }
 
-        return Fields::getFields()[$fieldType] ?? null;
+        return null;
     }
 
     protected function isValidFieldClass(?string $className): bool
