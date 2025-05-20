@@ -87,9 +87,11 @@ trait CanMapDynamicFields
 
     private function resolveFieldConfigAndInstance(Model $field): array
     {
-        $fieldConfig = Field::tryFrom($field->field_type)
-            ? $this->fieldInspector->initializeDefaultField($field->field_type)
-            : $this->fieldInspector->initializeCustomField($field->field_type);
+        // Try to resolve from custom fields first
+        $fieldConfig = Fields::resolveField($field->field_type) ? 
+            $this->fieldInspector->initializeCustomField($field->field_type) :
+            $this->fieldInspector->initializeDefaultField($field->field_type);
+ 
 
         return [
             'config' => $fieldConfig,
@@ -150,7 +152,7 @@ trait CanMapDynamicFields
             return $customField::make($inputName, $field);
         }
 
-        // Fall back to standard field type map if no custom field found
+        // // Fall back to standard field type map if no custom field found
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
             return $fieldClass::make(name: $inputName, field: $field);
         }
