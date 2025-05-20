@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 
 class Fields
 {
-    private static array $fields = [];
+    protected static array $fields = [];
 
     public static function registerField(string $className): void
     {

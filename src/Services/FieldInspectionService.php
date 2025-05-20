@@ -63,7 +63,7 @@ class FieldInspectionService implements FieldInspector
                 'visibility' => $this->getVisibility($method),
                 'static' => $method->isStatic(),
                 'parameters' => $this->getParametersDetails($method),
-                'returnType' => $method->getReturnType() ? $method->getReturnType()->getName() : null,
+                'returnType' => $method->getReturnType() ? $this->getTypeName($method->getReturnType()) : null,
                 'docComment' => $method->getDocComment() ?: null,
             ];
         }
@@ -78,7 +78,7 @@ class FieldInspectionService implements FieldInspector
             $properties[$property->getName()] = [
                 'visibility' => $this->getVisibility($property),
                 'static' => $property->isStatic(),
-                'type' => $property->getType() ? $property->getType()->getName() : null,
+                'type' => $property->getType() ? $this->getTypeName($property->getType()) : null,
                 'docComment' => $property->getDocComment() ?: null,
                 'defaultValue' => $this->getPropertyDefaultValue($property),
             ];
@@ -92,7 +92,7 @@ class FieldInspectionService implements FieldInspector
         $parameters = [];
         foreach ($method->getParameters() as $param) {
             $parameters[$param->getName()] = [
-                'type' => $param->getType() ? $param->getType()->getName() : null,
+                'type' => $param->getType() ? $this->getTypeName($param->getType()) : null,
                 'hasDefaultValue' => $param->isDefaultValueAvailable(),
                 'defaultValue' => $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null,
                 'isVariadic' => $param->isVariadic(),
@@ -122,5 +122,19 @@ class FieldInspectionService implements FieldInspector
         } catch (\ReflectionException $e) {
             return null;
         }
+    }
+
+    private function getTypeName(\ReflectionType $type): string
+    {
+        if ($type instanceof \ReflectionNamedType) {
+            return $type->getName();
+        }
+        if ($type instanceof \ReflectionUnionType) {
+            return implode('|', array_map(fn($t) => $this->getTypeName($t), $type->getTypes()));
+        }
+        if ($type instanceof \ReflectionIntersectionType) {
+            return implode('&', array_map(fn($t) => $this->getTypeName($t), $type->getTypes()));
+        }
+        return (string) $type;
     }
 }
