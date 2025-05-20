@@ -85,6 +85,28 @@ class FieldsRelationManager extends RelationManager
 
                                         $set('config', $this->initializeConfig($state));
                                     }),
+
+                                Select::make('tab')
+                                    ->label(__('Tab'))
+                                    ->createOptionForm([
+                                        TextInput::make('tab')
+                                            ->label(__('Tab'))
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function (?string $state) {
+                                        dd($state);
+                                        if (blank($state)) {
+                                            return null;
+                                        }
+                                        return Field::where('tab', $state)->exists() ? null : $state;
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->options(function () {
+                                        // Load with earlier used tabs 
+                                        return Field::pluck('tab')->filter()->unique()->toArray() ?? [];
+                                    }),
+
                             ]),
                         Section::make('Configuration')
                             ->columns(3)
@@ -141,6 +163,7 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
+            ->defaultGroup('tab')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('Name'))
