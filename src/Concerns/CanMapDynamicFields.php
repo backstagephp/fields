@@ -3,7 +3,6 @@
 namespace Backstage\Fields\Concerns;
 
 use Backstage\Fields\Contracts\FieldInspector;
-use Backstage\Fields\Enums\Field;
 use Backstage\Fields\Fields;
 use Backstage\Fields\Fields\Checkbox;
 use Backstage\Fields\Fields\CheckboxList;
