@@ -141,18 +141,18 @@ trait CanMapDynamicFields
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
     {
-        $record = $record ?? $this->record;
+        $record = $record ?? $this->record; 
 
         $inputName = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
 
-        // Try to resolve from standard field type map
-        if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
-            return $fieldClass::make(name: $inputName, field: $field);
-        }
-
-        // Try to resolve from custom fields
+        // Try to resolve from custom fields first (giving them priority)
         if ($customField = $customFields->get($field->field_type)) {
             return $customField::make($inputName, $field);
+        }
+
+        // Fall back to standard field type map if no custom field found
+        if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
+            return $fieldClass::make(name: $inputName, field: $field);
         }
 
         return null;
