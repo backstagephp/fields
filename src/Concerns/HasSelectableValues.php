@@ -11,31 +11,43 @@ use Illuminate\Support\Str;
 
 trait HasSelectableValues
 {
+    protected static function resolveResourceModel(string $tableName): ?object
+    {
+        $resources = config('backstage.fields.selectable_resources');
+        $resourceClass = collect($resources)->first(function ($resource) use ($tableName) {
+            $res = new $resource;
+            $model = $res->getModel();
+            $model = new $model;
+
+            return $model->getTable() === $tableName;
+        });
+
+        if (! $resourceClass) {
+            return null;
+        }
+
+        $resource = new $resourceClass;
+        $model = $resource->getModel();
+        
+        return new $model;
+    }
+
     protected static function addValuesToInput(mixed $input, mixed $field, string $type, string $method): mixed
     {
         if (isset($field->config[$type]) && $field->config[$type] === 'relationship') {
             $options = [];
 
             foreach ($field->config['relations'] as $relation) {
-                $resources = config('backstage.fields.selectable_resources');
-                $resourceClass = collect($resources)->first(function ($resource) use ($relation) {
-                    $res = new $resource;
-                    $model = $res->getModel();
-                    $model = new $model;
-
-                    if (! isset($relation['resource'])) {
-                        return false;
-                    }
-
-                    return $model->getTable() === $relation['resource'];
-                });
-
-                if (! $resourceClass) {
+                if (! isset($relation['resource'])) {
                     continue;
                 }
 
-                $resource = new $resourceClass;
-                $model = $resource->getModel();
+                $model = static::resolveResourceModel($relation['resource']);
+
+                if (! $model) {
+                    continue;
+                }
+
                 $query = $model::query();
 
                 // Apply filters if they exist
@@ -124,22 +136,11 @@ trait HasSelectableValues
                                             ->columnSpanFull()
                                             ->live(debounce: 250)
                                             ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
-                                                $resources = config('backstage.fields.selectable_resources');
-                                                $resourceClass = collect($resources)->first(function ($resource) use ($state) {
-                                                    $res = new $resource;
-                                                    $model = $res->getModel();
-                                                    $model = new $model;
+                                                $model = static::resolveResourceModel($state);
 
-                                                    return $model->getTable() === $state;
-                                                });
-
-                                                if (! $resourceClass) {
+                                                if (! $model) {
                                                     return;
                                                 }
-
-                                                $resource = new $resourceClass;
-                                                $model = $resource->getModel();
-                                                $model = new $model;
 
                                                 // Get all column names from the table
                                                 $columns = Schema::getColumnListing($model->getTable());
@@ -214,21 +215,11 @@ trait HasSelectableValues
                                                                     return [];
                                                                 }
 
-                                                                $resources = config('backstage.fields.selectable_resources');
-                                                                $resourceClass = collect($resources)->first(function ($r) use ($resource) {
-                                                                    $res = new $r;
-                                                                    $model = $res->getModel();
-                                                                    $model = new $model;
+                                                                $model = static::resolveResourceModel($resource);
 
-                                                                    return $model->getTable() === $resource;
-                                                                });
-
-                                                                if (! $resourceClass) {
+                                                                if (! $model) {
                                                                     return [];
                                                                 }
-
-                                                                $resource = new $resourceClass;
-                                                                $model = $resource->getModel();
 
                                                                 return $model::query()
                                                                     ->select($column)
