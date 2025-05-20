@@ -2,24 +2,25 @@
 
 namespace Backstage\Fields\Filament\RelationManagers;
 
-use Backstage\Fields\Concerns\HasConfigurableFields;
-use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Backstage\Fields\Enums\Field as FieldEnum;
-use Backstage\Fields\Facades\Fields;
-use Backstage\Fields\Models\Field;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use Livewire\Component;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Backstage\Fields\Models\Field;
+use Filament\Forms\Components\Grid;
+use Filament\Tables\Grouping\Group;
+use Backstage\Fields\Facades\Fields;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class FieldsRelationManager extends RelationManager
 {
@@ -86,25 +87,24 @@ class FieldsRelationManager extends RelationManager
                                         $set('config', $this->initializeConfig($state));
                                     }),
 
-                                Select::make('tab')
-                                    ->label(__('Tab'))
+                                Select::make('group')
+                                    ->label(__('Group'))
                                     ->createOptionForm([
-                                        TextInput::make('tab')
-                                            ->label(__('Tab'))
+                                        TextInput::make('group')
+                                            ->label(__('Group'))
                                             ->required(),
                                     ])
-                                    ->createOptionUsing(function (?string $state) {
-                                        dd($state);
-                                        if (blank($state)) {
-                                            return null;
-                                        }
-                                        return Field::where('tab', $state)->exists() ? null : $state;
+                                    ->createOptionUsing(function (array $data) {
+                                        return $data['group'] ?? null;
                                     })
                                     ->searchable()
                                     ->preload()
                                     ->options(function () {
-                                        // Load with earlier used tabs 
-                                        return Field::pluck('tab')->filter()->unique()->toArray() ?? [];
+                                        return Field::pluck('group')
+                                            ->filter()
+                                            ->unique()
+                                            ->mapWithKeys(fn ($group) => [$group => $group])
+                                            ->toArray();
                                     }),
 
                             ]),
@@ -163,7 +163,11 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
-            ->defaultGroup('tab')
+            ->defaultGroup('group')
+            ->groups([
+                Group::make('group')
+                    ->label(__('Group'))
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('Name'))
