@@ -23,7 +23,7 @@
         "php": "^8.2",
         "baspa/laravel-timezones": "^1.2",
         "filament/filament": "^3.3.10",
-        "saade/filament-adjacency-list": "^3.2.1",
+        "saade/filament-adjacency-list": "^3.2.2",
         "spatie/laravel-package-tools": "^1.15.0",
         "staudenmeir/laravel-adjacency-list": "^1.0"
     },
@@ -72,6 +72,12 @@
             "aliases": {
                 "Fields": "Backstage\\Fields\\Facades\\Fields"
             }
+        }
+    },
+    "repositories": {
+        "saade/filament-adjacency-list": {
+            "type": "git",
+            "url": "git@github.com:backstagephp/filament-adjacency-list.git"
         }
     },
     "minimum-stability": "dev",
