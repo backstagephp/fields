@@ -28,7 +28,7 @@ trait HasSelectableValues
 
         $resource = new $resourceClass;
         $model = $resource->getModel();
-        
+
         return new $model;
     }
 
