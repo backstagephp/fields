@@ -2,6 +2,15 @@
 
 All notable changes to `fields` will be documented in this file.
 
+## v0.4.0 - 2025-06-23
+
+### What's Changed
+
+* Bump dependabot/fetch-metadata from 2.3.0 to 2.4.0 by @dependabot in https://github.com/backstagephp/fields/pull/5
+* [Feature] Allow fields to be grouped by @Baspa in https://github.com/backstagephp/fields/pull/6
+
+**Full Changelog**: https://github.com/backstagephp/fields/compare/v0.3.0...v0.4.0
+
 ## v0.3.0 - 2025-04-06
 
 ### What's Changed
