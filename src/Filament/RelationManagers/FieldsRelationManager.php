@@ -2,25 +2,25 @@
 
 namespace Backstage\Fields\Filament\RelationManagers;
 
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Livewire\Component;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
+use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Grouping\Group;
-use Backstage\Fields\Facades\Fields;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Backstage\Fields\Enums\Field as FieldEnum;
-use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Backstage\Fields\Concerns\HasConfigurableFields;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class FieldsRelationManager extends RelationManager
 {
@@ -167,7 +167,7 @@ class FieldsRelationManager extends RelationManager
             ->groups([
                 Group::make('group')
                     ->label(__('Group'))
-                    ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-')
+                    ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-'),
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')

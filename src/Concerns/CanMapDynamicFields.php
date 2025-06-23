@@ -19,6 +19,7 @@ use Backstage\Fields\Fields\Text;
 use Backstage\Fields\Fields\Textarea;
 use Backstage\Fields\Fields\Toggle;
 use Backstage\Fields\Models\Field as Model;
+use Backstage\Fields\Models\Field as ModelsField;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 
@@ -59,7 +60,9 @@ trait CanMapDynamicFields
             return $data;
         }
 
-        return $this->mutateFormData($data, function ($field, $fieldConfig, $fieldInstance, $data) {
+        $fields = $this->record->fields;
+
+        return $this->mutateFormData($data, $fields, function ($field, $fieldConfig, $fieldInstance, $data) {
             if (! empty($fieldConfig['methods']['mutateFormDataCallback'])) {
                 return $fieldInstance->mutateFormDataCallback($this->record, $field, $data);
             }
@@ -76,7 +79,18 @@ trait CanMapDynamicFields
             return $data;
         }
 
-        return $this->mutateFormData($data, function ($field, $fieldConfig, $fieldInstance, $data) {
+        $values = $data[$this->record?->valueColumn];
+
+        $fieldsFromValues = array_keys($values);
+
+        $blocks = ModelsField::whereIn('ulid', $fieldsFromValues)->where('field_type', 'builder')->pluck('ulid')->toArray();
+        $blocks = collect($values)->filter(fn ($value, $key) => in_array($key, $blocks))->toArray();
+
+        $fields = $this->record->fields->merge(
+            $this->getFieldsFromBlocks($blocks)
+        );
+
+        return $this->mutateFormData($data, $fields, function ($field, $fieldConfig, $fieldInstance, $data) {
             if (! empty($fieldConfig['methods']['mutateBeforeSaveCallback'])) {
                 return $fieldInstance->mutateBeforeSaveCallback($this->record, $field, $data);
             }
@@ -88,10 +102,9 @@ trait CanMapDynamicFields
     private function resolveFieldConfigAndInstance(Model $field): array
     {
         // Try to resolve from custom fields first
-        $fieldConfig = Fields::resolveField($field->field_type) ? 
+        $fieldConfig = Fields::resolveField($field->field_type) ?
             $this->fieldInspector->initializeCustomField($field->field_type) :
             $this->fieldInspector->initializeDefaultField($field->field_type);
- 
 
         return [
             'config' => $fieldConfig,
@@ -99,9 +112,25 @@ trait CanMapDynamicFields
         ];
     }
 
-    protected function mutateFormData(array $data, callable $mutationStrategy): array
+    protected function getFieldsFromBlocks(array $blocks): Collection
     {
-        foreach ($this->record->fields as $field) {
+        $processedFields = collect();
+
+        collect($blocks)->map(function ($block) use (&$processedFields) {
+            foreach ($block as $key => $values) {
+                $fields = $values['data'];
+                $fields = ModelsField::whereIn('ulid', array_keys($fields))->get();
+
+                $processedFields = $processedFields->merge($fields);
+            }
+        });
+
+        return $processedFields;
+    }
+
+    protected function mutateFormData(array $data, Collection $fields, callable $mutationStrategy): array
+    {
+        foreach ($fields as $field) {
             $field->load('children');
 
             ['config' => $fieldConfig, 'instance' => $fieldInstance] = $this->resolveFieldConfigAndInstance($field);
@@ -143,7 +172,7 @@ trait CanMapDynamicFields
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
     {
-        $record = $record ?? $this->record; 
+        $record = $record ?? $this->record;
 
         $inputName = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
 
