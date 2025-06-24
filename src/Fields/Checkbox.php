@@ -2,14 +2,13 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\Toggle;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\Checkbox as Input;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class Checkbox extends Base implements FieldContract
 {

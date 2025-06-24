@@ -2,16 +2,16 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ColorFormat;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\ColorPicker as Input;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 /**
  * For validation regex patterns, check the Filament documentation.

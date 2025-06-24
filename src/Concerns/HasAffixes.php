@@ -2,11 +2,10 @@
 
 namespace Backstage\Fields\Concerns;
 
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms;
 use Filament\Support\Colors\Color;
 
 trait HasAffixes
