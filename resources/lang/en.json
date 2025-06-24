@@ -1,4 +1,15 @@
 {
     "Fields": "Fields",
-    "Field": "Field"
+    "Field": "Field",
+    "Validation Rules": "Validation Rules",
+    "Required If Type": "Required If Type",
+    "Required If": "Required If",
+    "Required If Accepted": "Required If Accepted",
+    "Required Unless": "Required Unless",
+    "Select validation rule": "Select validation rule",
+    "Target Field": "Target Field",
+    "Required Values": "Required Values",
+    "Required Unless Values": "Required Unless Values",
+    "Value": "Value",
+    "Add Value": "Add Value"
 }
