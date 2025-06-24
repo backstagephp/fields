@@ -2,6 +2,11 @@
 
 namespace Backstage\Fields\Fields;
 
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ColorFormat;
 use Backstage\Fields\Models\Field;
@@ -41,21 +46,21 @@ class Color extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Grid::make(2)->schema([
-                                Forms\Components\Select::make('config.color')
+                            Grid::make(2)->schema([
+                                Select::make('config.color')
                                     ->label(__('Color format'))
                                     ->options(ColorFormat::array()),
-                                Forms\Components\TextInput::make('config.regex')
+                                TextInput::make('config.regex')
                                     ->label(__('Regex'))
                                     ->placeholder(__('Enter a regex pattern')),
                             ]),

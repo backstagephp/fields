@@ -23,21 +23,21 @@
         "php": "^8.2",
         "baspa/laravel-timezones": "^1.2",
         "filament/filament": "^3.3.10",
-        "saade/filament-adjacency-list": "^3.2.2",
+        "saade/filament-adjacency-list": "dev-release/filament-v4",
         "spatie/laravel-package-tools": "^1.15.0",
         "staudenmeir/laravel-adjacency-list": "^1.0"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
         "nunomaduro/collision": "^8.1.1||^7.10.0",
-        "nunomaduro/larastan": "^2.0.1",
+        "nunomaduro/larastan": "^3.0",
         "orchestra/testbench": "^9.0.0||^8.22.0",
         "pestphp/pest": "^2.34",
         "pestphp/pest-plugin-arch": "^2.0",
         "pestphp/pest-plugin-laravel": "^2.0",
         "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.0"
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -80,6 +80,6 @@
             "url": "git@github.com:backstagephp/filament-adjacency-list.git"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }

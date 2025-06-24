@@ -2,8 +2,11 @@
 
 namespace Backstage\Fields\Concerns;
 
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Forms;
-use Filament\Forms\Components\Fieldset;
 use Filament\Support\Colors\Color;
 
 trait HasAffixes
@@ -16,11 +19,11 @@ trait HasAffixes
             ->suffixIcon($field->config['suffixIcon'] ?? self::getDefaultConfig()['suffixIcon']);
 
         if (isset($field->config['prefixIconColor']) && $field->config['prefixIconColor']) {
-            $input->prefixIconColor(Color::hex($field->config['prefixIconColor']));
+            $input->prefixIconColor(Color::generateV3Palette($field->config['prefixIconColor']));
         }
 
         if (isset($field->config['suffixIconColor']) && $field->config['suffixIconColor']) {
-            $input->suffixIconColor(Color::hex($field->config['suffixIconColor']));
+            $input->suffixIconColor(Color::generateV3Palette($field->config['suffixIconColor']));
         }
 
         return $input;
@@ -40,25 +43,25 @@ trait HasAffixes
 
     public function affixFormFields(): Fieldset
     {
-        return Forms\Components\Fieldset::make('Affixes')
+        return Fieldset::make('Affixes')
             ->columnSpanFull()
             ->label(__('Affixes'))
             ->schema([
-                Forms\Components\Grid::make(3)
+                Grid::make(3)
                     ->schema([
-                        Forms\Components\TextInput::make('config.prefix')
+                        TextInput::make('config.prefix')
                             ->label(__('Prefix')),
-                        Forms\Components\TextInput::make('config.prefixIcon')
+                        TextInput::make('config.prefixIcon')
                             ->placeholder('heroicon-m-')
                             ->label(__('Prefix icon')),
-                        Forms\Components\ColorPicker::make('config.prefixIconColor')
+                        ColorPicker::make('config.prefixIconColor')
                             ->label(__('Prefix color')),
-                        Forms\Components\TextInput::make('config.suffix')
+                        TextInput::make('config.suffix')
                             ->label(__('Suffix')),
-                        Forms\Components\TextInput::make('config.suffixIcon')
+                        TextInput::make('config.suffixIcon')
                             ->placeholder('heroicon-m-')
                             ->label(__('Suffix icon')),
-                        Forms\Components\ColorPicker::make('config.suffixIconColor')
+                        ColorPicker::make('config.suffixIconColor')
                             ->label(__('Suffix color')),
                     ]),
             ]);

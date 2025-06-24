@@ -2,18 +2,24 @@
 
 namespace Backstage\Fields\Filament\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Grouping\Group;
@@ -29,10 +35,10 @@ class FieldsRelationManager extends RelationManager
 
     protected static string $relationship = 'fields';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Grid::make()
                     ->columns(3)
                     ->schema([
@@ -170,20 +176,20 @@ class FieldsRelationManager extends RelationManager
                     ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-'),
             ])
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable()
                     ->limit(),
 
-                Tables\Columns\TextColumn::make('field_type')
+                TextColumn::make('field_type')
                     ->label(__('Type'))
                     ->searchable(),
             ])
             ->filters([])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->slideOver()
-                    ->mutateFormDataUsing(function (array $data) {
+                    ->mutateDataUsing(function (array $data) {
 
                         $key = $this->ownerRecord->getKeyName() ?? 'id';
 
@@ -198,8 +204,8 @@ class FieldsRelationManager extends RelationManager
                         $livewire->dispatch('refreshFields');
                     }),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
+            ->recordActions([
+                EditAction::make()
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
 
@@ -214,7 +220,7 @@ class FieldsRelationManager extends RelationManager
                     ->after(function (Component $livewire) {
                         $livewire->dispatch('refreshFields');
                     }),
-                Tables\Actions\DeleteAction::make()
+                DeleteAction::make()
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
                         if (
                             isset($record->valueColumn) && $this->ownerRecord->getConnection()
@@ -232,9 +238,9 @@ class FieldsRelationManager extends RelationManager
                         $livewire->dispatch('refreshFields');
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->after(function (Component $livewire) {
                             $livewire->dispatch('refreshFields');
                         }),

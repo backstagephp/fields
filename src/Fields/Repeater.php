@@ -2,6 +2,12 @@
 
 namespace Backstage\Fields\Fields;
 
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Concerns\HasOptions;
@@ -13,11 +19,8 @@ use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater as Input;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
@@ -91,14 +94,14 @@ class Repeater extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
                             Forms\Components\Toggle::make('config.addable')
@@ -107,7 +110,7 @@ class Repeater extends Base implements FieldContract
                             Forms\Components\Toggle::make('config.deletable')
                                 ->label(__('Deletable'))
                                 ->inline(false),
-                            Forms\Components\Grid::make(2)->schema([
+                            Grid::make(2)->schema([
                                 Forms\Components\Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
                                     ->live()
@@ -115,7 +118,7 @@ class Repeater extends Base implements FieldContract
                                 Forms\Components\Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
-                                    ->disabled(fn (Forms\Get $get): bool => $get('config.reorderable') === false)
+                                    ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
                                     ->inline(false),
                             ]),
                             Forms\Components\Toggle::make('config.collapsible')
@@ -123,14 +126,14 @@ class Repeater extends Base implements FieldContract
                                 ->inline(false),
                             Forms\Components\Toggle::make('config.collapsed')
                                 ->label(__('Collapsed'))
-                                ->visible(fn (Forms\Get $get): bool => $get('config.collapsible') === true)
+                                ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
                                 ->inline(false),
                             Forms\Components\Toggle::make('config.cloneable')
                                 ->label(__('Cloneable'))
                                 ->inline(false),
-                            Forms\Components\TextInput::make('config.addActionLabel')
+                            TextInput::make('config.addActionLabel')
                                 ->label(__('Add action label')),
-                            Forms\Components\TextInput::make('config.columns')
+                            TextInput::make('config.columns')
                                 ->label(__('Columns'))
                                 ->default(1)
                                 ->numeric(),

@@ -2,6 +2,7 @@
 
 namespace Backstage\Fields\Concerns;
 
+use Filament\Schemas\Components\Fieldset;
 use Filament\Forms\Components\TagsInput;
 
 trait HasDatalist
@@ -25,7 +26,7 @@ trait HasDatalist
         ]);
     }
 
-    public function datalistFormFields(): \Filament\Forms\Components\Fieldset
+    public function datalistFormFields(): Fieldset
     {
         return $this->selectableValuesFormFields(
             type: 'datalistType',

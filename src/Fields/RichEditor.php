@@ -2,6 +2,11 @@
 
 namespace Backstage\Fields\Fields;
 
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\Select;
 use Backstage\Enums\ToolbarButton;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
@@ -35,22 +40,22 @@ class RichEditor extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.disableGrammarly')
+                            Toggle::make('config.disableGrammarly')
                                 ->inline(false)
                                 ->label(__('Disable Grammarly')),
-                            Forms\Components\Grid::make(2)
+                            Grid::make(2)
                                 ->schema([
-                                    Forms\Components\Select::make('config.toolbarButtons')
+                                    Select::make('config.toolbarButtons')
                                         ->label(__('Toolbar buttons'))
                                         ->default(['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'])
                                         ->default(ToolbarButton::array()) // Not working in Filament yet.

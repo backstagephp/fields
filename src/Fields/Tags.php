@@ -2,6 +2,11 @@
 
 namespace Backstage\Fields\Fields;
 
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
@@ -44,20 +49,20 @@ class Tags extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.reorderable')
+                            Toggle::make('config.reorderable')
                                 ->label(__('Reorderable'))
                                 ->inline(false),
-                            Forms\Components\Select::make('config.color')
+                            Select::make('config.color')
                                 ->label(__('Color'))
                                 ->options([
                                     'primary' => __('Primary'),
@@ -67,9 +72,9 @@ class Tags extends Base implements FieldContract
                                     'info' => __('Info'),
                                     'gray' => __('Gray'),
                                 ]),
-                            Forms\Components\TextInput::make('config.tagPrefix')
+                            TextInput::make('config.tagPrefix')
                                 ->label(__('Tag prefix')),
-                            Forms\Components\TextInput::make('config.tagSuffix')
+                            TextInput::make('config.tagSuffix')
                                 ->label(__('Tag suffix')),
                             Input::make('config.nestedRecursiveRules')
                                 ->label(__('Nested recursive rules'))
