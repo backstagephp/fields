@@ -2,16 +2,15 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToggleColor;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle as Input;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Facades\FilamentColor;
 
 class Toggle extends Base implements FieldContract

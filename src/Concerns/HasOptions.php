@@ -2,8 +2,8 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Filament\Schemas\Components\Fieldset;
 use Filament\Forms\Components\KeyValue;
+use Filament\Schemas\Components\Fieldset;
 
 trait HasOptions
 {
