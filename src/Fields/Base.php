@@ -12,7 +12,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Support\Colors\Color;
 
 abstract class Base implements FieldContract
 {
@@ -71,13 +70,13 @@ abstract class Base implements FieldContract
                             $set('config.required_if_values', []);
                             $set('config.required_unless_values', []);
                         }),
-                    
+
                     Select::make('config.required_if_field')
                         ->label(__('Target Field'))
                         ->options(function (Get $get) {
                             $currentFieldId = $get('id');
                             $modelKey = $get('model_key');
-                            
+
                             return Field::where('model_key', $modelKey)
                                 ->where('id', '!=', $currentFieldId)
                                 ->pluck('name', 'slug')
@@ -85,7 +84,7 @@ abstract class Base implements FieldContract
                         })
                         ->searchable()
                         ->visible(fn (Get $get) => filled($get('config.required_if_type'))),
-                    
+
                     Repeater::make('config.required_if_values')
                         ->label(__('Required Values'))
                         ->schema([
@@ -96,7 +95,7 @@ abstract class Base implements FieldContract
                         ->addActionLabel(__('Add Value'))
                         ->visible(fn (Get $get) => in_array($get('config.required_if_type'), ['required_if', 'required_unless']))
                         ->columns(1),
-                    
+
                     Repeater::make('config.required_unless_values')
                         ->label(__('Required Unless Values'))
                         ->schema([
@@ -155,21 +154,23 @@ abstract class Base implements FieldContract
                         ->pluck('value')
                         ->filter()
                         ->toArray();
-                    
-                    if (!empty($values)) {
+
+                    if (! empty($values)) {
                         $input->requiredIf($requiredIfField, ...$values);
                     }
+
                     break;
-                    
+
                 case 'required_unless':
                     $values = collect($field->config['required_unless_values'] ?? [])
                         ->pluck('value')
                         ->filter()
                         ->toArray();
-                    
-                    if (!empty($values)) {
+
+                    if (! empty($values)) {
                         $input->requiredUnless($requiredIfField, ...$values);
                     }
+
                     break;
             }
         }
