@@ -79,7 +79,11 @@ trait CanMapDynamicFields
             return $data;
         }
 
-        $values = $data[$this->record?->valueColumn];
+        $values = isset($data[$this->record?->valueColumn]) ? $data[$this->record?->valueColumn] : [];
+
+        if (empty($values)) {
+            return $data;
+        }
 
         $fieldsFromValues = array_keys($values);
 

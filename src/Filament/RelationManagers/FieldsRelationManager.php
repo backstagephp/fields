@@ -118,43 +118,6 @@ class FieldsRelationManager extends RelationManager
             ]);
     }
 
-    private function formatCustomFields(array $fields): array
-    {
-        return collect($fields)->mapWithKeys(function ($field, $key) {
-            $parts = explode('\\', $field);
-            $lastPart = end($parts);
-            $formattedName = Str::title(Str::snake($lastPart, ' '));
-
-            return [$key => $formattedName];
-        })->toArray();
-    }
-
-    private function initializeDefaultConfig(string $fieldType): array
-    {
-        $className = 'Backstage\\Fields\\Fields\\' . Str::studly($fieldType);
-
-        if (! class_exists($className)) {
-            return [];
-        }
-
-        $fieldInstance = app($className);
-
-        return $fieldInstance::getDefaultConfig();
-    }
-
-    private function initializeCustomConfig(string $fieldType): array
-    {
-        $className = Fields::getFields()[$fieldType] ?? null;
-
-        if (! class_exists($className)) {
-            return [];
-        }
-
-        $fieldInstance = app($className);
-
-        return $fieldInstance::getDefaultConfig();
-    }
-
     public function table(Table $table): Table
     {
         return $table
@@ -185,13 +148,13 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateFormDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+                        $key = $this->ownerRecord->getKeyName();
 
                         return [
                             ...$data,
                             'position' => Field::where('model_key', $key)->get()->max('position') + 1,
                             'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->slug,
+                            'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
                     ->after(function (Component $livewire) {
@@ -203,7 +166,7 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+                        $key = $this->ownerRecord->getKeyName();
 
                         return [
                             ...$data,
@@ -222,7 +185,7 @@ class FieldsRelationManager extends RelationManager
                                 ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
                         ) {
 
-                            $key = $this->ownerRecord->getKeyName() ?? 'id';
+                            $key = $this->ownerRecord->getKeyName();
 
                             $this->ownerRecord->update([
                                 $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->{$key})->toArray(),
