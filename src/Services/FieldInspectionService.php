@@ -7,7 +7,9 @@ use Backstage\Fields\Facades\Fields;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionMethod;
+use ReflectionNamedType;
 use ReflectionProperty;
+use ReflectionType;
 
 class FieldInspectionService implements FieldInspector
 {
@@ -63,7 +65,7 @@ class FieldInspectionService implements FieldInspector
                 'visibility' => $this->getVisibility($method),
                 'static' => $method->isStatic(),
                 'parameters' => $this->getParametersDetails($method),
-                'returnType' => $method->getReturnType() ? $method->getReturnType()->getName() : null,
+                'returnType' => $this->getTypeName($method->getReturnType()),
                 'docComment' => $method->getDocComment() ?: null,
             ];
         }
@@ -78,7 +80,7 @@ class FieldInspectionService implements FieldInspector
             $properties[$property->getName()] = [
                 'visibility' => $this->getVisibility($property),
                 'static' => $property->isStatic(),
-                'type' => $property->getType() ? $property->getType()->getName() : null,
+                'type' => $this->getTypeName($property->getType()),
                 'docComment' => $property->getDocComment() ?: null,
                 'defaultValue' => $this->getPropertyDefaultValue($property),
             ];
@@ -92,7 +94,7 @@ class FieldInspectionService implements FieldInspector
         $parameters = [];
         foreach ($method->getParameters() as $param) {
             $parameters[$param->getName()] = [
-                'type' => $param->getType() ? $param->getType()->getName() : null,
+                'type' => $this->getTypeName($param->getType()),
                 'hasDefaultValue' => $param->isDefaultValueAvailable(),
                 'defaultValue' => $param->isDefaultValueAvailable() ? $param->getDefaultValue() : null,
                 'isVariadic' => $param->isVariadic(),
@@ -101,6 +103,15 @@ class FieldInspectionService implements FieldInspector
         }
 
         return $parameters;
+    }
+
+    private function getTypeName(?ReflectionType $type): ?string
+    {
+        if ($type instanceof ReflectionNamedType) {
+            return $type->getName();
+        }
+
+        return null;
     }
 
     private function getVisibility($reflection): string

@@ -11,6 +11,23 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Config;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
 
+/**
+ * @property string $ulid
+ * @property string|null $parent_ulid
+ * @property string $model_type
+ * @property string $model_key
+ * @property string $slug
+ * @property string $name
+ * @property string $field_type
+ * @property array<string, mixed>|null $config
+ * @property int $position
+ * @property string|null $group
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|null $model
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Field> $children
+ * @property-read \Illuminate\Database\Eloquent\Model|null $tenant
+ */
 class Field extends Model
 {
     use HasPackageFactory;

@@ -28,21 +28,6 @@ class Repeater extends Base implements FieldContract
     use HasFieldTypeResolver;
     use HasOptions;
 
-    private const FIELD_TYPE_MAP = [
-        'text' => Text::class,
-        'textarea' => Textarea::class,
-        'rich-editor' => RichEditor::class,
-        'repeater' => Repeater::class,
-        'select' => FieldsSelect::class,
-        'checkbox' => Checkbox::class,
-        'checkbox-list' => CheckboxList::class,
-        'key-value' => KeyValue::class,
-        'radio' => Radio::class,
-        'toggle' => Toggle::class,
-        'color' => Color::class,
-        'date-time' => DateTime::class,
-    ];
-
     public static function getDefaultConfig(): array
     {
         return [
