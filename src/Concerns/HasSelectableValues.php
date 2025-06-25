@@ -143,6 +143,12 @@ trait HasSelectableValues
                                 'array' => __('Array'),
                                 'relationship' => __('Relationship'),
                             ])
+                            ->afterStateHydrated(function (Forms\Get $get, Forms\Set $set) use ($type) {
+                                $value = $get("config.{$type}");
+                                if (is_string($value)) {
+                                    $set("config.{$type}", [$value]);
+                                }
+                            })
                             ->label(__('Type'))
                             ->live(),
                         // Array options
