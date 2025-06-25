@@ -4,8 +4,12 @@ namespace Backstage\Fields\Fields;
 
 use Backstage\Enums\ToolbarButton;
 use Backstage\Fields\Contracts\FieldContract;
+<<<<<<< Updated upstream
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
+=======
+use Backstage\Fields\Services\ContentCleaningService;
+>>>>>>> Stashed changes
 use Filament\Forms\Components\RichEditor as Input;
 
 class RichEditor extends Base implements FieldContract
@@ -17,6 +21,8 @@ class RichEditor extends Base implements FieldContract
             'disableGrammarly' => false,
             'toolbarButtons' => ['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'],
             'disableToolbarButtons' => [],
+            'autoCleanContent' => true,
+            'preserveCustomCaptions' => false,
         ];
     }
 
@@ -28,6 +34,19 @@ class RichEditor extends Base implements FieldContract
             ->toolbarButtons($field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons'])
             ->disableGrammarly($field->config['disableGrammarly'] ?? self::getDefaultConfig()['disableGrammarly'])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
+
+        // Add content processing to automatically clean HTML
+        $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
+        
+        if ($autoCleanContent) {
+            $input->afterStateUpdated(function ($state) use ($field) {
+                $options = [
+                    'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
+                ];
+                
+                return ContentCleaningService::cleanHtmlContent($state, $options);
+            });
+        }
 
         return $input;
     }
@@ -56,6 +75,16 @@ class RichEditor extends Base implements FieldContract
                                         ->default(ToolbarButton::array()) // Not working in Filament yet.
                                         ->multiple()
                                         ->options(ToolbarButton::array())
+                                        ->columnSpanFull(),
+                                    Toggle::make('config.autoCleanContent')
+                                        ->label(__('Auto-clean content'))
+                                        ->helperText(__('Automatically remove figcaption and unwrap images from links'))
+                                        ->default(true)
+                                        ->columnSpanFull(),
+                                    Toggle::make('config.preserveCustomCaptions')
+                                        ->label(__('Preserve custom captions'))
+                                        ->helperText(__('Only remove default captions, keep custom ones'))
+                                        ->default(false)
                                         ->columnSpanFull(),
                                 ]),
                         ]),
