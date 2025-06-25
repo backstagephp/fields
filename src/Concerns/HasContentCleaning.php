@@ -22,9 +22,9 @@ trait HasContentCleaning
     protected function cleanRichEditorFields(): void
     {
         $richEditorFields = $this->getRichEditorFields();
-        
+
         foreach ($richEditorFields as $field) {
-            if (isset($this->attributes[$field]) && !empty($this->attributes[$field])) {
+            if (isset($this->attributes[$field]) && ! empty($this->attributes[$field])) {
                 $this->attributes[$field] = ContentCleaningService::cleanRichEditorContent($this->attributes[$field]);
             }
         }
@@ -45,7 +45,7 @@ trait HasContentCleaning
      */
     public function cleanField(string $fieldName): void
     {
-        if (isset($this->attributes[$fieldName]) && !empty($this->attributes[$fieldName])) {
+        if (isset($this->attributes[$fieldName]) && ! empty($this->attributes[$fieldName])) {
             $this->attributes[$fieldName] = ContentCleaningService::cleanRichEditorContent($this->attributes[$fieldName]);
         }
     }
@@ -55,8 +55,8 @@ trait HasContentCleaning
      */
     public function cleanFieldWithOptions(string $fieldName, array $options = []): void
     {
-        if (isset($this->attributes[$fieldName]) && !empty($this->attributes[$fieldName])) {
+        if (isset($this->attributes[$fieldName]) && ! empty($this->attributes[$fieldName])) {
             $this->attributes[$fieldName] = ContentCleaningService::cleanHtmlContent($this->attributes[$fieldName], $options);
         }
     }
-} 
+}
