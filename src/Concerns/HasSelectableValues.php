@@ -37,10 +37,10 @@ trait HasSelectableValues
         $allOptions = [];
 
         // Handle relationship options
-        if (isset($field->config[$type]) && 
+        if (isset($field->config[$type]) &&
             (is_string($field->config[$type]) && $field->config[$type] === 'relationship') ||
             (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]))) {
-            
+
             $relationshipOptions = [];
 
             foreach ($field->config['relations'] ?? [] as $relation) {
@@ -95,10 +95,10 @@ trait HasSelectableValues
         }
 
         // Handle array options
-        if (isset($field->config[$type]) && 
+        if (isset($field->config[$type]) &&
             (is_string($field->config[$type]) && $field->config[$type] === 'array') ||
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
-            
+
             if (isset($field->config['options']) && is_array($field->config['options'])) {
                 // If both types are selected, group array options
                 if (isset($field->config[$type]) && 
@@ -149,12 +149,12 @@ trait HasSelectableValues
                         $arrayComponent::make('config.options')
                             ->label(__('Options'))
                             ->columnSpanFull()
-                            ->visible(fn (Forms\Get $get): bool => 
-                                is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
+                            ->visible(
+                                fn (Forms\Get $get): bool => is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
                                 $get("config.{$type}") === 'array'
                             )
-                            ->required(fn (Forms\Get $get): bool => 
-                                is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
+                            ->required(
+                                fn (Forms\Get $get): bool => is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
                                 $get("config.{$type}") === 'array'
                             ),
                         // Relationship options
@@ -204,8 +204,8 @@ trait HasSelectableValues
                                                     ->toArray();
                                             })
                                             ->noSearchResultsMessage(__('No types found'))
-                                            ->required(fn (Forms\Get $get): bool => 
-                                                is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
+                                            ->required(
+                                                fn (Forms\Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
                                                 $get("../../config.{$type}") === 'relationship'
                                             ),
                                         Forms\Components\Select::make('relationValue')
@@ -218,8 +218,8 @@ trait HasSelectableValues
                                         Forms\Components\Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
-                                            ->required(fn (Forms\Get $get): bool => 
-                                                is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
+                                            ->required(
+                                                fn (Forms\Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
                                                 $get("../../config.{$type}") === 'relationship'
                                             ),
                                         Forms\Components\Repeater::make('relationValue_filters')
@@ -274,8 +274,8 @@ trait HasSelectableValues
                                             ->columnSpanFull(),
                                     ]),
                             ])
-                            ->visible(fn (Forms\Get $get): bool => 
-                                is_array($get("config.{$type}")) && in_array('relationship', $get("config.{$type}")) ||
+                            ->visible(
+                                fn (Forms\Get $get): bool => is_array($get("config.{$type}")) && in_array('relationship', $get("config.{$type}")) ||
                                 $get("config.{$type}") === 'relationship'
                             )
                             ->columnSpanFull(),
