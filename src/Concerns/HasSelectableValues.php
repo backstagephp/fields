@@ -84,7 +84,7 @@ trait HasSelectableValues
 
             if (! empty($relationshipOptions)) {
                 // If both types are selected, group relationship options by resource
-                if (isset($field->config[$type]) && 
+                if (isset($field->config[$type]) &&
                     (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
                     $allOptions = array_merge($allOptions, $relationshipOptions);
                 } else {
@@ -101,7 +101,7 @@ trait HasSelectableValues
 
             if (isset($field->config['options']) && is_array($field->config['options'])) {
                 // If both types are selected, group array options
-                if (isset($field->config[$type]) && 
+                if (isset($field->config[$type]) &&
                     (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]))) {
                     $allOptions[__('Custom Options')] = $field->config['options'];
                 } else {
