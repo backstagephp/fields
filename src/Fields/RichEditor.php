@@ -4,13 +4,12 @@ namespace Backstage\Fields\Fields;
 
 use Backstage\Enums\ToolbarButton;
 use Backstage\Fields\Contracts\FieldContract;
-<<<<<<< Updated upstream
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
-=======
 use Backstage\Fields\Services\ContentCleaningService;
->>>>>>> Stashed changes
 use Filament\Forms\Components\RichEditor as Input;
+use Illuminate\Support\Facades\Log;
+
 
 class RichEditor extends Base implements FieldContract
 {
@@ -23,6 +22,7 @@ class RichEditor extends Base implements FieldContract
             'disableToolbarButtons' => [],
             'autoCleanContent' => true,
             'preserveCustomCaptions' => false,
+            'hideCaptions' => true,
         ];
     }
 
@@ -35,20 +35,57 @@ class RichEditor extends Base implements FieldContract
             ->disableGrammarly($field->config['disableGrammarly'] ?? self::getDefaultConfig()['disableGrammarly'])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
 
+        // Add data attribute for hiding captions if enabled
+        $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
+        if ($hideCaptions) {
+            $input->extraAttributes(['data-hide-captions' => 'true']);
+        }
+
         // Add content processing to automatically clean HTML
         $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
         
         if ($autoCleanContent) {
-            $input->afterStateUpdated(function ($state) use ($field) {
-                $options = [
-                    'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
-                ];
-                
-                return ContentCleaningService::cleanHtmlContent($state, $options);
+            $options = [
+                'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
+            ];
+
+            // Clean content when state is updated (including file uploads)
+            $input->afterStateUpdated(function ($state) use ($options) {
+                if (!empty($state)) {
+                    return ContentCleaningService::cleanHtmlContent($state, $options);
+                }
+                return $state;
+            });
+
+            // Ensure cleaned content is saved to database
+            $input->dehydrateStateUsing(function ($state) use ($options) {
+                if (!empty($state)) {
+                    return ContentCleaningService::cleanHtmlContent($state, $options);
+                }
+                return $state;
             });
         }
 
         return $input;
+    }
+
+    public static function mutateBeforeSaveCallback($record, $field, array $data): array
+    {
+        $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
+        
+        if ($autoCleanContent && isset($data['values'][$field->ulid])) {
+            \Illuminate\Support\Facades\Log::info('RichEditor mutateBeforeSaveCallback before cleaning:', ['content' => $data['values'][$field->ulid]]);
+            
+            $options = [
+                'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
+            ];
+            
+            $data['values'][$field->ulid] = ContentCleaningService::cleanHtmlContent($data['values'][$field->ulid], $options);
+            
+            \Illuminate\Support\Facades\Log::info('RichEditor mutateBeforeSaveCallback after cleaning:', ['content' => $data['values'][$field->ulid]]);
+        }
+        
+        return $data;
     }
 
     public function getForm(): array
@@ -76,15 +113,20 @@ class RichEditor extends Base implements FieldContract
                                         ->multiple()
                                         ->options(ToolbarButton::array())
                                         ->columnSpanFull(),
-                                    Toggle::make('config.autoCleanContent')
+                                    Forms\Components\Toggle::make('config.autoCleanContent')
                                         ->label(__('Auto-clean content'))
                                         ->helperText(__('Automatically remove figcaption and unwrap images from links'))
-                                        ->default(true)
+                                        ->inline(false)
                                         ->columnSpanFull(),
-                                    Toggle::make('config.preserveCustomCaptions')
+                                    Forms\Components\Toggle::make('config.preserveCustomCaptions')
                                         ->label(__('Preserve custom captions'))
                                         ->helperText(__('Only remove default captions, keep custom ones'))
-                                        ->default(false)
+                                        ->inline(false)
+                                        ->columnSpanFull(),
+                                    Forms\Components\Toggle::make('config.hideCaptions')
+                                        ->label(__('Hide caption fields'))
+                                        ->helperText(__('Hide the caption input field that appears when uploading images'))
+                                        ->inline(false)
                                         ->columnSpanFull(),
                                 ]),
                         ]),
