@@ -81,7 +81,15 @@ trait HasSelectableValues
             }
 
             if (! empty($relationshipOptions)) {
-                $allOptions = array_merge($allOptions, ...$relationshipOptions);
+                $mergedRelationshipOptions = array_merge(...$relationshipOptions);
+                
+                // If both types are selected, group relationship options
+                if (isset($field->config[$type]) && 
+                    (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
+                    $allOptions[__('Relationship Options')] = $mergedRelationshipOptions;
+                } else {
+                    $allOptions = array_merge($allOptions, $mergedRelationshipOptions);
+                }
             }
         }
 
@@ -91,7 +99,13 @@ trait HasSelectableValues
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
             
             if (isset($field->config['options']) && is_array($field->config['options'])) {
-                $allOptions = array_merge($allOptions, $field->config['options']);
+                // If both types are selected, group array options
+                if (isset($field->config[$type]) && 
+                    (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]))) {
+                    $allOptions[__('Custom Options')] = $field->config['options'];
+                } else {
+                    $allOptions = array_merge($allOptions, $field->config['options']);
+                }
             }
         }
 
