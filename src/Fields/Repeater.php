@@ -8,7 +8,6 @@ use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
-use Backstage\Fields\Fields\Select as FieldsSelect;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Hidden;

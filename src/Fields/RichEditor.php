@@ -2,8 +2,8 @@
 
 namespace Backstage\Fields\Fields;
 
-use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
 use Backstage\Fields\Services\ContentCleaningService;
 use Filament\Forms;
