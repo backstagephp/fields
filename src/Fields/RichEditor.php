@@ -5,11 +5,9 @@ namespace Backstage\Fields\Fields;
 use Backstage\Enums\ToolbarButton;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Backstage\Fields\Services\ContentCleaningService;
+use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
-use Illuminate\Support\Facades\Log;
-
 
 class RichEditor extends Base implements FieldContract
 {
@@ -43,7 +41,7 @@ class RichEditor extends Base implements FieldContract
 
         // Add content processing to automatically clean HTML
         $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
-        
+
         if ($autoCleanContent) {
             $options = [
                 'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
@@ -51,17 +49,19 @@ class RichEditor extends Base implements FieldContract
 
             // Clean content when state is updated (including file uploads)
             $input->afterStateUpdated(function ($state) use ($options) {
-                if (!empty($state)) {
+                if (! empty($state)) {
                     return ContentCleaningService::cleanHtmlContent($state, $options);
                 }
+
                 return $state;
             });
 
             // Ensure cleaned content is saved to database
             $input->dehydrateStateUsing(function ($state) use ($options) {
-                if (!empty($state)) {
+                if (! empty($state)) {
                     return ContentCleaningService::cleanHtmlContent($state, $options);
                 }
+
                 return $state;
             });
         }
@@ -72,19 +72,19 @@ class RichEditor extends Base implements FieldContract
     public static function mutateBeforeSaveCallback($record, $field, array $data): array
     {
         $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
-        
+
         if ($autoCleanContent && isset($data['values'][$field->ulid])) {
             \Illuminate\Support\Facades\Log::info('RichEditor mutateBeforeSaveCallback before cleaning:', ['content' => $data['values'][$field->ulid]]);
-            
+
             $options = [
                 'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
             ];
-            
+
             $data['values'][$field->ulid] = ContentCleaningService::cleanHtmlContent($data['values'][$field->ulid], $options);
-            
+
             \Illuminate\Support\Facades\Log::info('RichEditor mutateBeforeSaveCallback after cleaning:', ['content' => $data['values'][$field->ulid]]);
         }
-        
+
         return $data;
     }
 

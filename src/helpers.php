@@ -2,7 +2,7 @@
 
 use Backstage\Fields\Services\ContentCleaningService;
 
-if (!function_exists('clean_rich_editor_content')) {
+if (! function_exists('clean_rich_editor_content')) {
     /**
      * Clean RichEditor content by removing figcaption and unwrapping images from links
      */
@@ -12,7 +12,7 @@ if (!function_exists('clean_rich_editor_content')) {
     }
 }
 
-if (!function_exists('clean_html_content')) {
+if (! function_exists('clean_html_content')) {
     /**
      * Clean HTML content with custom options
      */
@@ -20,4 +20,4 @@ if (!function_exists('clean_html_content')) {
     {
         return ContentCleaningService::cleanHtmlContent($content, $options);
     }
-} 
+}
