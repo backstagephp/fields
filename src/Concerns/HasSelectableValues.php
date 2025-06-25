@@ -77,18 +77,19 @@ trait HasSelectableValues
                     continue;
                 }
 
-                $relationshipOptions[] = $opts;
+                // Group by resource name
+                $resourceName = Str::title($relation['resource']);
+                $relationshipOptions[$resourceName] = $opts;
             }
 
             if (! empty($relationshipOptions)) {
-                $mergedRelationshipOptions = array_merge(...$relationshipOptions);
-                
-                // If both types are selected, group relationship options
+                // If both types are selected, group relationship options by resource
                 if (isset($field->config[$type]) && 
                     (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
-                    $allOptions[__('Relationship Options')] = $mergedRelationshipOptions;
+                    $allOptions = array_merge($allOptions, $relationshipOptions);
                 } else {
-                    $allOptions = array_merge($allOptions, $mergedRelationshipOptions);
+                    // For single relationship type, merge all options without grouping
+                    $allOptions = array_merge($allOptions, ...array_values($relationshipOptions));
                 }
             }
         }
