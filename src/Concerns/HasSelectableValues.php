@@ -2,10 +2,14 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Filament\Forms;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -132,11 +136,11 @@ trait HasSelectableValues
 
     protected function selectableValuesFormFields(string $type, string $label, string $arrayComponent): Fieldset
     {
-        return Forms\Components\Fieldset::make($label)
+        return Fieldset::make($label)
             ->columnSpanFull()
             ->label(__($label))
             ->schema([
-                Forms\Components\Grid::make(2)
+                Grid::make(2)
                     ->schema([
                         Forms\Components\CheckboxList::make("config.{$type}")
                             ->options([
@@ -170,13 +174,13 @@ trait HasSelectableValues
                                 Grid::make()
                                     ->columns(2)
                                     ->schema([
-                                        Forms\Components\Select::make('resource')
+                                        Select::make('resource')
                                             ->label(__('Resource'))
                                             ->searchable()
                                             ->preload()
                                             ->columnSpanFull()
                                             ->live(debounce: 250)
-                                            ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
+                                            ->afterStateUpdated(function (Set $set, ?string $state) {
                                                 $model = static::resolveResourceModel($state);
 
                                                 if (! $model) {
@@ -217,11 +221,11 @@ trait HasSelectableValues
                                         Forms\Components\Select::make('relationValue')
                                             ->label(__('Column'))
                                             ->helperText(__('The column to use as name for the options'))
-                                            ->options(fn (Forms\Get $get) => $get('relationValue_options') ?? [])
+                                            ->options(fn (Get $get) => $get('relationValue_options') ?? [])
                                             ->searchable()
-                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
-                                            ->required(fn (Forms\Get $get): bool => ! empty($get('resource'))),
-                                        Forms\Components\Hidden::make('relationKey')
+                                            ->visible(fn (Get $get): bool => ! empty($get('resource')))
+                                            ->required(fn (Get $get): bool => ! empty($get('resource'))),
+                                        Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
                                             ->required(
@@ -230,18 +234,18 @@ trait HasSelectableValues
                                             ),
                                         Forms\Components\Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
-                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->visible(fn (Get $get): bool => ! empty($get('resource')))
                                             ->schema([
-                                                Forms\Components\Grid::make(3)
+                                                Grid::make(3)
                                                     ->schema([
-                                                        Forms\Components\Select::make('column')
-                                                            ->options(fn (\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
+                                                        Select::make('column')
+                                                            ->options(fn (Get $get) => $get('../../relationValue_options') ?? [
                                                                 'slug' => __('Slug'),
                                                                 'name' => __('Name'),
                                                             ])
                                                             ->live()
                                                             ->label(__('Column')),
-                                                        Forms\Components\Select::make('operator')
+                                                        Select::make('operator')
                                                             ->options([
                                                                 '=' => __('Equal'),
                                                                 '!=' => __('Not equal'),
@@ -253,8 +257,8 @@ trait HasSelectableValues
                                                                 'NOT LIKE' => __('Not like'),
                                                             ])
                                                             ->label(__('Operator')),
-                                                        Forms\Components\TextInput::make('value')
-                                                            ->datalist(function (Forms\Get $get) {
+                                                        TextInput::make('value')
+                                                            ->datalist(function (Get $get) {
                                                                 $resource = $get('../../resource');
                                                                 $column = $get('column');
 
