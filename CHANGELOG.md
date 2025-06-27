@@ -2,6 +2,14 @@
 
 All notable changes to `fields` will be documented in this file.
 
+## v0.6.0 - 2025-06-25
+
+### What's Changed
+
+* feat: hide trix related caption fields by @Baspa in https://github.com/backstagephp/fields/pull/11
+
+**Full Changelog**: https://github.com/backstagephp/fields/compare/v0.5.0...v0.6.0
+
 ## v0.5.0 - 2025-06-23
 
 ### What's Changed

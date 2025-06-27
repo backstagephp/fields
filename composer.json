@@ -77,7 +77,7 @@
     "repositories": {
         "saade/filament-adjacency-list": {
             "type": "git",
-            "url": "git@github.com:backstagephp/filament-adjacency-list.git"
+            "url": "https://github.com/backstagephp/filament-adjacency-list.git"
         }
     },
     "minimum-stability": "beta",
