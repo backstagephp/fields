@@ -79,7 +79,6 @@ class Select extends Base implements FieldContract
         if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->ulid])) {
             return $data;
         }
-        
 
         $value = $record->values[$field->ulid];
         $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
@@ -100,7 +99,7 @@ class Select extends Base implements FieldContract
     }
 
     /**
-     * Normalize the select value to an array or a single value. This is needed because the select field can be 
+     * Normalize the select value to an array or a single value. This is needed because the select field can be
      * changed from single to multiple or vice versa.
      */
     private static function normalizeSelectValue($value, Field $field): mixed
@@ -118,12 +117,12 @@ class Select extends Base implements FieldContract
         }
 
         // Convert to array if multiple is expected but value is not an array
-        if ($isMultiple && !is_array($value)) {
+        if ($isMultiple && ! is_array($value)) {
             return [$value];
         }
 
         // Convert array to single value if multiple is not expected
-        if (!$isMultiple && is_array($value)) {
+        if (! $isMultiple && is_array($value)) {
             return empty($value) ? null : reset($value);
         }
 
