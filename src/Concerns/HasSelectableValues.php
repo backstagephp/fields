@@ -142,7 +142,7 @@ trait HasSelectableValues
             ->schema([
                 Grid::make(2)
                     ->schema([
-                        Forms\Components\CheckboxList::make("config.{$type}")
+                        Backstage\Fields\Fields\CheckboxList::make("config.{$type}")
                             ->options([
                                 'array' => __('Array'),
                                 'relationship' => __('Relationship'),
