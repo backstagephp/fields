@@ -35,7 +35,7 @@ trait HasSelectableValues
     protected static function addValuesToInput(mixed $input, mixed $field, string $type, string $method): mixed
     {
         // Ensure field config is properly initialized
-        if (!static::ensureFieldConfig($field, $type)) {
+        if (! static::ensureFieldConfig($field, $type)) {
             return $input;
         }
 
@@ -53,7 +53,7 @@ trait HasSelectableValues
         }
 
         // Apply all merged options to the input
-        if (!empty($allOptions)) {
+        if (! empty($allOptions)) {
             $input->$method($allOptions);
         }
 
@@ -63,12 +63,12 @@ trait HasSelectableValues
     protected static function ensureFieldConfig(mixed $field, string $type): bool
     {
         // Ensure field config exists and is an array
-        if (!isset($field->config) || !is_array($field->config)) {
+        if (! isset($field->config) || ! is_array($field->config)) {
             return false;
         }
 
         // Ensure the type key exists in the config to prevent undefined array key errors
-        if (!array_key_exists($type, $field->config)) {
+        if (! array_key_exists($type, $field->config)) {
             $config = $field->config ?? [];
             $config[$type] = null;
             $field->config = $config;
@@ -80,10 +80,10 @@ trait HasSelectableValues
     protected static function shouldHandleRelationshipOptions(mixed $field, string $type): bool
     {
         // Ensure $type is a string to prevent array key errors
-        if (!is_string($type)) {
+        if (! is_string($type)) {
             return false;
         }
-        
+
         return isset($field->config[$type]) && $field->config[$type] !== null &&
             (is_string($field->config[$type]) && $field->config[$type] === 'relationship') ||
             (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]));
@@ -92,10 +92,10 @@ trait HasSelectableValues
     protected static function shouldHandleArrayOptions(mixed $field, string $type): bool
     {
         // Ensure $type is a string to prevent array key errors
-        if (!is_string($type)) {
+        if (! is_string($type)) {
             return false;
         }
-        
+
         return isset($field->config[$type]) && $field->config[$type] !== null &&
             (is_string($field->config[$type]) && $field->config[$type] === 'array') ||
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]));
@@ -106,13 +106,13 @@ trait HasSelectableValues
         $relationshipOptions = [];
 
         foreach ($field->config['relations'] ?? [] as $relation) {
-            if (!isset($relation['resource'])) {
+            if (! isset($relation['resource'])) {
                 continue;
             }
 
             $model = static::resolveResourceModel($relation['resource']);
 
-            if (!$model) {
+            if (! $model) {
                 continue;
             }
 
@@ -165,7 +165,7 @@ trait HasSelectableValues
 
     protected static function mergeArrayOptions(array $allOptions, mixed $field, string $type): array
     {
-        if (!isset($field->config['options']) || !is_array($field->config['options'])) {
+        if (! isset($field->config['options']) || ! is_array($field->config['options'])) {
             return $allOptions;
         }
 
