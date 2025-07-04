@@ -37,10 +37,6 @@ trait CanMapDynamicFields
 {
     private FieldInspector $fieldInspector;
 
-    /**
-     * Maps field type strings to their corresponding field class implementations.
-     * Used as a fallback when custom fields are not available.
-     */
     private const FIELD_TYPE_MAP = [
         'text' => Text::class,
         'textarea' => Textarea::class,
@@ -57,19 +53,11 @@ trait CanMapDynamicFields
         'tags' => Tags::class,
     ];
 
-    /**
-     * Initialize the field inspector service.
-     * Called during the component's boot process.
-     */
     public function boot(): void
     {
         $this->fieldInspector = app(FieldInspector::class);
     }
 
-    /**
-     * Handle field refresh events from Livewire.
-     * Currently a placeholder for future implementation.
-     */
     #[On('refreshFields')]
     public function refresh(): void
     {
@@ -129,32 +117,16 @@ trait CanMapDynamicFields
         });
     }
 
-    /**
-     * Check if the current record exists and has fields.
-     * 
-     * @return bool True if record exists and has fields
-     */
     private function hasValidRecordWithFields(): bool
     {
         return isset($this->record) && ! $this->record->fields->isEmpty();
     }
 
-    /**
-     * Check if the current record exists.
-     * 
-     * @return bool True if record exists
-     */
     private function hasValidRecord(): bool
     {
         return isset($this->record);
     }
 
-    /**
-     * Extract form values from the data array.
-     * 
-     * @param array $data The form data
-     * @return array The extracted values
-     */
     private function extractFormValues(array $data): array
     {
         return isset($data[$this->record?->valueColumn]) ? $data[$this->record?->valueColumn] : [];
@@ -426,11 +398,6 @@ trait CanMapDynamicFields
             ->all();
     }
 
-    /**
-     * Resolve custom field implementations.
-     * 
-     * @return Collection Collection of custom field instances
-     */
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
@@ -468,14 +435,6 @@ trait CanMapDynamicFields
         return null;
     }
 
-    /**
-     * Generate the input name for a field.
-     * 
-     * @param Model $field The field model
-     * @param mixed $record The record
-     * @param bool $isNested Whether this is a nested field
-     * @return string The input name
-     */
     private function generateInputName(Model $field, mixed $record, bool $isNested): string
     {
         return $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
