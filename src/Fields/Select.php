@@ -151,6 +151,8 @@ class Select extends Base implements FieldContract
                                         ->inline(false),
                                     Forms\Components\Toggle::make('config.multiple')
                                         ->label(__('Multiple'))
+                                        ->helperText(__('When switching from multiple to single, the first value from existing values will be used.'))
+                                        ->columnSpan(2)
                                         ->inline(false),
                                     Forms\Components\Toggle::make('config.allowHtml')
                                         ->label(__('Allow HTML'))
