@@ -25,7 +25,7 @@ use Livewire\Attributes\On;
 
 /**
  * Trait for handling dynamic field mapping and data mutation in forms.
- * 
+ *
  * This trait provides functionality to:
  * - Map database field configurations to form input components
  * - Mutate form data before filling (loading from database)
@@ -66,11 +66,11 @@ trait CanMapDynamicFields
 
     /**
      * Mutate form data before filling the form with existing values.
-     * 
+     *
      * This method processes the record's field values and applies any custom
      * transformation logic defined in field classes before populating the form.
-     * 
-     * @param array $data The form data array
+     *
+     * @param  array  $data  The form data array
      * @return array The mutated form data
      */
     protected function mutateBeforeFill(array $data): array
@@ -90,12 +90,12 @@ trait CanMapDynamicFields
 
     /**
      * Mutate form data before saving to the database.
-     * 
+     *
      * This method processes user input and applies any custom transformation logic
      * defined in field classes. It also handles special cases for builder blocks
      * and nested fields.
-     * 
-     * @param array $data The form data array
+     *
+     * @param  array  $data  The form data array
      * @return array The mutated form data ready for saving
      */
     protected function mutateBeforeSave(array $data): array
@@ -134,11 +134,11 @@ trait CanMapDynamicFields
 
     /**
      * Extract builder blocks from form values.
-     * 
+     *
      * Builder blocks are special field types that contain nested fields.
      * This method identifies and extracts them for special processing.
-     * 
-     * @param array $values The form values
+     *
+     * @param  array  $values  The form values
      * @return array The builder blocks
      */
     private function extractBuilderBlocks(array $values): array
@@ -155,8 +155,8 @@ trait CanMapDynamicFields
 
     /**
      * Get all fields including those from builder blocks.
-     * 
-     * @param array $builderBlocks The builder blocks
+     *
+     * @param  array  $builderBlocks  The builder blocks
      * @return Collection All fields to process
      */
     private function getAllFieldsIncludingBuilderFields(array $builderBlocks): Collection
@@ -168,23 +168,23 @@ trait CanMapDynamicFields
 
     /**
      * Apply field-specific mutation logic for form filling.
-     * 
-     * @param Model $field The field model
-     * @param array $fieldConfig The field configuration
-     * @param object $fieldInstance The field instance
-     * @param array $data The form data
-     * @param array $builderBlocks The builder blocks
+     *
+     * @param  Model  $field  The field model
+     * @param  array  $fieldConfig  The field configuration
+     * @param  object  $fieldInstance  The field instance
+     * @param  array  $data  The form data
+     * @param  array  $builderBlocks  The builder blocks
      * @return array The mutated data
      */
     private function applyFieldFillMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data, array $builderBlocks): array
     {
         if (! empty($fieldConfig['methods']['mutateFormDataCallback'])) {
             $fieldLocation = $this->determineFieldLocation($field, $builderBlocks);
-            
+
             if ($fieldLocation['isInBuilder']) {
                 return $this->processBuilderFieldFillMutation($field, $fieldInstance, $data, $fieldLocation['builderData'], $builderBlocks);
             }
-            
+
             return $fieldInstance->mutateFormDataCallback($this->record, $field, $data);
         }
 
@@ -196,12 +196,12 @@ trait CanMapDynamicFields
 
     /**
      * Extract builder blocks from record values.
-     * 
+     *
      * @return array The builder blocks
      */
     private function extractBuilderBlocksFromRecord(): array
     {
-        if (!isset($this->record->values) || !is_array($this->record->values)) {
+        if (! isset($this->record->values) || ! is_array($this->record->values)) {
             return [];
         }
 
@@ -217,26 +217,26 @@ trait CanMapDynamicFields
 
     /**
      * Process fill mutation for fields inside builder blocks.
-     * 
-     * @param Model $field The field model
-     * @param object $fieldInstance The field instance
-     * @param array $data The form data
-     * @param array $builderData The builder block data
-     * @param array $builderBlocks All builder blocks
+     *
+     * @param  Model  $field  The field model
+     * @param  object  $fieldInstance  The field instance
+     * @param  array  $data  The form data
+     * @param  array  $builderData  The builder block data
+     * @param  array  $builderBlocks  All builder blocks
      * @return array The updated form data
      */
     private function processBuilderFieldFillMutation(Model $field, object $fieldInstance, array $data, array $builderData, array $builderBlocks): array
     {
         // Create a mock record with the builder data for the callback
         $mockRecord = $this->createMockRecordForBuilder($builderData);
-        
+
         // Create a temporary data structure for the callback
         $tempData = [$this->record->valueColumn => $builderData];
         $tempData = $fieldInstance->mutateFormDataCallback($mockRecord, $field, $tempData);
-        
+
         // Update the original data structure with the mutated values
         $this->updateBuilderBlocksWithMutatedData($builderBlocks, $field, $tempData);
-        
+
         // Update the main data structure
         $data[$this->record->valueColumn] = array_merge($data[$this->record->valueColumn], $builderBlocks);
 
@@ -245,24 +245,24 @@ trait CanMapDynamicFields
 
     /**
      * Create a mock record for builder field processing.
-     * 
-     * @param array $builderData The builder block data
+     *
+     * @param  array  $builderData  The builder block data
      * @return object The mock record
      */
     private function createMockRecordForBuilder(array $builderData): object
     {
         $mockRecord = clone $this->record;
         $mockRecord->values = $builderData;
-        
+
         return $mockRecord;
     }
 
     /**
      * Update builder blocks with mutated field data.
-     * 
-     * @param array $builderBlocks The builder blocks to update
-     * @param Model $field The field being processed
-     * @param array $tempData The temporary data containing mutated values
+     *
+     * @param  array  $builderBlocks  The builder blocks to update
+     * @param  Model  $field  The field being processed
+     * @param  array  $tempData  The temporary data containing mutated values
      */
     private function updateBuilderBlocksWithMutatedData(array &$builderBlocks, Model $field, array $tempData): void
     {
@@ -279,11 +279,11 @@ trait CanMapDynamicFields
 
     /**
      * Resolve field configuration and create an instance.
-     * 
+     *
      * This method determines whether to use a custom field implementation
      * or fall back to the default field type mapping.
-     * 
-     * @param Model $field The field model
+     *
+     * @param  Model  $field  The field model
      * @return array Array containing 'config' and 'instance' keys
      */
     private function resolveFieldConfigAndInstance(Model $field): array
@@ -301,11 +301,11 @@ trait CanMapDynamicFields
 
     /**
      * Extract field models from builder blocks.
-     * 
+     *
      * Builder blocks contain nested fields that need to be processed.
      * This method extracts those field models for processing.
-     * 
-     * @param array $blocks The builder blocks
+     *
+     * @param  array  $blocks  The builder blocks
      * @return Collection The field models from blocks
      */
     protected function getFieldsFromBlocks(array $blocks): Collection
@@ -326,13 +326,13 @@ trait CanMapDynamicFields
 
     /**
      * Apply mutation strategy to all fields recursively.
-     * 
+     *
      * This method processes each field and its nested children using the provided
      * mutation strategy. It handles the hierarchical nature of fields.
-     * 
-     * @param array $data The form data
-     * @param Collection $fields The fields to process
-     * @param callable $mutationStrategy The strategy to apply to each field
+     *
+     * @param  array  $data  The form data
+     * @param  Collection  $fields  The fields to process
+     * @param  callable  $mutationStrategy  The strategy to apply to each field
      * @return array The mutated form data
      */
     protected function mutateFormData(array $data, Collection $fields, callable $mutationStrategy): array
@@ -351,10 +351,10 @@ trait CanMapDynamicFields
 
     /**
      * Process nested fields (children) of a parent field.
-     * 
-     * @param Model $field The parent field
-     * @param array $data The form data
-     * @param callable $mutationStrategy The mutation strategy
+     *
+     * @param  Model  $field  The parent field
+     * @param  array  $data  The form data
+     * @param  callable  $mutationStrategy  The mutation strategy
      * @return array The updated form data
      */
     private function processNestedFields(Model $field, array $data, callable $mutationStrategy): array
@@ -373,12 +373,12 @@ trait CanMapDynamicFields
 
     /**
      * Resolve form field inputs for rendering.
-     * 
+     *
      * This method converts field models into form input components
      * that can be rendered in the UI.
-     * 
-     * @param mixed $record The record containing fields
-     * @param bool $isNested Whether this is a nested field
+     *
+     * @param  mixed  $record  The record containing fields
+     * @param  bool  $isNested  Whether this is a nested field
      * @return array Array of form input components
      */
     private function resolveFormFields(mixed $record = null, bool $isNested = false): array
@@ -406,14 +406,14 @@ trait CanMapDynamicFields
 
     /**
      * Resolve a single field input component.
-     * 
+     *
      * This method creates the appropriate form input component for a field,
      * prioritizing custom field implementations over default ones.
-     * 
-     * @param Model $field The field model
-     * @param Collection $customFields Available custom fields
-     * @param mixed $record The record
-     * @param bool $isNested Whether this is a nested field
+     *
+     * @param  Model  $field  The field model
+     * @param  Collection  $customFields  Available custom fields
+     * @param  mixed  $record  The record
+     * @param  bool  $isNested  Whether this is a nested field
      * @return object|null The form input component or null if not found
      */
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
@@ -442,15 +442,15 @@ trait CanMapDynamicFields
 
     /**
      * Apply field-specific mutation logic for form saving.
-     * 
+     *
      * This method handles both regular fields and fields within builder blocks.
      * Builder blocks require special processing because they contain nested data structures.
-     * 
-     * @param Model $field The field model
-     * @param array $fieldConfig The field configuration
-     * @param object $fieldInstance The field instance
-     * @param array $data The form data
-     * @param array $builderBlocks The builder blocks
+     *
+     * @param  Model  $field  The field model
+     * @param  array  $fieldConfig  The field configuration
+     * @param  object  $fieldInstance  The field instance
+     * @param  array  $data  The form data
+     * @param  array  $builderBlocks  The builder blocks
      * @return array The mutated data
      */
     private function applyFieldSaveMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data, array $builderBlocks): array
@@ -471,9 +471,9 @@ trait CanMapDynamicFields
 
     /**
      * Determine if a field is inside a builder block and extract its data.
-     * 
-     * @param Model $field The field to check
-     * @param array $builderBlocks The builder blocks
+     *
+     * @param  Model  $field  The field to check
+     * @param  array  $builderBlocks  The builder blocks
      * @return array Location information with 'isInBuilder' and 'builderData' keys
      */
     private function determineFieldLocation(Model $field, array $builderBlocks): array
@@ -499,29 +499,29 @@ trait CanMapDynamicFields
 
     /**
      * Process mutation for fields inside builder blocks.
-     * 
+     *
      * Builder fields require special handling because they're nested within
      * a complex data structure that needs to be updated in place.
-     * 
-     * @param Model $field The field model
-     * @param object $fieldInstance The field instance
-     * @param array $data The form data
-     * @param array $builderData The builder block data
-     * @param array $builderBlocks All builder blocks
+     *
+     * @param  Model  $field  The field model
+     * @param  object  $fieldInstance  The field instance
+     * @param  array  $data  The form data
+     * @param  array  $builderData  The builder block data
+     * @param  array  $builderBlocks  All builder blocks
      * @return array The updated form data
      */
     private function processBuilderFieldMutation(Model $field, object $fieldInstance, array $data, array $builderData, array $builderBlocks): array
     {
         // Create a mock record with the builder data for the callback
         $mockRecord = $this->createMockRecordForBuilder($builderData);
-        
+
         // Create a temporary data structure for the callback
         $tempData = [$this->record->valueColumn => $builderData];
         $tempData = $fieldInstance->mutateBeforeSaveCallback($mockRecord, $field, $tempData);
-        
+
         // Update the original data structure with the mutated values
         $this->updateBuilderBlocksWithMutatedData($builderBlocks, $field, $tempData);
-        
+
         // Update the main data structure
         $data[$this->record->valueColumn] = array_merge($data[$this->record->valueColumn], $builderBlocks);
 
