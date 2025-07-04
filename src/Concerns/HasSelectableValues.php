@@ -145,9 +145,9 @@ trait HasSelectableValues
                             ])
                             ->afterStateHydrated(function (Forms\Get $get, Forms\Set $set) use ($type) {
                                 $value = $get("config.{$type}");
-                                if (is_string($value)) {
-                                    $set("config.{$type}", [$value]);
-                                }
+                                
+                                // Set correct config value when creating records
+                                $set("config.{$type}", is_array($value) ? $value : (is_bool($value) ? [] : [$value]));
                             })
                             ->label(__('Type'))
                             ->live(),
