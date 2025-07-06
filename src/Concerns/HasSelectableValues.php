@@ -2,17 +2,17 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Illuminate\Support\Str;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Hidden;
-use Filament\Schemas\Components\Grid;
-use Illuminate\Support\Facades\Schema;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
-use Filament\Forms\Components\CheckboxList;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 trait HasSelectableValues
 {
