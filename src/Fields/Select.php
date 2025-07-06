@@ -8,6 +8,7 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Select as Input;
+use Illuminate\Database\Eloquent\Model;
 
 class Select extends Base implements FieldContract
 {
@@ -74,7 +75,7 @@ class Select extends Base implements FieldContract
         return $input;
     }
 
-    public static function mutateFormDataCallback($record, $field, array $data): array
+    public static function mutateFormDataCallback(Model $record, $field, array $data): array
     {
         if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->ulid])) {
             return $data;
@@ -86,7 +87,7 @@ class Select extends Base implements FieldContract
         return $data;
     }
 
-    public static function mutateBeforeSaveCallback($record, $field, array $data): array
+    public static function mutateBeforeSaveCallback(Model $record, $field, array $data): array
     {
         if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][$field->ulid])) {
             return $data;
@@ -150,7 +151,7 @@ class Select extends Base implements FieldContract
                                         ->inline(false),
                                     Forms\Components\Toggle::make('config.multiple')
                                         ->label(__('Multiple'))
-                                        ->helperText(__('When switching from multiple to single, the first value from existing values will be used.'))
+                                        ->helperText(__('Only first value is used when switching from multiple to single.'))
                                         ->columnSpan(2)
                                         ->inline(false),
                                     Forms\Components\Toggle::make('config.allowHtml')
