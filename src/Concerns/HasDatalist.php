@@ -22,7 +22,7 @@ trait HasDatalist
     public static function getDatalistConfig(): array
     {
         return array_merge(static::getSelectableValuesConfig(), [
-            'datalistType' => null,
+            'datalistType' => [],
         ]);
     }
 

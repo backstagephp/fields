@@ -107,7 +107,7 @@ class FieldsServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('fields', __DIR__ . '/../resources/dist/components/fields.js'),
-            // Css::make('fields-styles', __DIR__ . '/../resources/dist/fields.css'),
+            Css::make('fields-styles', __DIR__ . '/../resources/css/fields.css'),
             // Js::make('fields-scripts', __DIR__ . '/../resources/dist/fields.js'),
         ];
     }

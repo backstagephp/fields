@@ -22,7 +22,7 @@ trait HasOptions
     public static function getOptionsConfig(): array
     {
         return array_merge(static::getSelectableValuesConfig(), [
-            'optionType' => null,
+            'optionType' => [],
         ]);
     }
 
