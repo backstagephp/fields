@@ -2,25 +2,25 @@
 
 namespace Backstage\Fields\Filament\RelationManagers;
 
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Livewire\Component;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
+use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
 use Filament\Forms\Components\Grid;
-use Filament\Tables\Grouping\Group;
-use Backstage\Fields\Facades\Fields;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Backstage\Fields\Enums\Field as FieldEnum;
-use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Backstage\Fields\Concerns\HasConfigurableFields;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class FieldsRelationManager extends RelationManager
 {
@@ -118,43 +118,6 @@ class FieldsRelationManager extends RelationManager
             ]);
     }
 
-    private function formatCustomFields(array $fields): array
-    {
-        return collect($fields)->mapWithKeys(function ($field, $key) {
-            $parts = explode('\\', $field);
-            $lastPart = end($parts);
-            $formattedName = Str::title(Str::snake($lastPart, ' '));
-
-            return [$key => $formattedName];
-        })->toArray();
-    }
-
-    private function initializeDefaultConfig(string $fieldType): array
-    {
-        $className = 'Backstage\\Fields\\Fields\\' . Str::studly($fieldType);
-
-        if (! class_exists($className)) {
-            return [];
-        }
-
-        $fieldInstance = app($className);
-
-        return $fieldInstance::getDefaultConfig();
-    }
-
-    private function initializeCustomConfig(string $fieldType): array
-    {
-        $className = Fields::getFields()[$fieldType] ?? null;
-
-        if (! class_exists($className)) {
-            return [];
-        }
-
-        $fieldInstance = app($className);
-
-        return $fieldInstance::getDefaultConfig();
-    }
-
     public function table(Table $table): Table
     {
         return $table
@@ -167,7 +130,7 @@ class FieldsRelationManager extends RelationManager
             ->groups([
                 Group::make('group')
                     ->label(__('Group'))
-                    ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-')
+                    ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-'),
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -185,13 +148,13 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateFormDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+                        $key = $this->ownerRecord->getKeyName();
 
                         return [
                             ...$data,
                             'position' => Field::where('model_key', $key)->get()->max('position') + 1,
                             'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->slug,
+                            'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
                     ->after(function (Component $livewire) {
@@ -203,7 +166,7 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName() ?? 'id';
+                        $key = $this->ownerRecord->getKeyName();
 
                         return [
                             ...$data,
@@ -222,7 +185,7 @@ class FieldsRelationManager extends RelationManager
                                 ->hasColumn($this->ownerRecord->getTable(), $record->valueColumn)
                         ) {
 
-                            $key = $this->ownerRecord->getKeyName() ?? 'id';
+                            $key = $this->ownerRecord->getKeyName();
 
                             $this->ownerRecord->update([
                                 $record->valueColumn => collect($this->ownerRecord->{$record->valueColumn})->forget($record->{$key})->toArray(),

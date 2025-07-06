@@ -8,7 +8,6 @@ use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
-use Backstage\Fields\Fields\Select as FieldsSelect;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Hidden;
@@ -27,21 +26,6 @@ class Repeater extends Base implements FieldContract
     use HasConfigurableFields;
     use HasFieldTypeResolver;
     use HasOptions;
-
-    private const FIELD_TYPE_MAP = [
-        'text' => Text::class,
-        'textarea' => Textarea::class,
-        'rich-editor' => RichEditor::class,
-        'repeater' => Repeater::class,
-        'select' => FieldsSelect::class,
-        'checkbox' => Checkbox::class,
-        'checkbox-list' => CheckboxList::class,
-        'key-value' => KeyValue::class,
-        'radio' => Radio::class,
-        'toggle' => Toggle::class,
-        'color' => Color::class,
-        'date-time' => DateTime::class,
-    ];
 
     public static function getDefaultConfig(): array
     {
