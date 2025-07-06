@@ -8,6 +8,7 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\Select as Input;
+use Illuminate\Database\Eloquent\Model;
 
 class Select extends Base implements FieldContract
 {
@@ -74,6 +75,61 @@ class Select extends Base implements FieldContract
         return $input;
     }
 
+    public static function mutateFormDataCallback(Model $record, $field, array $data): array
+    {
+        if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->ulid])) {
+            return $data;
+        }
+
+        $value = $record->values[$field->ulid];
+        $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
+
+        return $data;
+    }
+
+    public static function mutateBeforeSaveCallback(Model $record, $field, array $data): array
+    {
+        if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][$field->ulid])) {
+            return $data;
+        }
+
+        $value = $data[$record->valueColumn][$field->ulid];
+        $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
+
+        return $data;
+    }
+
+    /**
+     * Normalize the select value to an array or a single value. This is needed because the select field can be
+     * changed from single to multiple or vice versa.
+     */
+    private static function normalizeSelectValue($value, Field $field): mixed
+    {
+        $isMultiple = $field->config['multiple'] ?? false;
+
+        // Handle JSON string values
+        if (is_string($value) && json_validate($value)) {
+            $value = json_decode($value, true);
+        }
+
+        // Handle null/empty values consistently
+        if ($value === null || $value === '') {
+            return $isMultiple ? [] : null;
+        }
+
+        // Convert to array if multiple is expected but value is not an array
+        if ($isMultiple && ! is_array($value)) {
+            return [$value];
+        }
+
+        // Convert array to single value if multiple is not expected
+        if (! $isMultiple && is_array($value)) {
+            return empty($value) ? null : reset($value);
+        }
+
+        return $value;
+    }
+
     public function getForm(): array
     {
         return [
@@ -95,6 +151,8 @@ class Select extends Base implements FieldContract
                                         ->inline(false),
                                     Forms\Components\Toggle::make('config.multiple')
                                         ->label(__('Multiple'))
+                                        ->helperText(__('Only first value is used when switching from multiple to single.'))
+                                        ->columnSpan(2)
                                         ->inline(false),
                                     Forms\Components\Toggle::make('config.allowHtml')
                                         ->label(__('Allow HTML'))
