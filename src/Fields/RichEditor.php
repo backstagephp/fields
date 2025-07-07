@@ -31,7 +31,7 @@ class RichEditor extends Base implements FieldContract
     {
 
         $input = self::applyDefaultSettings(Input::make($name), $field);
-    
+
         $input = $input->label($field->name ?? null)
             ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
