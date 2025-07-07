@@ -2,10 +2,15 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Filament\Forms;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
@@ -79,24 +84,14 @@ trait HasSelectableValues
 
     protected static function shouldHandleRelationshipOptions(mixed $field, string $type): bool
     {
-        // Ensure $type is a string to prevent array key errors
-        if (! is_string($type)) {
-            return false;
-        }
-
-        return isset($field->config[$type]) && $field->config[$type] !== null &&
+        return isset($field->config[$type]) &&
             (is_string($field->config[$type]) && $field->config[$type] === 'relationship') ||
             (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]));
     }
 
     protected static function shouldHandleArrayOptions(mixed $field, string $type): bool
     {
-        // Ensure $type is a string to prevent array key errors
-        if (! is_string($type)) {
-            return false;
-        }
-
-        return isset($field->config[$type]) && $field->config[$type] !== null &&
+        return isset($field->config[$type]) &&
             (is_string($field->config[$type]) && $field->config[$type] === 'array') ||
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]));
     }
@@ -122,6 +117,10 @@ trait HasSelectableValues
             if (isset($relation['relationValue_filters'])) {
                 foreach ($relation['relationValue_filters'] as $filter) {
                     if (isset($filter['column'], $filter['operator'], $filter['value'])) {
+                        if (preg_match('/{session\.([^\}]+)}/', $filter['value'], $matches)) {
+                            $sessionValue = session($matches[1]);
+                            $filter['value'] = str_replace($matches[0], $sessionValue, $filter['value']);
+                        }
                         $query->where($filter['column'], $filter['operator'], $filter['value']);
                     }
                 }
@@ -154,7 +153,7 @@ trait HasSelectableValues
         }
 
         // If both types are selected, group relationship options by resource
-        if (isset($field->config[$type]) && $field->config[$type] !== null &&
+        if (isset($field->config[$type]) &&
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
             return array_merge($allOptions, $relationshipOptions);
         } else {
@@ -170,7 +169,7 @@ trait HasSelectableValues
         }
 
         // If both types are selected, group array options
-        if (isset($field->config[$type]) && $field->config[$type] !== null &&
+        if (isset($field->config[$type]) &&
             (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]))) {
             $allOptions[__('Custom Options')] = $field->config['options'];
         } else {
@@ -194,18 +193,19 @@ trait HasSelectableValues
 
     protected function selectableValuesFormFields(string $type, string $label, string $arrayComponent): Fieldset
     {
-        return Forms\Components\Fieldset::make($label)
+        return Fieldset::make($label)
             ->columnSpanFull()
             ->label(__($label))
             ->schema([
-                Forms\Components\Grid::make(2)
+                Grid::make(2)
+                    ->columnSpanFull()
                     ->schema([
-                        Forms\Components\CheckboxList::make("config.{$type}")
+                        CheckboxList::make("config.{$type}")
                             ->options([
                                 'array' => __('Array'),
                                 'relationship' => __('Relationship'),
                             ])
-                            ->afterStateHydrated(function (Forms\Get $get, Forms\Set $set) use ($type) {
+                            ->afterStateHydrated(function (Get $get, Set $set) use ($type) {
                                 $value = $get("config.{$type}");
 
                                 // Set correct config value when creating records
@@ -218,11 +218,11 @@ trait HasSelectableValues
                             ->label(__('Options'))
                             ->columnSpanFull()
                             ->visible(
-                                fn (Forms\Get $get): bool => is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
+                                fn (Get $get): bool => is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
                                 $get("config.{$type}") === 'array'
                             )
                             ->required(
-                                fn (Forms\Get $get): bool => is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
+                                fn (Get $get): bool => is_array($get("config.{$type}")) && in_array('array', $get("config.{$type}")) ||
                                 $get("config.{$type}") === 'array'
                             ),
                         // Relationship options
@@ -232,13 +232,13 @@ trait HasSelectableValues
                                 Grid::make()
                                     ->columns(2)
                                     ->schema([
-                                        Forms\Components\Select::make('resource')
+                                        Select::make('resource')
                                             ->label(__('Resource'))
                                             ->searchable()
                                             ->preload()
                                             ->columnSpanFull()
                                             ->live(debounce: 250)
-                                            ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
+                                            ->afterStateUpdated(function (Set $set, ?string $state) {
                                                 $model = static::resolveResourceModel($state);
 
                                                 if (! $model) {
@@ -273,37 +273,37 @@ trait HasSelectableValues
                                             })
                                             ->noSearchResultsMessage(__('No types found'))
                                             ->required(
-                                                fn (Forms\Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
+                                                fn (Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
                                                 $get("../../config.{$type}") === 'relationship'
                                             ),
-                                        Forms\Components\Select::make('relationValue')
+                                        Select::make('relationValue')
                                             ->label(__('Column'))
                                             ->helperText(__('The column to use as name for the options'))
-                                            ->options(fn (Forms\Get $get) => $get('relationValue_options') ?? [])
+                                            ->options(fn (Get $get) => $get('relationValue_options') ?? [])
                                             ->searchable()
-                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
-                                            ->required(fn (Forms\Get $get): bool => ! empty($get('resource'))),
-                                        Forms\Components\Hidden::make('relationKey')
+                                            ->visible(fn (Get $get): bool => ! empty($get('resource')))
+                                            ->required(fn (Get $get): bool => ! empty($get('resource'))),
+                                        Hidden::make('relationKey')
                                             ->default('ulid')
                                             ->label(__('Key'))
                                             ->required(
-                                                fn (Forms\Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
+                                                fn (Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
                                                 $get("../../config.{$type}") === 'relationship'
                                             ),
-                                        Forms\Components\Repeater::make('relationValue_filters')
+                                        Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
-                                            ->visible(fn (Forms\Get $get): bool => ! empty($get('resource')))
+                                            ->visible(fn (Get $get): bool => ! empty($get('resource')))
                                             ->schema([
-                                                Forms\Components\Grid::make(3)
+                                                Grid::make(3)
                                                     ->schema([
-                                                        Forms\Components\Select::make('column')
-                                                            ->options(fn (\Filament\Forms\Get $get) => $get('../../relationValue_options') ?? [
+                                                        Select::make('column')
+                                                            ->options(fn (Get $get) => $get('../../relationValue_options') ?? [
                                                                 'slug' => __('Slug'),
                                                                 'name' => __('Name'),
                                                             ])
                                                             ->live()
                                                             ->label(__('Column')),
-                                                        Forms\Components\Select::make('operator')
+                                                        Select::make('operator')
                                                             ->options([
                                                                 '=' => __('Equal'),
                                                                 '!=' => __('Not equal'),
@@ -315,8 +315,8 @@ trait HasSelectableValues
                                                                 'NOT LIKE' => __('Not like'),
                                                             ])
                                                             ->label(__('Operator')),
-                                                        Forms\Components\TextInput::make('value')
-                                                            ->datalist(function (Forms\Get $get) {
+                                                        TextInput::make('value')
+                                                            ->datalist(function (Get $get) {
                                                                 $resource = $get('../../resource');
                                                                 $column = $get('column');
 
@@ -343,7 +343,7 @@ trait HasSelectableValues
                                     ]),
                             ])
                             ->visible(
-                                fn (Forms\Get $get): bool => is_array($get("config.{$type}")) && in_array('relationship', $get("config.{$type}")) ||
+                                fn (Get $get): bool => is_array($get("config.{$type}")) && in_array('relationship', $get("config.{$type}")) ||
                                 $get("config.{$type}") === 'relationship'
                             )
                             ->columnSpanFull(),
