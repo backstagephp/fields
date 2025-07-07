@@ -39,10 +39,10 @@ class FieldsRelationManager extends RelationManager
         return $schema
             ->components([
                 Grid::make()
-                    ->columns(3)
+                    ->columnSpanFull()
                     ->schema([
                         Section::make('Field')
-                            ->columns(3)
+                            ->columnSpanFull()
                             ->schema([
                                 TextInput::make('name')
                                     ->label(__('Name'))
@@ -114,7 +114,7 @@ class FieldsRelationManager extends RelationManager
 
                             ]),
                         Section::make('Configuration')
-                            ->columns(3)
+                            ->columnSpanFull()
                             ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
                                 $get('field_type')
                             ))
