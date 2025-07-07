@@ -117,6 +117,10 @@ trait HasSelectableValues
             if (isset($relation['relationValue_filters'])) {
                 foreach ($relation['relationValue_filters'] as $filter) {
                     if (isset($filter['column'], $filter['operator'], $filter['value'])) {
+                        if (preg_match('/{session\.([^\}]+)}/', $filter['value'], $matches)) {
+                            $sessionValue = session($matches[1]);
+                            $filter['value'] = str_replace($matches[0], $sessionValue, $filter['value']);
+                        }
                         $query->where($filter['column'], $filter['operator'], $filter['value']);
                     }
                 }
