@@ -194,6 +194,7 @@ trait HasSelectableValues
             ->label(__($label))
             ->schema([
                 Grid::make(2)
+                    ->columnSpanFull()
                     ->schema([
                         CheckboxList::make("config.{$type}")
                             ->options([

@@ -47,6 +47,7 @@ trait HasAffixes
             ->label(__('Affixes'))
             ->schema([
                 Grid::make(3)
+                    ->columnSpanFull()
                     ->schema([
                         TextInput::make('config.prefix')
                             ->label(__('Prefix')),
