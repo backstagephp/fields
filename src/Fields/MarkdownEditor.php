@@ -5,7 +5,6 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
-use Backstage\Fields\Services\ContentCleaningService;
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
 
@@ -70,7 +69,7 @@ class MarkdownEditor extends Base implements FieldContract
                                             Forms\Components\TextInput::make('config.fileAttachmentsVisibility')
                                                 ->label(__('File attachments visibility'))
                                                 ->default('public'),
-                                        ])
+                                        ]),
                                 ]),
                         ]),
                 ])->columnSpanFull(),
