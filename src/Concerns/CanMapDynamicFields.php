@@ -10,6 +10,7 @@ use Backstage\Fields\Fields\CheckboxList;
 use Backstage\Fields\Fields\Color;
 use Backstage\Fields\Fields\DateTime;
 use Backstage\Fields\Fields\KeyValue;
+use Backstage\Fields\Fields\MarkdownEditor;
 use Backstage\Fields\Fields\Radio;
 use Backstage\Fields\Fields\Repeater;
 use Backstage\Fields\Fields\RichEditor;
@@ -41,6 +42,7 @@ trait CanMapDynamicFields
         'text' => Text::class,
         'textarea' => Textarea::class,
         'rich-editor' => RichEditor::class,
+        'markdown-editor' => MarkdownEditor::class,
         'repeater' => Repeater::class,
         'select' => Select::class,
         'checkbox' => Checkbox::class,
