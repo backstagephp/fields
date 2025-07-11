@@ -2,26 +2,27 @@
 
 namespace Backstage\Fields\Concerns;
 
-use Backstage\Fields\Contracts\FieldInspector;
-use Backstage\Fields\Enums\Field;
+use Livewire\Attributes\On;
 use Backstage\Fields\Fields;
-use Backstage\Fields\Fields\Checkbox;
-use Backstage\Fields\Fields\CheckboxList;
-use Backstage\Fields\Fields\Color;
-use Backstage\Fields\Fields\DateTime;
-use Backstage\Fields\Fields\KeyValue;
-use Backstage\Fields\Fields\Radio;
-use Backstage\Fields\Fields\Repeater;
-use Backstage\Fields\Fields\RichEditor;
-use Backstage\Fields\Fields\Select;
+use Backstage\Fields\Enums\Field;
 use Backstage\Fields\Fields\Tags;
 use Backstage\Fields\Fields\Text;
-use Backstage\Fields\Fields\Textarea;
-use Backstage\Fields\Fields\Toggle;
-use Backstage\Fields\Models\Field as Model;
-use Backstage\Fields\Models\Field as ModelsField;
+use Backstage\Fields\Fields\Color;
+use Backstage\Fields\Fields\Radio;
 use Illuminate\Support\Collection;
-use Livewire\Attributes\On;
+use Backstage\Fields\Fields\Select;
+use Backstage\Fields\Fields\Toggle;
+use Backstage\Fields\Fields\Checkbox;
+use Backstage\Fields\Fields\DateTime;
+use Backstage\Fields\Fields\KeyValue;
+use Backstage\Fields\Fields\Repeater;
+use Backstage\Fields\Fields\Textarea;
+use Backstage\Fields\Fields\RichEditor;
+use Backstage\Fields\Fields\CheckboxList;
+use Backstage\Fields\Fields\MarkdownEditor;
+use Backstage\Fields\Models\Field as Model;
+use Backstage\Fields\Contracts\FieldInspector;
+use Backstage\Fields\Models\Field as ModelsField;
 
 /**
  * Trait for handling dynamic field mapping and data mutation in forms.
@@ -41,6 +42,7 @@ trait CanMapDynamicFields
         'text' => Text::class,
         'textarea' => Textarea::class,
         'rich-editor' => RichEditor::class,
+        'markdown-editor' => MarkdownEditor::class,
         'repeater' => Repeater::class,
         'select' => Select::class,
         'checkbox' => Checkbox::class,
