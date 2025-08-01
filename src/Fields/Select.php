@@ -103,31 +103,19 @@ class Select extends Base implements FieldContract
      * Normalize the select value to an array or a single value. This is needed because the select field can be
      * changed from single to multiple or vice versa.
      */
-    private static function normalizeSelectValue($value, Field $field): mixed
+    private static function normalizeSelectValue($value, Field $field): array
     {
-        $isMultiple = $field->config['multiple'] ?? false;
-
         // Handle JSON string values
         if (is_string($value) && json_validate($value)) {
-            $value = json_decode($value, true);
+            $value = (array) json_decode($value, true);
         }
 
         // Handle null/empty values consistently
         if ($value === null || $value === '') {
-            return $isMultiple ? [] : null;
+            return [];
         }
 
-        // Convert to array if multiple is expected but value is not an array
-        if ($isMultiple && ! is_array($value)) {
-            return [$value];
-        }
-
-        // Convert array to single value if multiple is not expected
-        if (! $isMultiple && is_array($value)) {
-            return empty($value) ? null : reset($value);
-        }
-
-        return $value;
+        return is_array($value) ? $value : [$value];
     }
 
     public function getForm(): array
