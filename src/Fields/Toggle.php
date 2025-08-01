@@ -151,6 +151,11 @@ class Toggle extends Base implements FieldContract
                                     ->label(__('Off icon')),
                             ]),
                         ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
     }

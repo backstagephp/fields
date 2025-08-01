@@ -8,6 +8,9 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput as Input;
+use Filament\Forms\Get;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Grid;
 
 class Text extends Base implements FieldContract
 {
@@ -162,6 +165,11 @@ class Text extends Base implements FieldContract
                                         ->label(__('Telephone regex'))
                                         ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'tel'),
                                 ]),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

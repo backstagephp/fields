@@ -72,6 +72,11 @@ class MarkdownEditor extends Base implements FieldContract
                                         ]),
                                 ]),
                         ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
     }

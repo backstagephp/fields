@@ -118,6 +118,11 @@ class DateTime extends Base implements FieldContract
                             ]),
                             self::affixFormFields(),
                         ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
     }

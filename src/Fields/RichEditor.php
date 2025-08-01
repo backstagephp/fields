@@ -130,6 +130,11 @@ class RichEditor extends Base implements FieldContract
                                         ->columnSpanFull(),
                                 ]),
                         ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
     }
