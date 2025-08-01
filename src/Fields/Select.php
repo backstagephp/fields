@@ -80,7 +80,7 @@ class Select extends Base implements FieldContract
         return $input;
     }
 
-    public static function mutateFormDataCallback(Model $record, $field, array $data): array
+    public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
         if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->ulid])) {
             return $data;
@@ -92,7 +92,7 @@ class Select extends Base implements FieldContract
         return $data;
     }
 
-    public static function mutateBeforeSaveCallback(Model $record, $field, array $data): array
+    public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
     {
         if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][$field->ulid])) {
             return $data;

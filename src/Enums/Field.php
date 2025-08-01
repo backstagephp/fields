@@ -12,10 +12,10 @@ enum Field: string
     case CheckboxList = 'checkbox-list';
     case Color = 'color';
     case DateTime = 'date-time';
-    case File = 'file-upload';
-    case Hidden = 'hidden';
+    // case File = 'file-upload';
+    // case Hidden = 'hidden';
     case KeyValue = 'key-value';
-    case Link = 'link';
+    // case Link = 'link';
     case MarkdownEditor = 'markdown-editor';
     case Radio = 'radio';
     case Repeater = 'repeater';
@@ -25,5 +25,5 @@ enum Field: string
     case Text = 'text';
     case Textarea = 'textarea';
     case Toggle = 'toggle';
-    case ToggleButtons = 'toggle-buttons';
+    // case ToggleButtons = 'toggle-buttons';
 }
