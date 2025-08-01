@@ -2,14 +2,11 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Forms;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Get;
-use Livewire\Livewire;
-use Backstage\Fields\Models\Field;
-use Filament\Support\Colors\Color;
 use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Models\Field;
+use Filament\Forms;
+use Filament\Forms\Get;
+use Filament\Support\Colors\Color;
 
 abstract class Base implements FieldContract
 {
@@ -73,13 +70,13 @@ abstract class Base implements FieldContract
                                 ->live()
                                 ->options(function ($livewire) {
                                     // The $livewire parameter is actually the FieldsRelationManager
-                                    if (!$livewire || !method_exists($livewire, 'getOwnerRecord')) {
+                                    if (! $livewire || ! method_exists($livewire, 'getOwnerRecord')) {
                                         return [];
                                     }
 
                                     $ownerRecord = $livewire->getOwnerRecord();
 
-                                    if (!$ownerRecord) {
+                                    if (! $ownerRecord) {
                                         return [];
                                     }
 
@@ -103,13 +100,12 @@ abstract class Base implements FieldContract
                                     'is_empty' => __('Is empty'),
                                     'is_not_empty' => __('Is not empty'),
                                 ])
-                                ->visible(fn(Forms\Get $get): bool => filled($get('config.conditionalField'))),
+                                ->visible(fn (Forms\Get $get): bool => filled($get('config.conditionalField'))),
                             Forms\Components\TextInput::make('config.conditionalValue')
                                 ->label(__('Value'))
                                 ->visible(
-                                    fn(Forms\Get $get): bool =>
-                                    filled($get('config.conditionalField')) &&
-                                        !in_array($get('config.conditionalOperator'), ['is_empty', 'is_not_empty'])
+                                    fn (Forms\Get $get): bool => filled($get('config.conditionalField')) &&
+                                        ! in_array($get('config.conditionalOperator'), ['is_empty', 'is_not_empty'])
                                 ),
                             Forms\Components\Select::make('config.conditionalAction')
                                 ->label(__('Action'))
@@ -119,7 +115,7 @@ abstract class Base implements FieldContract
                                     'required' => __('Make required'),
                                     'not_required' => __('Make not required'),
                                 ])
-                                ->visible(fn(Forms\Get $get): bool => filled($get('config.conditionalField'))),
+                                ->visible(fn (Forms\Get $get): bool => filled($get('config.conditionalField'))),
                         ]),
                 ]),
         ];
@@ -170,7 +166,7 @@ abstract class Base implements FieldContract
      */
     protected static function applyConditionalLogic($input, ?Field $field = null): mixed
     {
-        if (!$field || empty($field->config['conditionalField']) || empty($field->config['conditionalAction'])) {
+        if (! $field || empty($field->config['conditionalField']) || empty($field->config['conditionalAction'])) {
             return $input;
         }
 
@@ -182,37 +178,37 @@ abstract class Base implements FieldContract
         // Get the field name for the conditional field
         $conditionalFieldName = self::getFieldNameFromUlid($conditionalField, $field);
 
-        if (!$conditionalFieldName) {
+        if (! $conditionalFieldName) {
             return $input;
         }
 
         switch ($action) {
             case 'show':
                 $input->visible(
-                    fn(Forms\Get $get): bool =>
-                    self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Forms\Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
 
             case 'hide':
                 $input->visible(
-                    fn(Forms\Get $get): bool =>
-                    !self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Forms\Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
 
             case 'required':
                 $input->required(
-                    fn(Forms\Get $get): bool =>
-                    self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Forms\Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
 
             case 'not_required':
                 $input->required(
-                    fn(Forms\Get $get): bool =>
-                    !self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Forms\Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
         }
 
@@ -224,7 +220,7 @@ abstract class Base implements FieldContract
      */
     protected static function applyConditionalValidation($input, ?Field $field = null): mixed
     {
-        if (!$field || empty($field->config['conditionalField']) || empty($field->config['conditionalAction'])) {
+        if (! $field || empty($field->config['conditionalField']) || empty($field->config['conditionalAction'])) {
             return $input;
         }
 
@@ -236,7 +232,7 @@ abstract class Base implements FieldContract
         // Get the field name for the conditional field
         $conditionalFieldName = self::getFieldNameFromUlid($conditionalField, $field);
 
-        if (!$conditionalFieldName) {
+        if (! $conditionalFieldName) {
             return $input;
         }
 
@@ -252,8 +248,9 @@ abstract class Base implements FieldContract
                 } elseif ($operator === 'is_not_empty') {
                     $input->requiredIf($conditionalFieldName, '');
                 }
+
                 break;
-            
+
             case 'not_required':
                 // For not_required, we don't apply validation rules as the field is optional
                 break;
@@ -278,7 +275,7 @@ abstract class Base implements FieldContract
                 return is_string($fieldValue) && str_contains($fieldValue, $expectedValue);
 
             case 'not_contains':
-                return is_string($fieldValue) && !str_contains($fieldValue, $expectedValue);
+                return is_string($fieldValue) && ! str_contains($fieldValue, $expectedValue);
 
             case 'starts_with':
                 return is_string($fieldValue) && str_starts_with($fieldValue, $expectedValue);
@@ -290,7 +287,7 @@ abstract class Base implements FieldContract
                 return empty($fieldValue);
 
             case 'is_not_empty':
-                return !empty($fieldValue);
+                return ! empty($fieldValue);
 
             default:
                 return false;
@@ -305,19 +302,19 @@ abstract class Base implements FieldContract
         // Find the conditional field
         $conditionalField = Field::find($ulid);
 
-        if (!$conditionalField) {
+        if (! $conditionalField) {
             return null;
         }
 
         // Get the record that owns these fields
         // Load the model relationship if it's not already loaded
-        if (!$currentField->relationLoaded('model')) {
+        if (! $currentField->relationLoaded('model')) {
             $currentField->load('model');
         }
-        
+
         $record = $currentField->model;
 
-        if (!$record || !isset($record->valueColumn)) {
+        if (! $record || ! isset($record->valueColumn)) {
             return null;
         }
 

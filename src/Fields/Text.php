@@ -8,9 +8,6 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput as Input;
-use Filament\Forms\Get;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Grid;
 
 class Text extends Base implements FieldContract
 {
