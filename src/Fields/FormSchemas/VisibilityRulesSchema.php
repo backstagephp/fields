@@ -2,8 +2,9 @@
 
 namespace Backstage\Fields\Fields\FormSchemas;
 
-use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Filament\Forms;
+use Backstage\Fields\Models\Field;
+use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 
 class VisibilityRulesSchema
 {
@@ -71,7 +72,15 @@ class VisibilityRulesSchema
                                         ->visible(fn (Forms\Get $get): bool => !in_array($get('operator'), ['is_empty', 'is_not_empty'])),
                                 ])
                                 ->collapsible()
-                                ->itemLabel(fn (array $state): ?string => $state['field'] ?? null)
+                                ->itemLabel(function (array $state): ?string {
+
+                                    if (isset($state['field'])) {
+                                        $field = Field::find($state['field']);
+                                        return $field->name ?? null;
+                                    }
+
+                                    return null;
+                                })
                                 ->defaultItems(1)
                                 ->columns(3)
                                 ->reorderableWithButtons()
@@ -80,6 +89,7 @@ class VisibilityRulesSchema
                         ->collapsible()
                         ->itemLabel(fn (array $state): ?string => 'Visibility Rule')
                         ->defaultItems(0)
+                        ->maxItems(1)
                         ->reorderableWithButtons()
                         ->columnSpanFull(),
                 ]),
