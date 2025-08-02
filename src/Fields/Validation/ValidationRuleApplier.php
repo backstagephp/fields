@@ -340,6 +340,29 @@ class ValidationRuleApplier
                 $input->string();
 
                 break;
+
+            case 'doesnt_start_with':
+                $values = self::parseValidationValues($parameters['values'] ?? '');
+                $input->doesntStartWith($values);
+
+                break;
+
+            case 'doesnt_end_with':
+                $values = self::parseValidationValues($parameters['values'] ?? '');
+                $input->doesntEndWith($values);
+
+                break;
+
+            case 'decimal':
+                $places = $parameters['places'] ?? 2;
+                $input->decimal($places);
+
+                break;
+
+            case 'required':
+                $input->required();
+
+                break;
         }
 
         return $input;

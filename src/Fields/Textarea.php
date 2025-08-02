@@ -59,17 +59,8 @@ class Textarea extends Base implements FieldContract
                                 ->inline(false),
                             Forms\Components\Grid::make(2)
                                 ->schema([
-                                    Forms\Components\TextInput::make('config.autosize')
-                                        ->default(false)
-                                        ->label(__('Auto size')),
-                                    Forms\Components\TextInput::make('config.rows')
-                                        ->numeric()
-                                        ->minValue(0)
-                                        ->label(__('Rows')),
-                                    Forms\Components\TextInput::make('config.cols')
-                                        ->numeric()
-                                        ->minValue(0)
-                                        ->label(__('Cols')),
+                                    Forms\Components\TextInput::make('config.placeholder')
+                                        ->label(__('Placeholder')),
                                     Forms\Components\TextInput::make('config.minLength')
                                         ->numeric()
                                         ->minValue(0)
@@ -78,12 +69,27 @@ class Textarea extends Base implements FieldContract
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Maximum length')),
-                                    Forms\Components\TextInput::make('config.length')
+                                    Forms\Components\TextInput::make('config.rows')
                                         ->numeric()
-                                        ->minValue(0)
-                                        ->label(__('Length')),
-                                    Forms\Components\TextInput::make('config.placeholder')
-                                        ->label(__('Placeholder')),
+                                        ->minValue(1)
+                                        ->default(3)
+                                        ->label(__('Rows')),
+                                    Forms\Components\TextInput::make('config.cols')
+                                        ->numeric()
+                                        ->minValue(1)
+                                        ->label(__('Columns')),
+                                    Forms\Components\Toggle::make('config.autosize')
+                                        ->label(__('Auto-size'))
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.autofocus')
+                                        ->label(__('Auto-focus'))
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.spellcheck')
+                                        ->label(__('Spell check'))
+                                        ->inline(false),
+                                    Forms\Components\Toggle::make('config.wrap')
+                                        ->label(__('Wrap text'))
+                                        ->inline(false),
                                 ]),
                         ]),
                     Forms\Components\Tabs\Tab::make('Rules')
@@ -93,5 +99,10 @@ class Textarea extends Base implements FieldContract
                         ]),
                 ])->columnSpanFull(),
         ];
+    }
+
+    public function getFieldType(): ?string
+    {
+        return 'textarea';
     }
 }

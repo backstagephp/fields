@@ -12,6 +12,11 @@ class CheckboxList extends Base implements FieldContract
 {
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'checkbox-list';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

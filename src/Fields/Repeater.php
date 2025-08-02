@@ -27,6 +27,11 @@ class Repeater extends Base implements FieldContract
     use HasFieldTypeResolver;
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'repeater';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

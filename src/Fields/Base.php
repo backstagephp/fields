@@ -25,10 +25,17 @@ abstract class Base implements FieldContract
         return [
             Forms\Components\Grid::make(2)
                 ->schema([
-                    ...ValidationRulesSchema::make(),
+                    ...ValidationRulesSchema::make($this->getFieldType()),
                     ...VisibilityRulesSchema::make(),
                 ]),
         ];
+    }
+
+    public function getFieldType(): ?string
+    {
+        // This method should be overridden by specific field classes
+        // to return their field type
+        return null;
     }
 
     public static function getDefaultConfig(): array

@@ -11,6 +11,11 @@ use Filament\Support\Facades\FilamentColor;
 
 class Toggle extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'toggle';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

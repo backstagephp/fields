@@ -9,6 +9,11 @@ use Filament\Forms\Components\Checkbox as Input;
 
 class Checkbox extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'checkbox';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

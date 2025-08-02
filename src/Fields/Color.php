@@ -15,6 +15,11 @@ use Filament\Forms\Components\ColorPicker as Input;
  */
 class Color extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'color';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

@@ -11,6 +11,11 @@ use Filament\Forms\Components\RichEditor as Input;
 
 class RichEditor extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'rich-editor';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

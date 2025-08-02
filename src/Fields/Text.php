@@ -171,4 +171,9 @@ class Text extends Base implements FieldContract
                 ])->columnSpanFull(),
         ];
     }
+
+    public function getFieldType(): ?string
+    {
+        return 'text';
+    }
 }

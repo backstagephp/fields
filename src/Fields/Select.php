@@ -15,6 +15,11 @@ class Select extends Base implements FieldContract
     use HasAffixes;
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'select';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

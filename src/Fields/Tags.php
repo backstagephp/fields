@@ -9,6 +9,11 @@ use Filament\Forms\Components\TagsInput as Input;
 
 class Tags extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'tags';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
