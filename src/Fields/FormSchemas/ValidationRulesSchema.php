@@ -178,57 +178,57 @@ class ValidationRulesSchema
             'uuid' => __('UUID'),
         ];
 
-        if (!$fieldType) {
+        if (! $fieldType) {
             return $allOptions;
         }
 
         $fieldTypeOptions = [
             'text' => [
-                'active_url', 'alpha', 'alpha_dash', 'alpha_num', 'ascii', 'confirmed', 'different', 'doesnt_start_with', 'doesnt_end_with', 'email', 'ends_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'numeric', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'regex', 'not_regex', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'starts_with', 'string', 'unique', 'url'
+                'active_url', 'alpha', 'alpha_dash', 'alpha_num', 'ascii', 'confirmed', 'different', 'doesnt_start_with', 'doesnt_end_with', 'email', 'ends_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'numeric', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'regex', 'not_regex', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'starts_with', 'string', 'unique', 'url',
             ],
             'textarea' => [
-                'alpha', 'alpha_dash', 'alpha_num', 'ascii', 'different', 'doesnt_start_with', 'doesnt_end_with', 'ends_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'regex', 'not_regex', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'starts_with', 'string', 'unique'
+                'alpha', 'alpha_dash', 'alpha_num', 'ascii', 'different', 'doesnt_start_with', 'doesnt_end_with', 'ends_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'regex', 'not_regex', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'starts_with', 'string', 'unique',
             ],
             'rich-editor' => [
-                'different', 'doesnt_start_with', 'doesnt_end_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'string', 'unique'
+                'different', 'doesnt_start_with', 'doesnt_end_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'string', 'unique',
             ],
             'markdown-editor' => [
-                'different', 'doesnt_start_with', 'doesnt_end_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'string', 'unique'
+                'different', 'doesnt_start_with', 'doesnt_end_with', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'max_length', 'min_length', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'string', 'unique',
             ],
             'select' => [
-                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'radio' => [
-                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'checkbox' => [
-                'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same'
+                'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same',
             ],
             'checkbox-list' => [
-                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'toggle' => [
-                'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same'
+                'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same',
             ],
             'color' => [
-                'different', 'filled', 'hex_color', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'different', 'filled', 'hex_color', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'date-time' => [
-                'after', 'after_or_equal', 'before', 'before_or_equal', 'date', 'date_equals', 'date_format', 'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'after', 'after_or_equal', 'before', 'before_or_equal', 'date', 'date_equals', 'date_format', 'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'key-value' => [
-                'different', 'filled', 'json', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'different', 'filled', 'json', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'tags' => [
-                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique'
+                'different', 'filled', 'greater_than', 'greater_than_or_equal', 'in', 'less_than', 'less_than_or_equal', 'not_in', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same', 'unique',
             ],
             'repeater' => [
-                'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same'
+                'different', 'filled', 'nullable', 'prohibited', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required', 'required_if', 'required_if_accepted', 'required_unless', 'required_with', 'required_with_all', 'required_without', 'required_without_all', 'same',
             ],
         ];
 
         $allowedRules = $fieldTypeOptions[$fieldType] ?? array_keys($allOptions);
-        
+
         return array_intersect_key($allOptions, array_flip($allowedRules));
     }
 }
