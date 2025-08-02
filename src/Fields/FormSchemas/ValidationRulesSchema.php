@@ -1,0 +1,164 @@
+<?php
+
+namespace Backstage\Fields\Fields\FormSchemas;
+
+use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
+use Filament\Forms;
+
+class ValidationRulesSchema
+{
+    public static function make(): array
+    {
+        return [
+            Forms\Components\Fieldset::make('Validation rules')
+                ->schema([
+                    Forms\Components\Repeater::make('config.validationRules')
+                        ->hiddenLabel()
+                        ->schema([
+                            Forms\Components\Select::make('type')
+                                ->label(__('Rule type'))
+                                ->searchable()
+                                ->preload()
+                                ->options([
+                                    'active_url' => __('Active URL'),
+                                    'after' => __('After date'),
+                                    'after_or_equal' => __('After or equal to date'),
+                                    'alpha' => __('Alphabetic'),
+                                    'alpha_dash' => __('Alphanumeric with dashes'),
+                                    'alpha_num' => __('Alphanumeric'),
+                                    'ascii' => __('ASCII'),
+                                    'before' => __('Before date'),
+                                    'before_or_equal' => __('Before or equal to date'),
+                                    'confirmed' => __('Confirmed'),
+                                    'date' => __('Date'),
+                                    'date_equals' => __('Date equals'),
+                                    'date_format' => __('Date format'),
+                                    'decimal' => __('Decimal'),
+                                    'different' => __('Different from field'),
+                                    'email' => __('Email'),
+                                    'ends_with' => __('Ends with'),
+                                    'enum' => __('Enum'),
+                                    'exists' => __('Exists in database'),
+                                    'filled' => __('Filled'),
+                                    'greater_than' => __('Greater than field'),
+                                    'greater_than_or_equal' => __('Greater than or equal to field'),
+                                    'hex_color' => __('Hex color'),
+                                    'in' => __('In list'),
+                                    'integer' => __('Integer'),
+                                    'ip' => __('IP Address'),
+                                    'ipv4' => __('IPv4 Address'),
+                                    'ipv6' => __('IPv6 Address'),
+                                    'json' => __('JSON'),
+                                    'less_than' => __('Less than field'),
+                                    'less_than_or_equal' => __('Less than or equal to field'),
+                                    'mac_address' => __('MAC Address'),
+                                    'max' => __('Maximum value'),
+                                    'max_length' => __('Maximum length'),
+                                    'min' => __('Minimum value'),
+                                    'min_length' => __('Minimum length'),
+                                    'multiple_of' => __('Multiple of'),
+                                    'not_in' => __('Not in list'),
+                                    'not_regex' => __('Not regex pattern'),
+                                    'nullable' => __('Nullable'),
+                                    'numeric' => __('Numeric'),
+                                    'prohibited' => __('Prohibited'),
+                                    'prohibited_if' => __('Prohibited if'),
+                                    'prohibited_unless' => __('Prohibited unless'),
+                                    'prohibits' => __('Prohibits'),
+                                    'regex' => __('Regex pattern'),
+                                    'required_if' => __('Required if'),
+                                    'required_if_accepted' => __('Required if accepted'),
+                                    'required_unless' => __('Required unless'),
+                                    'required_with' => __('Required with'),
+                                    'required_with_all' => __('Required with all'),
+                                    'required_without' => __('Required without'),
+                                    'required_without_all' => __('Required without all'),
+                                    'same' => __('Same as field'),
+                                    'starts_with' => __('Starts with'),
+                                    'string' => __('String'),
+                                    'ulid' => __('ULID'),
+                                    'unique' => __('Unique in database'),
+                                    'url' => __('URL'),
+                                    'uuid' => __('UUID'),
+                                ])
+                                ->reactive()
+                                ->required(),
+                            Forms\Components\TextInput::make('parameters.value')
+                                ->label(__('Value'))
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless']))
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless'])),
+                            Forms\Components\TextInput::make('parameters.pattern')
+                                ->label(__('Pattern'))
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['regex', 'not_regex']))
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['regex', 'not_regex'])),
+                            Forms\Components\TextInput::make('parameters.values')
+                                ->label(__('Values (comma-separated)'))
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['starts_with', 'ends_with', 'in', 'not_in'])),
+                            Forms\Components\TextInput::make('parameters.table')
+                                ->label(__('Table'))
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique']))
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique'])),
+                            Forms\Components\TextInput::make('parameters.column')
+                                ->label(__('Column'))
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique']))
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique'])),
+                            Forms\Components\Select::make('parameters.field')
+                                ->label(__('Field name'))
+                                ->placeholder(__('Select a field'))
+                                ->searchable()
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all']))
+                                ->options(function ($livewire) {
+                                    $excludeUlid = null;
+                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                        $record = $livewire->getMountedTableActionRecord();
+                                        if ($record && isset($record->ulid)) {
+                                            $excludeUlid = $record->ulid;
+                                        }
+                                    }
+                                    return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+                                })
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['different', 'same', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required_if', 'required_unless', 'required_if_accepted', 'greater_than', 'greater_than_or_equal', 'less_than', 'less_than_or_equal'])),
+                            Forms\Components\Select::make('parameters.fields')
+                                ->label(__('Field names'))
+                                ->placeholder(__('Select fields'))
+                                ->multiple()
+                                ->searchable()
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all']))
+                                ->options(function ($livewire) {
+                                    $excludeUlid = null;
+                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                        $record = $livewire->getMountedTableActionRecord();
+                                        if ($record && isset($record->ulid)) {
+                                            $excludeUlid = $record->ulid;
+                                        }
+                                    }
+                                    return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+                                })
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all'])),
+                            Forms\Components\TextInput::make('parameters.date')
+                                ->label(__('Date'))
+                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['after', 'after_or_equal', 'before', 'before_or_equal', 'date_equals']))
+                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['after', 'after_or_equal', 'before', 'before_or_equal', 'date_equals'])),
+                            Forms\Components\TextInput::make('parameters.format')
+                                ->label(__('Format'))
+                                ->required(fn (Forms\Get $get): bool => $get('type') === 'date_format')
+                                ->visible(fn (Forms\Get $get): bool => $get('type') === 'date_format'),
+                            Forms\Components\TextInput::make('parameters.places')
+                                ->label(__('Decimal places'))
+                                ->required(fn (Forms\Get $get): bool => $get('type') === 'decimal')
+                                ->visible(fn (Forms\Get $get): bool => $get('type') === 'decimal'),
+                            Forms\Components\TextInput::make('parameters.enum')
+                                ->label(__('Enum class'))
+                                ->required(fn (Forms\Get $get): bool => $get('type') === 'enum')
+                                ->visible(fn (Forms\Get $get): bool => $get('type') === 'enum'),
+                        ])
+                        ->collapsible()
+                        ->itemLabel(fn (array $state): ?string => $state['type'] ?? null)
+                        ->defaultItems(0)
+                        ->columns(3)
+                        ->reorderableWithButtons()
+                        ->columnSpanFull(),
+                ]),
+        ];
+    }
+} 
