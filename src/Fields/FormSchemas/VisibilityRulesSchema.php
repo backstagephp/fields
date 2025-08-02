@@ -2,9 +2,9 @@
 
 namespace Backstage\Fields\Fields\FormSchemas;
 
-use Filament\Forms;
-use Backstage\Fields\Models\Field;
 use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
+use Backstage\Fields\Models\Field;
+use Filament\Forms;
 
 class VisibilityRulesSchema
 {
@@ -77,6 +77,7 @@ class VisibilityRulesSchema
 
                                     if (isset($state['field'])) {
                                         $field = Field::find($state['field']);
+
                                         return $field->name ?? null;
                                     }
 
