@@ -6,8 +6,9 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Fields\FormSchemas\BasicSettingsSchema;
 use Backstage\Fields\Fields\FormSchemas\ConditionalLogicSchema;
 use Backstage\Fields\Fields\FormSchemas\ValidationRulesSchema;
-use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
+use Backstage\Fields\Fields\FormSchemas\VisibilityRulesSchema;
 use Backstage\Fields\Fields\Logic\ConditionalLogicApplier;
+use Backstage\Fields\Fields\Logic\VisibilityLogicApplier;
 use Backstage\Fields\Fields\Validation\ValidationRuleApplier;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
@@ -20,9 +21,6 @@ abstract class Base implements FieldContract
         return BasicSettingsSchema::make();
     }
 
-    /**
-     * Get the Rules form schema for conditional logic
-     */
     public function getRulesForm(): array
     {
         return [
@@ -30,6 +28,7 @@ abstract class Base implements FieldContract
                 ->schema([
                     ...ConditionalLogicSchema::make(),
                     ...ValidationRulesSchema::make(),
+                    ...VisibilityRulesSchema::make(),
                 ]),
         ];
     }
@@ -49,6 +48,7 @@ abstract class Base implements FieldContract
             'conditionalValue' => null,
             'conditionalAction' => null,
             'validationRules' => [],
+            'visibilityRules' => [],
         ];
     }
 
@@ -69,6 +69,7 @@ abstract class Base implements FieldContract
 
         $input = ConditionalLogicApplier::applyConditionalLogic($input, $field);
         $input = ConditionalLogicApplier::applyConditionalValidation($input, $field);
+        $input = VisibilityLogicApplier::applyVisibilityLogic($input, $field);
         $input = self::applyAdditionalValidation($input, $field);
 
         return $input;
