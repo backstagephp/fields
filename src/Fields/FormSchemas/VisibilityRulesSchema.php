@@ -44,6 +44,7 @@ class VisibilityRulesSchema
                                                     $excludeUlid = $record->ulid;
                                                 }
                                             }
+
                                             return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                         })
                                         ->required(),
@@ -69,7 +70,7 @@ class VisibilityRulesSchema
                                         ->required(),
                                     Forms\Components\TextInput::make('value')
                                         ->label(__('Value'))
-                                        ->visible(fn (Forms\Get $get): bool => !in_array($get('operator'), ['is_empty', 'is_not_empty'])),
+                                        ->visible(fn (Forms\Get $get): bool => ! in_array($get('operator'), ['is_empty', 'is_not_empty'])),
                                 ])
                                 ->collapsible()
                                 ->itemLabel(function (array $state): ?string {
@@ -95,4 +96,4 @@ class VisibilityRulesSchema
                 ]),
         ];
     }
-} 
+}
