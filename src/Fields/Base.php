@@ -6,7 +6,6 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Fields\FormSchemas\BasicSettingsSchema;
 use Backstage\Fields\Fields\FormSchemas\ConditionalLogicSchema;
 use Backstage\Fields\Fields\FormSchemas\ValidationRulesSchema;
-use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Backstage\Fields\Fields\Logic\ConditionalLogicApplier;
 use Backstage\Fields\Fields\Validation\ValidationRuleApplier;
 use Backstage\Fields\Models\Field;

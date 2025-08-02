@@ -115,6 +115,7 @@ class ValidationRulesSchema
                                             $excludeUlid = $record->ulid;
                                         }
                                     }
+
                                     return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                 })
                                 ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['different', 'same', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required_if', 'required_unless', 'required_if_accepted', 'greater_than', 'greater_than_or_equal', 'less_than', 'less_than_or_equal'])),
@@ -132,6 +133,7 @@ class ValidationRulesSchema
                                             $excludeUlid = $record->ulid;
                                         }
                                     }
+
                                     return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                 })
                                 ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all'])),
@@ -161,4 +163,4 @@ class ValidationRulesSchema
                 ]),
         ];
     }
-} 
+}

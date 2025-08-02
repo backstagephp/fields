@@ -60,4 +60,4 @@ class ConditionalLogicSchema
                 ])->columns(3),
         ];
     }
-} 
+}
