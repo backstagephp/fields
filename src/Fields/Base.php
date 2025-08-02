@@ -127,14 +127,11 @@ abstract class Base implements FieldContract
                                             'before' => __('Before date'),
                                             'before_or_equal' => __('Before or equal to date'),
                                             'confirmed' => __('Confirmed'),
-                                            'custom' => __('Custom rule'),
                                             'date' => __('Date'),
                                             'date_equals' => __('Date equals'),
                                             'date_format' => __('Date format'),
                                             'decimal' => __('Decimal'),
                                             'different' => __('Different from field'),
-                                            'doesnt_end_with' => __('Doesn\'t end with'),
-                                            'doesnt_start_with' => __('Doesn\'t start with'),
                                             'email' => __('Email'),
                                             'ends_with' => __('Ends with'),
                                             'enum' => __('Enum'),
@@ -193,7 +190,7 @@ abstract class Base implements FieldContract
                                         ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['regex', 'not_regex'])),
                                     Forms\Components\TextInput::make('parameters.values')
                                         ->label(__('Values (comma-separated)'))
-                                        ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['starts_with', 'ends_with', 'doesnt_start_with', 'doesnt_end_with', 'in', 'not_in'])),
+                                        ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['starts_with', 'ends_with', 'in', 'not_in'])),
                                     Forms\Components\TextInput::make('parameters.table')
                                         ->label(__('Table'))
                                         ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique']))
@@ -255,10 +252,7 @@ abstract class Base implements FieldContract
                                         ->label(__('Enum class'))
                                         ->required(fn (Forms\Get $get): bool => $get('type') === 'enum')
                                         ->visible(fn (Forms\Get $get): bool => $get('type') === 'enum'),
-                                    Forms\Components\TextInput::make('parameters.rule')
-                                        ->label(__('Custom rule'))
-                                        ->required(fn (Forms\Get $get): bool => $get('type') === 'custom')
-                                        ->visible(fn (Forms\Get $get): bool => $get('type') === 'custom'),
+
                                 ])
                                 ->collapsible()
                                 ->itemLabel(fn (array $state): ?string => $state['type'] ?? null)
@@ -296,7 +290,8 @@ abstract class Base implements FieldContract
             ->hidden($field->config['hidden'] ?? self::getDefaultConfig()['hidden'])
             ->helperText($field->config['helperText'] ?? self::getDefaultConfig()['helperText'])
             ->hint($field->config['hint'] ?? self::getDefaultConfig()['hint'])
-            ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon']);
+            ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon'])
+            ->live();
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
             $input->hintColor(Color::hex($field->config['hintColor']));
@@ -307,7 +302,7 @@ abstract class Base implements FieldContract
         $input = self::applyConditionalValidation($input, $field);
 
         $input = self::applyAdditionalValidation($input, $field);
-
+        
         return $input;
     }
 
@@ -400,9 +395,6 @@ abstract class Base implements FieldContract
         return $input;
     }
 
-    /**
-     * Apply additional validation rules based on field configuration
-     */
     protected static function applyAdditionalValidation($input, ?Field $field = null): mixed
     {
         if (! $field || empty($field->config['validationRules'])) {
@@ -451,12 +443,6 @@ abstract class Base implements FieldContract
 
             case 'integer':
                 $input->integer();
-
-                break;
-
-            case 'decimal':
-                $input->numeric();
-                $input->rules(['decimal:' . ($parameters['places'] ?? 2)]);
 
                 break;
 
@@ -546,32 +532,22 @@ abstract class Base implements FieldContract
                 break;
 
             case 'ends_with':
-                $input->rules(['ends_with:' . ($parameters['values'] ?? '')]);
-
-                break;
-
-            case 'doesnt_start_with':
-                $input->rules(['doesnt_start_with:' . ($parameters['values'] ?? '')]);
-
-                break;
-
-            case 'doesnt_end_with':
-                $input->rules(['doesnt_end_with:' . ($parameters['values'] ?? '')]);
+                $input->endsWith(self::parseValidationValues($parameters['values'] ?? ''));
 
                 break;
 
             case 'in':
-                $input->rules(['in:' . ($parameters['values'] ?? '')]);
+                $input->in(self::parseValidationValues($parameters['values'] ?? ''));
 
                 break;
 
             case 'not_in':
-                $input->rules(['not_in:' . ($parameters['values'] ?? '')]);
+                $input->notIn(self::parseValidationValues($parameters['values'] ?? ''));
 
                 break;
 
             case 'exists':
-                $input->rules(['exists:' . ($parameters['table'] ?? '') . ',' . ($parameters['column'] ?? 'id')]);
+                $input->exists($parameters['table'] ?? '', $parameters['column'] ?? 'id');
 
                 break;
 
@@ -599,6 +575,21 @@ abstract class Base implements FieldContract
 
             case 'confirmed':
                 $input->confirmed();
+
+                break;
+
+            case 'date':
+                $input->date();
+
+                break;
+
+            case 'date_equals':
+                $input->rules(['date_equals:' . ($parameters['date'] ?? 'today')]);
+
+                break;
+
+            case 'date_format':
+                $input->rules(['date_format:' . ($parameters['format'] ?? 'Y-m-d')]);
 
                 break;
 
@@ -666,7 +657,7 @@ abstract class Base implements FieldContract
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
                 $value = $parameters['value'] ?? '';
                 if ($fieldName && $value !== '') {
-                    $input->rules(['prohibited_if:' . $fieldName . ',' . $value]);
+                    $input->prohibitedIf($fieldName, $value);
                 }
 
                 break;
@@ -675,38 +666,38 @@ abstract class Base implements FieldContract
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
                 $value = $parameters['value'] ?? '';
                 if ($fieldName && $value !== '') {
-                    $input->rules(['prohibited_unless:' . $fieldName . ',' . $value]);
+                    $input->prohibitedUnless($fieldName, $value);
                 }
 
                 break;
 
             case 'prohibits':
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->rules(['prohibits:' . ($fieldName ?? '')]);
+                $input->prohibits($fieldName ?? '');
 
                 break;
 
             case 'required_with':
                 $fieldNames = self::getFieldNamesFromUlids($parameters['fields'] ?? [], $field);
-                $input->rules(['required_with:' . implode(',', $fieldNames)]);
+                $input->requiredWith($fieldNames);
 
                 break;
 
             case 'required_with_all':
                 $fieldNames = self::getFieldNamesFromUlids($parameters['fields'] ?? [], $field);
-                $input->rules(['required_with_all:' . implode(',', $fieldNames)]);
+                $input->requiredWithAll($fieldNames);
 
                 break;
 
             case 'required_without':
                 $fieldNames = self::getFieldNamesFromUlids($parameters['fields'] ?? [], $field);
-                $input->rules(['required_without:' . implode(',', $fieldNames)]);
+                $input->requiredWithout($fieldNames);
 
                 break;
 
             case 'required_without_all':
                 $fieldNames = self::getFieldNamesFromUlids($parameters['fields'] ?? [], $field);
-                $input->rules(['required_without_all:' . implode(',', $fieldNames)]);
+                $input->requiredWithoutAll($fieldNames);
 
                 break;
 
@@ -714,7 +705,7 @@ abstract class Base implements FieldContract
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
                 $value = $parameters['value'] ?? '';
                 if ($fieldName && $value !== '') {
-                    $input->rules(['required_if:' . $fieldName . ',' . $value]);
+                    $input->requiredIf($fieldName, $value);
                 }
 
                 break;
@@ -723,7 +714,7 @@ abstract class Base implements FieldContract
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
                 $value = $parameters['value'] ?? '';
                 if ($fieldName && $value !== '') {
-                    $input->rules(['required_unless:' . $fieldName . ',' . $value]);
+                    $input->requiredUnless($fieldName, $value);
                 }
 
                 break;
@@ -736,40 +727,35 @@ abstract class Base implements FieldContract
 
             case 'greater_than':
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->rules(['gt:' . ($fieldName ?? '')]);
+                $input->gt($fieldName ?? '');
 
                 break;
 
             case 'greater_than_or_equal':
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->rules(['gte:' . ($fieldName ?? '')]);
+                $input->gte($fieldName ?? '');
 
                 break;
 
             case 'less_than':
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->rules(['lt:' . ($fieldName ?? '')]);
+                $input->lt($fieldName ?? '');
 
                 break;
 
             case 'less_than_or_equal':
                 $fieldName = self::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->rules(['lte:' . ($fieldName ?? '')]);
+                $input->lte($fieldName ?? '');
 
                 break;
 
             case 'enum':
-                $input->rules(['enum:' . ($parameters['enum'] ?? '')]);
+                $input->enum($parameters['enum'] ?? '');
 
                 break;
 
             case 'string':
                 $input->string();
-
-                break;
-
-            case 'custom':
-                $input->rules([$parameters['rule'] ?? '']);
 
                 break;
         }
