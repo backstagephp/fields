@@ -10,7 +10,11 @@ class ValidationRulesSchema
     public static function make(): array
     {
         return [
-            Forms\Components\Fieldset::make('Validation rules')
+            Forms\Components\Section::make('Validation rules')
+                ->collapsible()
+                ->collapsed(false)
+                ->compact(true)
+                ->description(__('Validate the value of this field based on the rules below'))
                 ->schema([
                     Forms\Components\Repeater::make('config.validationRules')
                         ->hiddenLabel()

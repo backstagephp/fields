@@ -4,7 +4,6 @@ namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Fields\FormSchemas\BasicSettingsSchema;
-use Backstage\Fields\Fields\FormSchemas\ConditionalLogicSchema;
 use Backstage\Fields\Fields\FormSchemas\ValidationRulesSchema;
 use Backstage\Fields\Fields\FormSchemas\VisibilityRulesSchema;
 use Backstage\Fields\Fields\Logic\ConditionalLogicApplier;
@@ -26,7 +25,6 @@ abstract class Base implements FieldContract
         return [
             Forms\Components\Grid::make(2)
                 ->schema([
-                    ...ConditionalLogicSchema::make(),
                     ...ValidationRulesSchema::make(),
                     ...VisibilityRulesSchema::make(),
                 ]),

@@ -10,7 +10,11 @@ class VisibilityRulesSchema
     public static function make(): array
     {
         return [
-            Forms\Components\Fieldset::make('Visibility rules')
+            Forms\Components\Section::make('Visibility rules')
+                ->collapsible()
+                ->collapsed(false)
+                ->compact(true)
+                ->description(__('Show or hide this field based on the value of another field'))
                 ->schema([
                     Forms\Components\Repeater::make('config.visibilityRules')
                         ->hiddenLabel()
@@ -44,6 +48,7 @@ class VisibilityRulesSchema
                                         ->required(),
                                     Forms\Components\Select::make('operator')
                                         ->label(__('Condition'))
+                                        ->live()
                                         ->options([
                                             'equals' => __('Equals'),
                                             'not_equals' => __('Does not equal'),
