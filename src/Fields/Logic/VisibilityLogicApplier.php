@@ -68,8 +68,8 @@ class VisibilityLogicApplier
             return true;
         }
 
-        return $logic === 'AND' 
-            ? !in_array(false, $results, true)  // All must be true
+        return $logic === 'AND'
+            ? ! in_array(false, $results, true)  // All must be true
             : in_array(true, $results, true);   // At least one must be true
     }
 
@@ -113,21 +113,23 @@ class VisibilityLogicApplier
                 return is_numeric($fieldValue) && is_numeric($expectedValue) && $fieldValue <= $expectedValue;
 
             case 'in':
-                if (!is_string($expectedValue)) {
+                if (! is_string($expectedValue)) {
                     return false;
                 }
                 $allowedValues = array_map('trim', explode(',', $expectedValue));
+
                 return in_array($fieldValue, $allowedValues);
 
             case 'not_in':
-                if (!is_string($expectedValue)) {
+                if (! is_string($expectedValue)) {
                     return true;
                 }
                 $excludedValues = array_map('trim', explode(',', $expectedValue));
-                return !in_array($fieldValue, $excludedValues);
+
+                return ! in_array($fieldValue, $excludedValues);
 
             default:
                 return false;
         }
     }
-} 
+}
