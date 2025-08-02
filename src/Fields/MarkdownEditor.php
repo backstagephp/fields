@@ -10,6 +10,11 @@ use Filament\Forms\Components\RichEditor as Input;
 
 class MarkdownEditor extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'markdown-editor';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -71,6 +76,11 @@ class MarkdownEditor extends Base implements FieldContract
                                                 ->default('public'),
                                         ]),
                                 ]),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

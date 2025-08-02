@@ -12,6 +12,11 @@ class CheckboxList extends Base implements FieldContract
 {
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'checkbox-list';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -105,6 +110,11 @@ class CheckboxList extends Base implements FieldContract
                                         ->label(__('Search debounce'))
                                         ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
                                 ]),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

@@ -9,6 +9,11 @@ use Filament\Forms\Components\Checkbox as Input;
 
 class Checkbox extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'checkbox';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -64,6 +69,11 @@ class Checkbox extends Base implements FieldContract
                                     ->helperText(__('Requires the checkbox to be unchecked'))
                                     ->inline(false),
                             ]),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

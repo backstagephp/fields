@@ -9,6 +9,11 @@ use Filament\Forms\Components\KeyValue as Input;
 
 class KeyValue extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'key-value';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

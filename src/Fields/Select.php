@@ -15,6 +15,11 @@ class Select extends Base implements FieldContract
     use HasAffixes;
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'select';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -204,6 +209,11 @@ class Select extends Base implements FieldContract
                                         ->label(__('Max items for search'))
                                         ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
                                 ]),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];
