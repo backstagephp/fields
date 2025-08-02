@@ -31,24 +31,28 @@ class ConditionalLogicApplier
                 $input->visible(
                     fn (Forms\Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
 
             case 'hide':
                 $input->visible(
                     fn (Forms\Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
 
             case 'required':
                 $input->required(
                     fn (Forms\Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
 
             case 'not_required':
                 $input->required(
                     fn (Forms\Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
+
                 break;
         }
 
@@ -83,6 +87,7 @@ class ConditionalLogicApplier
                 } elseif ($operator === 'is_not_empty') {
                     $input->requiredIf($conditionalFieldName, '');
                 }
+
                 break;
 
             case 'not_required':
@@ -123,4 +128,4 @@ class ConditionalLogicApplier
                 return false;
         }
     }
-} 
+}

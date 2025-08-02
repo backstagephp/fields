@@ -33,6 +33,7 @@ class BasicSettingsSchema
                         ->label(__('Hint color'))
                         ->visible(function (Forms\Get $get): bool {
                             $hint = $get('config.hint');
+
                             return ! empty(trim($hint));
                         }),
                     Forms\Components\TextInput::make('config.hintIcon')
@@ -40,9 +41,10 @@ class BasicSettingsSchema
                         ->placeholder('heroicon-m-')
                         ->visible(function (Forms\Get $get): bool {
                             $hint = $get('config.hint');
+
                             return ! empty(trim($hint));
                         }),
                 ]),
         ];
     }
-} 
+}
