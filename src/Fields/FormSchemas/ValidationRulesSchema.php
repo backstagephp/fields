@@ -2,8 +2,9 @@
 
 namespace Backstage\Fields\Fields\FormSchemas;
 
-use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Filament\Forms;
+use Illuminate\Support\Str;
+use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 
 class ValidationRulesSchema
 {
@@ -159,7 +160,7 @@ class ValidationRulesSchema
                                 ->visible(fn (Forms\Get $get): bool => $get('type') === 'enum'),
                         ])
                         ->collapsible()
-                        ->itemLabel(fn (array $state): ?string => $state['type'] ?? null)
+                        ->itemLabel(fn (array $state): ?string => $state['type'] ? str_replace('_', ' ', Str::title($state['type'])) : null)
                         ->defaultItems(0)
                         ->columns(3)
                         ->reorderableWithButtons()
