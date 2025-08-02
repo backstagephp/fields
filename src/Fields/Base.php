@@ -302,7 +302,7 @@ abstract class Base implements FieldContract
         $input = self::applyConditionalValidation($input, $field);
 
         $input = self::applyAdditionalValidation($input, $field);
-        
+
         return $input;
     }
 
