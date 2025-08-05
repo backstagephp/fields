@@ -126,6 +126,8 @@ class Repeater extends Base implements FieldContract
                                 ->live(debounce: 250)
                                 ->labelKey('name')
                                 ->maxDepth(0)
+                                ->indentable(false)
+                                ->reorderable(true)
                                 ->addable(fn (string $operation) => $operation !== 'create')
                                 ->disabled(fn (string $operation) => $operation === 'create')
                                 ->hint(fn (string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
