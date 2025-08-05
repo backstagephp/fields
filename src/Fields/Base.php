@@ -69,7 +69,7 @@ abstract class Base implements FieldContract
     private function filterExcludedFields(array $schema): array
     {
         $excluded = $this->excludeFromBaseSchema();
-        
+
         if (empty($excluded)) {
             return $schema;
         }
@@ -80,6 +80,7 @@ abstract class Base implements FieldContract
                     return false;
                 }
             }
+
             return true;
         });
     }
@@ -87,27 +88,27 @@ abstract class Base implements FieldContract
     private function fieldContainsConfigKey($field, string $configKey): bool
     {
         $reflection = new \ReflectionObject($field);
-        
+
         if ($reflection->hasProperty('name')) {
             $nameProperty = $reflection->getProperty('name');
             $nameProperty->setAccessible(true);
             $name = $nameProperty->getValue($field);
-            
+
             if (str_contains($name, "config.{$configKey}")) {
                 return true;
             }
         }
-        
+
         if ($reflection->hasProperty('statePath')) {
             $statePathProperty = $reflection->getProperty('statePath');
             $statePathProperty->setAccessible(true);
             $statePath = $statePathProperty->getValue($field);
-            
+
             if (str_contains($statePath, "config.{$configKey}")) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
