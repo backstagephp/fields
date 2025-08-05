@@ -48,6 +48,9 @@ abstract class Base implements FieldContract
                             return ! empty(trim($hint));
                         }),
                 ]),
+            Forms\Components\TextInput::make('config.defaultValue')
+                ->label(__('Default value'))
+                ->helperText(__('This value will be used when creating new records.')),
         ];
     }
 
@@ -61,6 +64,7 @@ abstract class Base implements FieldContract
             'hint' => null,
             'hintColor' => null,
             'hintIcon' => null,
+            'defaultValue' => null,
         ];
     }
 
@@ -76,6 +80,10 @@ abstract class Base implements FieldContract
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
             $input->hintColor(Color::hex($field->config['hintColor']));
+        }
+
+        if (isset($field->config['defaultValue']) && $field->config['defaultValue'] !== null) {
+            $input->default($field->config['defaultValue']);
         }
 
         return $input;
