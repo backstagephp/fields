@@ -11,7 +11,12 @@ abstract class Base implements FieldContract
 {
     public function getForm(): array
     {
-        return [
+        return $this->getBaseFormSchema();
+    }
+
+    protected function getBaseFormSchema(): array
+    {
+        $schema = [
             Forms\Components\Grid::make(3)
                 ->schema([
                     Forms\Components\Toggle::make('config.required')
@@ -52,6 +57,27 @@ abstract class Base implements FieldContract
                 ->label(__('Default value'))
                 ->helperText(__('This value will be used when creating new records.')),
         ];
+
+        return $this->filterExcludedFields($schema);
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return [];
+    }
+
+    private function filterExcludedFields(array $schema): array
+    {
+        $excluded = $this->excludeFromBaseSchema();
+        
+        return array_filter($schema, function ($field) use ($excluded) {
+            foreach ($excluded as $excludedField) {
+                if (str_contains(serialize($field), "config.{$excludedField}")) {
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 
     public static function getDefaultConfig(): array

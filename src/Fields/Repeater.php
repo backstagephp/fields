@@ -79,9 +79,7 @@ class Repeater extends Base implements FieldContract
                 ->schema([
                     Forms\Components\Tabs\Tab::make('General')
                         ->label(__('General'))
-                        ->schema([
-                            ...parent::getForm(),
-                        ]),
+                        ->schema($this->getBaseFormSchema()),
                     Forms\Components\Tabs\Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
@@ -194,6 +192,11 @@ class Repeater extends Base implements FieldContract
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return ['defaultValue'];
     }
 
     private static function generateSchemaFromChildren(Collection $children): array
