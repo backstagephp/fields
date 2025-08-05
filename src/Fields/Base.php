@@ -87,24 +87,17 @@ abstract class Base implements FieldContract
     private function fieldContainsConfigKey($field, string $configKey): bool
     {
         $reflection = new \ReflectionObject($field);
+        $propertiesToCheck = ['name', 'statePath'];
         
-        if ($reflection->hasProperty('name')) {
-            $nameProperty = $reflection->getProperty('name');
-            $nameProperty->setAccessible(true);
-            $name = $nameProperty->getValue($field);
-            
-            if (str_contains($name, "config.{$configKey}")) {
-                return true;
-            }
-        }
-        
-        if ($reflection->hasProperty('statePath')) {
-            $statePathProperty = $reflection->getProperty('statePath');
-            $statePathProperty->setAccessible(true);
-            $statePath = $statePathProperty->getValue($field);
-            
-            if (str_contains($statePath, "config.{$configKey}")) {
-                return true;
+        foreach ($propertiesToCheck as $propertyName) {
+            if ($reflection->hasProperty($propertyName)) {
+                $property = $reflection->getProperty($propertyName);
+                $property->setAccessible(true);
+                $value = $property->getValue($field);
+                
+                if (str_contains($value, "config.{$configKey}")) {
+                    return true;
+                }
             }
         }
         
