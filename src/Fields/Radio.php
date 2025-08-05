@@ -12,6 +12,11 @@ class Radio extends Base implements FieldContract
 {
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'radio';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -61,6 +66,11 @@ class Radio extends Base implements FieldContract
                                 ->inline(false),
                             self::optionFormFields(),
                         ])->columns(3),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
     }

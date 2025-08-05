@@ -13,6 +13,11 @@ class DateTime extends Base implements FieldContract
 {
     use HasAffixes;
 
+    public function getFieldType(): ?string
+    {
+        return 'date-time';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -117,6 +122,11 @@ class DateTime extends Base implements FieldContract
                                 ]),
                             ]),
                             self::affixFormFields(),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

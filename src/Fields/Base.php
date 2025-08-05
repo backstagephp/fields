@@ -3,6 +3,12 @@
 namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Fields\FormSchemas\BasicSettingsSchema;
+use Backstage\Fields\Fields\FormSchemas\ValidationRulesSchema;
+use Backstage\Fields\Fields\FormSchemas\VisibilityRulesSchema;
+use Backstage\Fields\Fields\Logic\ConditionalLogicApplier;
+use Backstage\Fields\Fields\Logic\VisibilityLogicApplier;
+use Backstage\Fields\Fields\Validation\ValidationRuleApplier;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
 use Filament\Support\Colors\Color;
@@ -11,44 +17,25 @@ abstract class Base implements FieldContract
 {
     public function getForm(): array
     {
+        return BasicSettingsSchema::make();
+    }
+
+    public function getRulesForm(): array
+    {
         return [
-            Forms\Components\Grid::make(3)
-                ->schema([
-                    Forms\Components\Toggle::make('config.required')
-                        ->label(__('Required'))
-                        ->inline(false),
-                    Forms\Components\Toggle::make('config.disabled')
-                        ->label(__('Disabled'))
-                        ->inline(false),
-                    Forms\Components\Toggle::make('config.hidden')
-                        ->label(__('Hidden'))
-                        ->inline(false),
-                ]),
             Forms\Components\Grid::make(2)
                 ->schema([
-                    Forms\Components\TextInput::make('config.helperText')
-                        ->live(onBlur: true)
-                        ->label(__('Helper text')),
-                    Forms\Components\TextInput::make('config.hint')
-                        ->live(onBlur: true)
-                        ->label(__('Hint')),
-                    Forms\Components\ColorPicker::make('config.hintColor')
-                        ->label(__('Hint color'))
-                        ->visible(function (Forms\Get $get): bool {
-                            $hint = $get('config.hint');
-
-                            return ! empty(trim($hint));
-                        }),
-                    Forms\Components\TextInput::make('config.hintIcon')
-                        ->label(__('Hint icon'))
-                        ->placeholder('heroicon-m-')
-                        ->visible(function (Forms\Get $get): bool {
-                            $hint = $get('config.hint');
-
-                            return ! empty(trim($hint));
-                        }),
+                    ...ValidationRulesSchema::make($this->getFieldType()),
+                    ...VisibilityRulesSchema::make(),
                 ]),
         ];
+    }
+
+    public function getFieldType(): ?string
+    {
+        // This method should be overridden by specific field classes
+        // to return their field type
+        return null;
     }
 
     public static function getDefaultConfig(): array
@@ -61,6 +48,12 @@ abstract class Base implements FieldContract
             'hint' => null,
             'hintColor' => null,
             'hintIcon' => null,
+            'conditionalField' => null,
+            'conditionalOperator' => null,
+            'conditionalValue' => null,
+            'conditionalAction' => null,
+            'validationRules' => [],
+            'visibilityRules' => [],
         ];
     }
 
@@ -72,21 +65,33 @@ abstract class Base implements FieldContract
             ->hidden($field->config['hidden'] ?? self::getDefaultConfig()['hidden'])
             ->helperText($field->config['helperText'] ?? self::getDefaultConfig()['helperText'])
             ->hint($field->config['hint'] ?? self::getDefaultConfig()['hint'])
-            ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon']);
+            ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon'])
+            ->live();
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
             $input->hintColor(Color::hex($field->config['hintColor']));
         }
 
+        $input = ConditionalLogicApplier::applyConditionalLogic($input, $field);
+        $input = ConditionalLogicApplier::applyConditionalValidation($input, $field);
+        $input = VisibilityLogicApplier::applyVisibilityLogic($input, $field);
+        $input = self::applyAdditionalValidation($input, $field);
+
         return $input;
     }
 
-    protected static function ensureArray($value, string $delimiter = ','): array
+    protected static function applyAdditionalValidation($input, ?Field $field = null): mixed
     {
-        if (is_array($value)) {
-            return $value;
+        if (! $field || empty($field->config['validationRules'])) {
+            return $input;
         }
 
-        return ! empty($value) ? explode($delimiter, $value) : [];
+        $rules = $field->config['validationRules'];
+
+        foreach ($rules as $rule) {
+            $input = ValidationRuleApplier::applyValidationRule($input, $rule, $field);
+        }
+
+        return $input;
     }
 }

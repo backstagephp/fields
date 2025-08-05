@@ -15,6 +15,11 @@ use Filament\Forms\Components\ColorPicker as Input;
  */
 class Color extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'color';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -59,6 +64,11 @@ class Color extends Base implements FieldContract
                                     ->label(__('Regex'))
                                     ->placeholder(__('Enter a regex pattern')),
                             ]),
+                        ]),
+                    Forms\Components\Tabs\Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];
