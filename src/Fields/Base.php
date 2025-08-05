@@ -69,7 +69,7 @@ abstract class Base implements FieldContract
     private function filterExcludedFields(array $schema): array
     {
         $excluded = $this->excludeFromBaseSchema();
-        
+
         if (empty($excluded)) {
             return $schema;
         }
@@ -80,6 +80,7 @@ abstract class Base implements FieldContract
                     return false;
                 }
             }
+
             return true;
         });
     }
@@ -100,7 +101,7 @@ abstract class Base implements FieldContract
                 }
             }
         }
-        
+
         return false;
     }
 
