@@ -89,13 +89,13 @@ abstract class Base implements FieldContract
     {
         $reflection = new \ReflectionObject($field);
         $propertiesToCheck = ['name', 'statePath'];
-        
+
         foreach ($propertiesToCheck as $propertyName) {
             if ($reflection->hasProperty($propertyName)) {
                 $property = $reflection->getProperty($propertyName);
                 $property->setAccessible(true);
                 $value = $property->getValue($field);
-                
+
                 if (str_contains($value, "config.{$configKey}")) {
                     return true;
                 }
