@@ -70,14 +70,45 @@ abstract class Base implements FieldContract
     {
         $excluded = $this->excludeFromBaseSchema();
         
+        if (empty($excluded)) {
+            return $schema;
+        }
+
         return array_filter($schema, function ($field) use ($excluded) {
             foreach ($excluded as $excludedField) {
-                if (str_contains(serialize($field), "config.{$excludedField}")) {
+                if ($this->fieldContainsConfigKey($field, $excludedField)) {
                     return false;
                 }
             }
             return true;
         });
+    }
+
+    private function fieldContainsConfigKey($field, string $configKey): bool
+    {
+        $reflection = new \ReflectionObject($field);
+        
+        if ($reflection->hasProperty('name')) {
+            $nameProperty = $reflection->getProperty('name');
+            $nameProperty->setAccessible(true);
+            $name = $nameProperty->getValue($field);
+            
+            if (str_contains($name, "config.{$configKey}")) {
+                return true;
+            }
+        }
+        
+        if ($reflection->hasProperty('statePath')) {
+            $statePathProperty = $reflection->getProperty('statePath');
+            $statePathProperty->setAccessible(true);
+            $statePath = $statePathProperty->getValue($field);
+            
+            if (str_contains($statePath, "config.{$configKey}")) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     public static function getDefaultConfig(): array
