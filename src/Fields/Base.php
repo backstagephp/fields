@@ -15,7 +15,12 @@ abstract class Base implements FieldContract
 {
     public function getForm(): array
     {
-        return [
+        return $this->getBaseFormSchema();
+    }
+
+    protected function getBaseFormSchema(): array
+    {
+        $schema = [
             Grid::make(3)
                 ->schema([
                     Toggle::make('config.required')
@@ -52,7 +57,56 @@ abstract class Base implements FieldContract
                             return ! empty(trim($hint));
                         }),
                 ]),
+            TextInput::make('config.defaultValue')
+                ->label(__('Default value'))
+                ->helperText(__('This value will be used when creating new records.')),
         ];
+
+        return $this->filterExcludedFields($schema);
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return [];
+    }
+
+    private function filterExcludedFields(array $schema): array
+    {
+        $excluded = $this->excludeFromBaseSchema();
+
+        if (empty($excluded)) {
+            return $schema;
+        }
+
+        return array_filter($schema, function ($field) use ($excluded) {
+            foreach ($excluded as $excludedField) {
+                if ($this->fieldContainsConfigKey($field, $excludedField)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    private function fieldContainsConfigKey($field, string $configKey): bool
+    {
+        $reflection = new \ReflectionObject($field);
+        $propertiesToCheck = ['name', 'statePath'];
+
+        foreach ($propertiesToCheck as $propertyName) {
+            if ($reflection->hasProperty($propertyName)) {
+                $property = $reflection->getProperty($propertyName);
+                $property->setAccessible(true);
+                $value = $property->getValue($field);
+
+                if (str_contains($value, "config.{$configKey}")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static function getDefaultConfig(): array
@@ -65,6 +119,7 @@ abstract class Base implements FieldContract
             'hint' => null,
             'hintColor' => null,
             'hintIcon' => null,
+            'defaultValue' => null,
         ];
     }
 
@@ -80,6 +135,10 @@ abstract class Base implements FieldContract
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
             $input->hintColor(Color::generateV3Palette($field->config['hintColor']));
+        }
+
+        if (isset($field->config['defaultValue']) && $field->config['defaultValue'] !== null) {
+            $input->default($field->config['defaultValue']);
         }
 
         return $input;

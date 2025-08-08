@@ -10,6 +10,7 @@ use Backstage\Fields\Fields\CheckboxList;
 use Backstage\Fields\Fields\Color;
 use Backstage\Fields\Fields\DateTime;
 use Backstage\Fields\Fields\KeyValue;
+use Backstage\Fields\Fields\MarkdownEditor;
 use Backstage\Fields\Fields\Radio;
 use Backstage\Fields\Fields\Repeater;
 use Backstage\Fields\Fields\RichEditor;
@@ -41,6 +42,7 @@ trait CanMapDynamicFields
         'text' => Text::class,
         'textarea' => Textarea::class,
         'rich-editor' => RichEditor::class,
+        'markdown-editor' => MarkdownEditor::class,
         'repeater' => Repeater::class,
         'select' => Select::class,
         'checkbox' => Checkbox::class,
@@ -110,6 +112,7 @@ trait CanMapDynamicFields
         }
 
         $builderBlocks = $this->extractBuilderBlocks($values);
+
         $allFields = $this->getAllFieldsIncludingBuilderFields($builderBlocks);
 
         return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($builderBlocks) {
@@ -485,6 +488,8 @@ trait CanMapDynamicFields
                         return [
                             'isInBuilder' => true,
                             'builderData' => $block['data'],
+                            'builderUlid' => $builderUlid,
+                            'blockIndex' => array_search($block, $builderBlocks),
                         ];
                     }
                 }
@@ -494,6 +499,8 @@ trait CanMapDynamicFields
         return [
             'isInBuilder' => false,
             'builderData' => null,
+            'builderUlid' => null,
+            'blockIndex' => null,
         ];
     }
 
@@ -512,17 +519,25 @@ trait CanMapDynamicFields
      */
     private function processBuilderFieldMutation(Model $field, object $fieldInstance, array $data, array $builderData, array $builderBlocks): array
     {
-        // Create a mock record with the builder data for the callback
-        $mockRecord = $this->createMockRecordForBuilder($builderData);
+        foreach ($builderBlocks as $builderUlid => &$blocks) {
+            if (is_array($blocks)) {
+                foreach ($blocks as &$block) {
+                    if (isset($block['data']) && is_array($block['data']) && isset($block['data'][$field->ulid])) {
+                        // Create a mock record with the block data for the callback
+                        $mockRecord = $this->createMockRecordForBuilder($block['data']);
 
-        // Create a temporary data structure for the callback
-        $tempData = [$this->record->valueColumn => $builderData];
-        $tempData = $fieldInstance->mutateBeforeSaveCallback($mockRecord, $field, $tempData);
+                        // Create a temporary data structure for the callback
+                        $tempData = [$this->record->valueColumn => $block['data']];
+                        $tempData = $fieldInstance->mutateBeforeSaveCallback($mockRecord, $field, $tempData);
 
-        // Update the original data structure with the mutated values
-        $this->updateBuilderBlocksWithMutatedData($builderBlocks, $field, $tempData);
+                        if (isset($tempData[$this->record->valueColumn][$field->ulid])) {
+                            $block['data'][$field->ulid] = $tempData[$this->record->valueColumn][$field->ulid];
+                        }
+                    }
+                }
+            }
+        }
 
-        // Update the main data structure
         $data[$this->record->valueColumn] = array_merge($data[$this->record->valueColumn], $builderBlocks);
 
         return $data;

@@ -82,9 +82,7 @@ class Repeater extends Base implements FieldContract
                 ->schema([
                     Tab::make('General')
                         ->label(__('General'))
-                        ->schema([
-                            ...parent::getForm(),
-                        ]),
+                        ->schema($this->getBaseFormSchema()),
                     Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
@@ -102,7 +100,7 @@ class Repeater extends Base implements FieldContract
                                 Forms\Components\Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
-                                    ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
+                                    ->disabled(fn(Get $get): bool => $get('config.reorderable') === false)
                                     ->inline(false),
                             ]),
                             Forms\Components\Toggle::make('config.collapsible')
@@ -110,7 +108,7 @@ class Repeater extends Base implements FieldContract
                                 ->inline(false),
                             Forms\Components\Toggle::make('config.collapsed')
                                 ->label(__('Collapsed'))
-                                ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
+                                ->visible(fn(Get $get): bool => $get('config.collapsible') === true)
                                 ->inline(false),
                             Forms\Components\Toggle::make('config.cloneable')
                                 ->label(__('Cloneable'))
@@ -129,9 +127,11 @@ class Repeater extends Base implements FieldContract
                                 ->live(debounce: 250)
                                 ->labelKey('name')
                                 ->maxDepth(0)
-                                ->addable(fn (string $operation) => $operation !== 'create')
-                                ->disabled(fn (string $operation) => $operation === 'create')
-                                ->hint(fn (string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
+                                ->indentable(false)
+                                ->reorderable(true)
+                                ->addable(fn(string $operation) => $operation !== 'create')
+                                ->disabled(fn(string $operation) => $operation === 'create')
+                                ->hint(fn(string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
                                 ->hintColor('primary')
                                 ->form([
                                     Section::make('Field')
@@ -187,14 +187,19 @@ class Repeater extends Base implements FieldContract
                                         ])->columnSpanFull(),
                                     Section::make('Configuration')
                                         ->columns(3)
-                                        ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
+                                        ->schema(fn(Get $get) => $this->getFieldTypeFormSchema(
                                             $get('field_type')
                                         ))
-                                        ->visible(fn (Get $get) => filled($get('field_type'))),
+                                        ->visible(fn(Get $get) => filled($get('field_type'))),
                                 ]),
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return ['defaultValue'];
     }
 
     private static function generateSchemaFromChildren(Collection $children): array
