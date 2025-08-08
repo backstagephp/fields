@@ -2,17 +2,15 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Forms;
-use Backstage\Fields\Fields\Base;
+use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
+use Filament\Forms\Components\RichEditor as Input;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
-use Filament\Forms\Components\TextInput;
-use Backstage\Fields\Enums\ToolbarButton;
 use Filament\Schemas\Components\Tabs\Tab;
-use Backstage\Fields\Contracts\FieldContract;
-use Filament\Forms\Components\RichEditor as Input;
 
 class MarkdownEditor extends Base implements FieldContract
 {
