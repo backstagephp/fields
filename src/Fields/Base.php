@@ -137,7 +137,7 @@ abstract class Base implements FieldContract
             $input->hintColor(Color::generateV3Palette($field->config['hintColor']));
         }
 
-        if (isset($field->config['defaultValue']) && $field->config['defaultValue'] !== null) {
+        if (isset($field->config['defaultValue'])) {
             $input->default($field->config['defaultValue']);
         }
 
