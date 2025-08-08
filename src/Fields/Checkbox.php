@@ -4,8 +4,11 @@ namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\Checkbox as Input;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class Checkbox extends Base implements FieldContract
 {
@@ -40,26 +43,26 @@ class Checkbox extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Grid::make(2)->schema([
+                            Grid::make(2)->schema([
 
-                                Forms\Components\Toggle::make('config.inline')
+                                Toggle::make('config.inline')
                                     ->label(__('Inline'))
                                     ->inline(false),
-                                Forms\Components\Toggle::make('config.accepted')
+                                Toggle::make('config.accepted')
                                     ->label(__('Accepted'))
                                     ->helperText(__('Requires the checkbox to be checked'))
                                     ->inline(false),
-                                Forms\Components\Toggle::make('config.declined')
+                                Toggle::make('config.declined')
                                     ->label(__('Declined'))
                                     ->helperText(__('Requires the checkbox to be unchecked'))
                                     ->inline(false),

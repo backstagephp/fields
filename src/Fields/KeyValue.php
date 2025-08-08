@@ -4,8 +4,12 @@ namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\KeyValue as Input;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class KeyValue extends Base implements FieldContract
 {
@@ -36,24 +40,24 @@ class KeyValue extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Grid::make(2)->schema([
-                                Forms\Components\TextInput::make('config.addActionLabel')
+                            Grid::make(2)->schema([
+                                TextInput::make('config.addActionLabel')
                                     ->label(__('Add action label')),
-                                Forms\Components\TextInput::make('config.keyLabel')
+                                TextInput::make('config.keyLabel')
                                     ->label(__('Key label')),
-                                Forms\Components\TextInput::make('config.valueLabel')
+                                TextInput::make('config.valueLabel')
                                     ->label(__('Value label')),
-                                Forms\Components\Toggle::make('config.reorderable')
+                                Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
                                     ->inline(false),
                             ]),
