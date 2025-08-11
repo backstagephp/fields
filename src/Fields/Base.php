@@ -22,13 +22,79 @@ abstract class Base implements FieldContract
 
     public function getRulesForm(): array
     {
-        return [
+        return $this->getBaseFormSchema();
+    }
+
+    protected function getBaseFormSchema(): array
+    {
+        $schema = [
+            Forms\Components\Grid::make(3)
+                ->schema([
+                    Forms\Components\Toggle::make('config.required')
+                        ->label(__('Required'))
+                        ->inline(false),
+                    Forms\Components\Toggle::make('config.disabled')
+                        ->label(__('Disabled'))
+                        ->inline(false),
+                    Forms\Components\Toggle::make('config.hidden')
+                        ->label(__('Hidden'))
+                        ->inline(false),
+                ]),
             Forms\Components\Grid::make(2)
                 ->schema([
                     ...ValidationRulesSchema::make($this->getFieldType()),
                     ...VisibilityRulesSchema::make(),
                 ]),
+            Forms\Components\TextInput::make('config.defaultValue')
+                ->label(__('Default value'))
+                ->helperText(__('This value will be used when creating new records.')),
         ];
+
+        return $this->filterExcludedFields($schema);
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return [];
+    }
+
+    private function filterExcludedFields(array $schema): array
+    {
+        $excluded = $this->excludeFromBaseSchema();
+
+        if (empty($excluded)) {
+            return $schema;
+        }
+
+        return array_filter($schema, function ($field) use ($excluded) {
+            foreach ($excluded as $excludedField) {
+                if ($this->fieldContainsConfigKey($field, $excludedField)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    private function fieldContainsConfigKey($field, string $configKey): bool
+    {
+        $reflection = new \ReflectionObject($field);
+        $propertiesToCheck = ['name', 'statePath'];
+
+        foreach ($propertiesToCheck as $propertyName) {
+            if ($reflection->hasProperty($propertyName)) {
+                $property = $reflection->getProperty($propertyName);
+                $property->setAccessible(true);
+                $value = $property->getValue($field);
+
+                if (str_contains($value, "config.{$configKey}")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public function getFieldType(): ?string
@@ -54,6 +120,7 @@ abstract class Base implements FieldContract
             'conditionalAction' => null,
             'validationRules' => [],
             'visibilityRules' => [],
+            'defaultValue' => null,
         ];
     }
 
@@ -75,7 +142,12 @@ abstract class Base implements FieldContract
         $input = ConditionalLogicApplier::applyConditionalLogic($input, $field);
         $input = ConditionalLogicApplier::applyConditionalValidation($input, $field);
         $input = VisibilityLogicApplier::applyVisibilityLogic($input, $field);
+        
         $input = self::applyAdditionalValidation($input, $field);
+
+        if (isset($field->config['defaultValue']) && $field->config['defaultValue'] !== null) {
+            $input->default($field->config['defaultValue']);
+        }
 
         return $input;
     }
