@@ -142,7 +142,7 @@ abstract class Base implements FieldContract
         $input = ConditionalLogicApplier::applyConditionalLogic($input, $field);
         $input = ConditionalLogicApplier::applyConditionalValidation($input, $field);
         $input = VisibilityLogicApplier::applyVisibilityLogic($input, $field);
-        
+
         $input = self::applyAdditionalValidation($input, $field);
 
         if (isset($field->config['defaultValue']) && $field->config['defaultValue'] !== null) {
