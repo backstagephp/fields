@@ -201,12 +201,13 @@ class FieldsRelationManager extends RelationManager
                     }),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->after(function (Component $livewire) {
-                            $livewire->dispatch('refreshFields');
-                        }),
-                ]),
+                // Removed since v4 gives this error: Filament\Resources\RelationManagers\RelationManager::getGroupedSelectableTableRecordKeys(): Argument #1 ($group) must be of type string, null given
+                // BulkActionGroup::make([
+                //     DeleteBulkAction::make()
+                //         ->after(function (Component $livewire) {
+                //             $livewire->dispatch('refreshFields');
+                //         }),
+                // ]),
             ]);
     }
 
