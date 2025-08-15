@@ -2,6 +2,7 @@
 
 namespace Backstage\Fields\Fields\Logic;
 
+use Filament\Schemas\Components\Utilities\Get;
 use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
@@ -16,14 +17,14 @@ class VisibilityLogicApplier
 
         $visibilityRules = $field->config['visibilityRules'];
 
-        $input->visible(function (Forms\Get $get) use ($visibilityRules, $field): bool {
+        $input->visible(function (Get $get) use ($visibilityRules, $field): bool {
             return self::evaluateVisibilityRules($get, $visibilityRules, $field);
         });
 
         return $input;
     }
 
-    protected static function evaluateVisibilityRules(Forms\Get $get, array $visibilityRules, Field $field): bool
+    protected static function evaluateVisibilityRules(Get $get, array $visibilityRules, Field $field): bool
     {
         foreach ($visibilityRules as $rule) {
             $logic = $rule['logic'] ?? 'AND';
@@ -45,7 +46,7 @@ class VisibilityLogicApplier
         return true;
     }
 
-    protected static function evaluateRuleConditions(Forms\Get $get, array $conditions, string $logic, Field $field): bool
+    protected static function evaluateRuleConditions(Get $get, array $conditions, string $logic, Field $field): bool
     {
         $results = [];
 

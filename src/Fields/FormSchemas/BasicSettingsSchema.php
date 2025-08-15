@@ -2,6 +2,11 @@
 
 namespace Backstage\Fields\Fields\FormSchemas;
 
+use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Forms;
 
 class BasicSettingsSchema
@@ -9,37 +14,37 @@ class BasicSettingsSchema
     public static function make(): array
     {
         return [
-            Forms\Components\Grid::make(3)
+            Grid::make(3)
                 ->schema([
-                    Forms\Components\Toggle::make('config.required')
+                    Toggle::make('config.required')
                         ->label(__('Required'))
                         ->inline(false),
-                    Forms\Components\Toggle::make('config.disabled')
+                    Toggle::make('config.disabled')
                         ->label(__('Disabled'))
                         ->inline(false),
-                    Forms\Components\Toggle::make('config.hidden')
+                    Toggle::make('config.hidden')
                         ->label(__('Hidden'))
                         ->inline(false),
                 ]),
-            Forms\Components\Grid::make(2)
+            Grid::make(2)
                 ->schema([
-                    Forms\Components\TextInput::make('config.helperText')
+                    TextInput::make('config.helperText')
                         ->live(onBlur: true)
                         ->label(__('Helper text')),
-                    Forms\Components\TextInput::make('config.hint')
+                    TextInput::make('config.hint')
                         ->live(onBlur: true)
                         ->label(__('Hint')),
-                    Forms\Components\ColorPicker::make('config.hintColor')
+                    ColorPicker::make('config.hintColor')
                         ->label(__('Hint color'))
-                        ->visible(function (Forms\Get $get): bool {
+                        ->visible(function (Get $get): bool {
                             $hint = $get('config.hint');
 
                             return ! empty(trim($hint));
                         }),
-                    Forms\Components\TextInput::make('config.hintIcon')
+                    TextInput::make('config.hintIcon')
                         ->label(__('Hint icon'))
                         ->placeholder('heroicon-m-')
-                        ->visible(function (Forms\Get $get): bool {
+                        ->visible(function (Get $get): bool {
                             $hint = $get('config.hint');
 
                             return ! empty(trim($hint));

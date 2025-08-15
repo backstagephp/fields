@@ -2,6 +2,11 @@
 
 namespace Backstage\Fields\Fields\FormSchemas;
 
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Filament\Forms;
 use Illuminate\Support\Str;
@@ -13,46 +18,46 @@ class ValidationRulesSchema
         $validationOptions = self::getValidationOptionsForFieldType($fieldType);
 
         return [
-            Forms\Components\Section::make('Validation rules')
+            Section::make('Validation rules')
                 ->collapsible()
                 ->collapsed(false)
                 ->compact(true)
                 ->description(__('Validate the value of this field based on the rules below'))
                 ->schema([
-                    Forms\Components\Repeater::make('config.validationRules')
+                    Repeater::make('config.validationRules')
                         ->hiddenLabel()
                         ->schema([
-                            Forms\Components\Select::make('type')
+                            Select::make('type')
                                 ->label(__('Rule type'))
                                 ->searchable()
                                 ->preload()
                                 ->options($validationOptions)
                                 ->reactive()
                                 ->required(),
-                            Forms\Components\TextInput::make('parameters.value')
+                            TextInput::make('parameters.value')
                                 ->label(__('Value'))
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless']))
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless'])),
-                            Forms\Components\TextInput::make('parameters.pattern')
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless']))
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless'])),
+                            TextInput::make('parameters.pattern')
                                 ->label(__('Pattern'))
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['regex', 'not_regex']))
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['regex', 'not_regex'])),
-                            Forms\Components\TextInput::make('parameters.values')
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['regex', 'not_regex']))
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['regex', 'not_regex'])),
+                            TextInput::make('parameters.values')
                                 ->label(__('Values (comma-separated)'))
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['starts_with', 'ends_with', 'doesnt_start_with', 'doesnt_end_with', 'in', 'not_in'])),
-                            Forms\Components\TextInput::make('parameters.table')
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['starts_with', 'ends_with', 'doesnt_start_with', 'doesnt_end_with', 'in', 'not_in'])),
+                            TextInput::make('parameters.table')
                                 ->label(__('Table'))
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique']))
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique'])),
-                            Forms\Components\TextInput::make('parameters.column')
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['exists', 'unique']))
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['exists', 'unique'])),
+                            TextInput::make('parameters.column')
                                 ->label(__('Column'))
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique']))
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['exists', 'unique'])),
-                            Forms\Components\Select::make('parameters.field')
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['exists', 'unique']))
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['exists', 'unique'])),
+                            Select::make('parameters.field')
                                 ->label(__('Field name'))
                                 ->placeholder(__('Select a field'))
                                 ->searchable()
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all']))
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all']))
                                 ->options(function ($livewire) {
                                     $excludeUlid = null;
                                     if (method_exists($livewire, 'getMountedTableActionRecord')) {
@@ -64,13 +69,13 @@ class ValidationRulesSchema
 
                                     return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                 })
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['different', 'same', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required_if', 'required_unless', 'required_if_accepted', 'greater_than', 'greater_than_or_equal', 'less_than', 'less_than_or_equal'])),
-                            Forms\Components\Select::make('parameters.fields')
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['different', 'same', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required_if', 'required_unless', 'required_if_accepted', 'greater_than', 'greater_than_or_equal', 'less_than', 'less_than_or_equal'])),
+                            Select::make('parameters.fields')
                                 ->label(__('Field names'))
                                 ->placeholder(__('Select fields'))
                                 ->multiple()
                                 ->searchable()
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all']))
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all']))
                                 ->options(function ($livewire) {
                                     $excludeUlid = null;
                                     if (method_exists($livewire, 'getMountedTableActionRecord')) {
@@ -82,23 +87,23 @@ class ValidationRulesSchema
 
                                     return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                 })
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all'])),
-                            Forms\Components\TextInput::make('parameters.date')
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all'])),
+                            TextInput::make('parameters.date')
                                 ->label(__('Date'))
-                                ->required(fn (Forms\Get $get): bool => in_array($get('type'), ['after', 'after_or_equal', 'before', 'before_or_equal', 'date_equals']))
-                                ->visible(fn (Forms\Get $get): bool => in_array($get('type'), ['after', 'after_or_equal', 'before', 'before_or_equal', 'date_equals'])),
-                            Forms\Components\TextInput::make('parameters.format')
+                                ->required(fn (Get $get): bool => in_array($get('type'), ['after', 'after_or_equal', 'before', 'before_or_equal', 'date_equals']))
+                                ->visible(fn (Get $get): bool => in_array($get('type'), ['after', 'after_or_equal', 'before', 'before_or_equal', 'date_equals'])),
+                            TextInput::make('parameters.format')
                                 ->label(__('Format'))
-                                ->required(fn (Forms\Get $get): bool => $get('type') === 'date_format')
-                                ->visible(fn (Forms\Get $get): bool => $get('type') === 'date_format'),
-                            Forms\Components\TextInput::make('parameters.places')
+                                ->required(fn (Get $get): bool => $get('type') === 'date_format')
+                                ->visible(fn (Get $get): bool => $get('type') === 'date_format'),
+                            TextInput::make('parameters.places')
                                 ->label(__('Decimal places'))
-                                ->required(fn (Forms\Get $get): bool => $get('type') === 'decimal')
-                                ->visible(fn (Forms\Get $get): bool => $get('type') === 'decimal'),
-                            Forms\Components\TextInput::make('parameters.enum')
+                                ->required(fn (Get $get): bool => $get('type') === 'decimal')
+                                ->visible(fn (Get $get): bool => $get('type') === 'decimal'),
+                            TextInput::make('parameters.enum')
                                 ->label(__('Enum class'))
-                                ->required(fn (Forms\Get $get): bool => $get('type') === 'enum')
-                                ->visible(fn (Forms\Get $get): bool => $get('type') === 'enum'),
+                                ->required(fn (Get $get): bool => $get('type') === 'enum')
+                                ->visible(fn (Get $get): bool => $get('type') === 'enum'),
                         ])
                         ->collapsible()
                         ->itemLabel(fn (array $state): ?string => $state['type'] ? str_replace('_', ' ', Str::title($state['type'])) : null)

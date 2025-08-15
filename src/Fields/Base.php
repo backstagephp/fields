@@ -2,6 +2,7 @@
 
 namespace Backstage\Fields\Fields;
 
+use ReflectionObject;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Fields\FormSchemas\BasicSettingsSchema;
 use Backstage\Fields\Fields\FormSchemas\ValidationRulesSchema;
@@ -104,7 +105,7 @@ abstract class Base implements FieldContract
 
     private function fieldContainsConfigKey($field, string $configKey): bool
     {
-        $reflection = new \ReflectionObject($field);
+        $reflection = new ReflectionObject($field);
         $propertiesToCheck = ['name', 'statePath'];
 
         foreach ($propertiesToCheck as $propertyName) {

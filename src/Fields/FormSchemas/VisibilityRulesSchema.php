@@ -2,6 +2,11 @@
 
 namespace Backstage\Fields\Fields\FormSchemas;
 
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
@@ -11,16 +16,16 @@ class VisibilityRulesSchema
     public static function make(): array
     {
         return [
-            Forms\Components\Section::make('Visibility rules')
+            Section::make('Visibility rules')
                 ->collapsible()
                 ->collapsed(false)
                 ->compact(true)
                 ->description(__('Show or hide this field based on the value of another field'))
                 ->schema([
-                    Forms\Components\Repeater::make('config.visibilityRules')
+                    Repeater::make('config.visibilityRules')
                         ->hiddenLabel()
                         ->schema([
-                            Forms\Components\Select::make('logic')
+                            Select::make('logic')
                                 ->label(__('Logic'))
                                 ->options([
                                     'AND' => __('All conditions must be true (AND)'),
@@ -28,10 +33,10 @@ class VisibilityRulesSchema
                                 ])
                                 ->default('AND')
                                 ->required(),
-                            Forms\Components\Repeater::make('conditions')
+                            Repeater::make('conditions')
                                 ->hiddenLabel()
                                 ->schema([
-                                    Forms\Components\Select::make('field')
+                                    Select::make('field')
                                         ->label(__('Field'))
                                         ->placeholder(__('Select a field'))
                                         ->searchable()
@@ -48,7 +53,7 @@ class VisibilityRulesSchema
                                             return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                         })
                                         ->required(),
-                                    Forms\Components\Select::make('operator')
+                                    Select::make('operator')
                                         ->label(__('Condition'))
                                         ->live()
                                         ->options([
@@ -68,9 +73,9 @@ class VisibilityRulesSchema
                                             'not_in' => __('Not in list'),
                                         ])
                                         ->required(),
-                                    Forms\Components\TextInput::make('value')
+                                    TextInput::make('value')
                                         ->label(__('Value'))
-                                        ->visible(fn (Forms\Get $get): bool => ! in_array($get('operator'), ['is_empty', 'is_not_empty'])),
+                                        ->visible(fn (Get $get): bool => ! in_array($get('operator'), ['is_empty', 'is_not_empty'])),
                                 ])
                                 ->collapsible()
                                 ->itemLabel(function (array $state): ?string {

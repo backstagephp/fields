@@ -2,6 +2,8 @@
 
 namespace Backstage\Fields\Fields;
 
+use Illuminate\Support\Facades\Log;
+use Filament\Forms\Components\Toggle;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
@@ -82,7 +84,7 @@ class RichEditor extends Base implements FieldContract
         $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
 
         if ($autoCleanContent && isset($data['values'][$field->ulid])) {
-            \Illuminate\Support\Facades\Log::info('RichEditor mutateBeforeSaveCallback before cleaning:', ['content' => $data['values'][$field->ulid]]);
+            Log::info('RichEditor mutateBeforeSaveCallback before cleaning:', ['content' => $data['values'][$field->ulid]]);
 
             $options = [
                 'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
@@ -90,7 +92,7 @@ class RichEditor extends Base implements FieldContract
 
             $data['values'][$field->ulid] = ContentCleaningService::cleanHtmlContent($data['values'][$field->ulid], $options);
 
-            \Illuminate\Support\Facades\Log::info('RichEditor mutateBeforeSaveCallback after cleaning:', ['content' => $data['values'][$field->ulid]]);
+            Log::info('RichEditor mutateBeforeSaveCallback after cleaning:', ['content' => $data['values'][$field->ulid]]);
         }
 
         return $data;
@@ -118,24 +120,24 @@ class RichEditor extends Base implements FieldContract
                                         ->multiple()
                                         ->options(ToolbarButton::array())
                                         ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.autoCleanContent')
+                                    Toggle::make('config.autoCleanContent')
                                         ->label(__('Auto-clean content'))
                                         ->helperText(__('Automatically remove figcaption and unwrap images from links'))
                                         ->inline(false)
                                         ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.preserveCustomCaptions')
+                                    Toggle::make('config.preserveCustomCaptions')
                                         ->label(__('Preserve custom captions'))
                                         ->helperText(__('Only remove default captions, keep custom ones'))
                                         ->inline(false)
                                         ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.hideCaptions')
+                                    Toggle::make('config.hideCaptions')
                                         ->label(__('Hide caption fields'))
                                         ->helperText(__('Hide the caption input field that appears when uploading images'))
                                         ->inline(false)
                                         ->columnSpanFull(),
                                 ]),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Rules')
+                    Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([
                             ...parent::getRulesForm(),

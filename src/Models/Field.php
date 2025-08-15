@@ -2,6 +2,8 @@
 
 namespace Backstage\Fields\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Backstage\Fields\Shared\HasPackageFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
@@ -22,11 +24,11 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property array<string, mixed>|null $config
  * @property int $position
  * @property string|null $group
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
- * @property-read \Illuminate\Database\Eloquent\Model|null $model
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Field> $children
- * @property-read \Illuminate\Database\Eloquent\Model|null $tenant
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read Model|null $model
+ * @property-read Collection<int, Field> $children
+ * @property-read Model|null $tenant
  */
 class Field extends Model
 {

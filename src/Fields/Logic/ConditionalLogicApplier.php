@@ -2,6 +2,7 @@
 
 namespace Backstage\Fields\Fields\Logic;
 
+use Filament\Schemas\Components\Utilities\Get;
 use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
@@ -29,28 +30,28 @@ class ConditionalLogicApplier
         switch ($action) {
             case 'show':
                 $input->visible(
-                    fn (Forms\Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
 
                 break;
 
             case 'hide':
                 $input->visible(
-                    fn (Forms\Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
 
                 break;
 
             case 'required':
                 $input->required(
-                    fn (Forms\Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Get $get): bool => self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
 
                 break;
 
             case 'not_required':
                 $input->required(
-                    fn (Forms\Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
+                    fn (Get $get): bool => ! self::evaluateCondition($get($conditionalFieldName), $operator, $value)
                 );
 
                 break;

@@ -2,6 +2,7 @@
 
 namespace Backstage\Fields\Fields;
 
+use Filament\Forms\Components\Toggle;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Concerns\HasOptions;
@@ -91,31 +92,31 @@ class Repeater extends Base implements FieldContract
                     Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.addable')
+                            Toggle::make('config.addable')
                                 ->label(__('Addable'))
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.deletable')
+                            Toggle::make('config.deletable')
                                 ->label(__('Deletable'))
                                 ->inline(false),
                             Grid::make(2)->schema([
-                                Forms\Components\Toggle::make('config.reorderable')
+                                Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
                                     ->live()
                                     ->inline(false),
-                                Forms\Components\Toggle::make('config.reorderableWithButtons')
+                                Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
                                     ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
                                     ->inline(false),
                             ]),
-                            Forms\Components\Toggle::make('config.collapsible')
+                            Toggle::make('config.collapsible')
                                 ->label(__('Collapsible'))
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.collapsed')
+                            Toggle::make('config.collapsed')
                                 ->label(__('Collapsed'))
                                 ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.cloneable')
+                            Toggle::make('config.cloneable')
                                 ->label(__('Cloneable'))
                                 ->inline(false),
                             TextInput::make('config.addActionLabel')
