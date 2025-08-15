@@ -98,7 +98,7 @@ class Tags extends Base implements FieldContract
         ];
     }
 
-    protected static function ensureArray(array|string $value, string $delimiter = ','): array
+    protected static function ensureArray(array | string $value, string $delimiter = ','): array
     {
         return ! empty($value) ? explode($delimiter, $value) : [];
     }
