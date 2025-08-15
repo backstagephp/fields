@@ -13,6 +13,11 @@ use Filament\Schemas\Components\Tabs\Tab;
 
 class KeyValue extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'key-value';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [

@@ -9,11 +9,11 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater as Input;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -29,6 +29,11 @@ class Repeater extends Base implements FieldContract
     use HasConfigurableFields;
     use HasFieldTypeResolver;
     use HasOptions;
+
+    public function getFieldType(): ?string
+    {
+        return 'repeater';
+    }
 
     public static function getDefaultConfig(): array
     {
@@ -86,31 +91,31 @@ class Repeater extends Base implements FieldContract
                     Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.addable')
+                            Toggle::make('config.addable')
                                 ->label(__('Addable'))
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.deletable')
+                            Toggle::make('config.deletable')
                                 ->label(__('Deletable'))
                                 ->inline(false),
                             Grid::make(2)->schema([
-                                Forms\Components\Toggle::make('config.reorderable')
+                                Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
                                     ->live()
                                     ->inline(false),
-                                Forms\Components\Toggle::make('config.reorderableWithButtons')
+                                Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
                                     ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
                                     ->inline(false),
                             ]),
-                            Forms\Components\Toggle::make('config.collapsible')
+                            Toggle::make('config.collapsible')
                                 ->label(__('Collapsible'))
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.collapsed')
+                            Toggle::make('config.collapsed')
                                 ->label(__('Collapsed'))
                                 ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.cloneable')
+                            Toggle::make('config.cloneable')
                                 ->label(__('Cloneable'))
                                 ->inline(false),
                             TextInput::make('config.addActionLabel')

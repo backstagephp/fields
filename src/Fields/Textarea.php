@@ -90,7 +90,17 @@ class Textarea extends Base implements FieldContract
                                         ->label(__('Placeholder')),
                                 ]),
                         ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
+    }
+
+    public function getFieldType(): ?string
+    {
+        return 'textarea';
     }
 }
