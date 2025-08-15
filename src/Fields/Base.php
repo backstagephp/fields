@@ -27,7 +27,10 @@ abstract class Base implements FieldContract
 
     public function getRulesForm(): array
     {
-        return $this->getBaseFormSchema();
+        return [
+            ...ValidationRulesSchema::make($this->getFieldType()),
+            ...VisibilityRulesSchema::make(),
+        ];
     }
 
     protected function getBaseFormSchema(): array
@@ -47,8 +50,6 @@ abstract class Base implements FieldContract
                 ]),
             Grid::make(2)
                 ->schema([
-                    ...ValidationRulesSchema::make($this->getFieldType()),
-                    ...VisibilityRulesSchema::make(),
                     TextInput::make('config.helperText')
                         ->live(onBlur: true)
                         ->label(__('Helper text')),
