@@ -2,6 +2,25 @@
 
 All notable changes to `fields` will be documented in this file.
 
+## v0.7.0 (Filament v4) - 2025-08-15
+
+### What's Changed
+
+* feat: check on empty array key values by @Baspa in https://github.com/backstagephp/fields/pull/12
+* feat: allow selection of both option types by @Baspa in https://github.com/backstagephp/fields/pull/13
+* fix: maintain the backward compatibility by @Baspa in https://github.com/backstagephp/fields/pull/14
+* fix: `multiple` boolean handling / nested fields in builders by @Baspa in https://github.com/backstagephp/fields/pull/15
+* Bump stefanzweifel/git-auto-commit-action from 5 to 6 by @dependabot[bot] in https://github.com/backstagephp/fields/pull/8
+* feat: markdown editor by @Baspa in https://github.com/backstagephp/fields/pull/16
+* Bump aglipanci/laravel-pint-action from 2.5 to 2.6 by @dependabot[bot] in https://github.com/backstagephp/fields/pull/17
+* fix: mutating form data for multiple builder blocks by @Baspa in https://github.com/backstagephp/fields/pull/20
+* fix: disable indentable to prevent sorting issues by @Baspa in https://github.com/backstagephp/fields/pull/21
+* feat: add default value for create forms by @Baspa in https://github.com/backstagephp/fields/pull/22
+* Bump actions/checkout from 4 to 5 by @dependabot[bot] in https://github.com/backstagephp/fields/pull/24
+* Filament v4 by @Baspa in https://github.com/backstagephp/fields/pull/23
+
+**Full Changelog**: https://github.com/backstagephp/fields/compare/v0.6.0...v0.7.0
+
 ## v0.6.0 - 2025-06-25
 
 ### What's Changed
