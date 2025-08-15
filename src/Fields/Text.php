@@ -6,8 +6,13 @@ use Backstage\Fields\Concerns\HasAffixes;
 use Backstage\Fields\Concerns\HasDatalist;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput as Input;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 
 class Text extends Base implements FieldContract
 {
@@ -84,22 +89,22 @@ class Text extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.readOnly')
+                            Toggle::make('config.readOnly')
                                 ->label(__('Read only'))
                                 ->inline(false),
-                            Forms\Components\Grid::make(2)
+                            Grid::make(2)
                                 ->schema([
-                                    Forms\Components\Select::make('config.autocapitalize')
+                                    Select::make('config.autocapitalize')
                                         ->label(__('Autocapitalize'))
                                         ->options([
                                             'none' => __('None (off)'),
@@ -107,24 +112,24 @@ class Text extends Base implements FieldContract
                                             'words' => __('Words'),
                                             'characters' => __('Characters'),
                                         ]),
-                                    Forms\Components\TextInput::make('config.autocomplete')
+                                    Input::make('config.autocomplete')
                                         ->default(false)
                                         ->label(__('Autocomplete')),
                                     self::affixFormFields(),
                                     self::datalistFormFields(),
-                                    Forms\Components\TextInput::make('config.placeholder')
+                                    Input::make('config.placeholder')
                                         ->label(__('Placeholder')),
-                                    Forms\Components\TextInput::make('config.mask')
+                                    Input::make('config.mask')
                                         ->label(__('Mask')),
-                                    Forms\Components\TextInput::make('config.minLength')
+                                    Input::make('config.minLength')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Minimum length')),
-                                    Forms\Components\TextInput::make('config.maxLength')
+                                    Input::make('config.maxLength')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Maximum length')),
-                                    Forms\Components\Select::make('config.type')
+                                    Select::make('config.type')
                                         ->columnSpanFull()
                                         ->label(__('Type'))
                                         ->live(debounce: 250)
@@ -137,12 +142,12 @@ class Text extends Base implements FieldContract
                                             'numeric' => __('Numeric'),
                                             'integer' => __('Integer'),
                                         ]),
-                                    Forms\Components\TextInput::make('config.step')
+                                    Input::make('config.step')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Step'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'numeric'),
-                                    Forms\Components\Select::make('config.inputMode')
+                                        ->visible(fn (Get $get): bool => $get('config.type') === 'numeric'),
+                                    Select::make('config.inputMode')
                                         ->label(__('Input mode'))
                                         ->options([
                                             'none' => __('None'),
@@ -154,13 +159,13 @@ class Text extends Base implements FieldContract
                                             'email' => __('Email'),
                                             'url' => __('URL'),
                                         ])
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'numeric'),
-                                    Forms\Components\Toggle::make('config.revealable')
+                                        ->visible(fn (Get $get): bool => $get('config.type') === 'numeric'),
+                                    Toggle::make('config.revealable')
                                         ->label(__('Revealable'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'password'),
-                                    Forms\Components\TextInput::make('config.telRegex')
+                                        ->visible(fn (Get $get): bool => $get('config.type') === 'password'),
+                                    Input::make('config.telRegex')
                                         ->label(__('Telephone regex'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.type') === 'tel'),
+                                        ->visible(fn (Get $get): bool => $get('config.type') === 'tel'),
                                 ]),
                         ]),
                     Forms\Components\Tabs\Tab::make('Rules')

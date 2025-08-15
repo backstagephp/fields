@@ -5,8 +5,12 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class MarkdownEditor extends Base implements FieldContract
 {
@@ -44,34 +48,34 @@ class MarkdownEditor extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Grid::make(2)
+                            Grid::make(2)
                                 ->schema([
-                                    Forms\Components\Select::make('config.toolbarButtons')
+                                    Select::make('config.toolbarButtons')
                                         ->label(__('Toolbar buttons'))
                                         ->default(['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'heading', 'italic', 'link', 'orderedList', 'redo', 'strike', 'table', 'undo'])
                                         ->default(ToolbarButton::array()) // Not working in Filament yet.
                                         ->multiple()
                                         ->options(ToolbarButton::array())
                                         ->columnSpanFull(),
-                                    Forms\Components\Grid::make(3)
+                                    Grid::make(3)
                                         ->schema([
-                                            Forms\Components\TextInput::make('config.fileAttachmentsDisk')
+                                            TextInput::make('config.fileAttachmentsDisk')
                                                 ->label(__('File attachments disk'))
                                                 ->default('public'),
-                                            Forms\Components\TextInput::make('config.fileAttachmentsDirectory')
+                                            TextInput::make('config.fileAttachmentsDirectory')
                                                 ->label(__('File attachments directory'))
                                                 ->default('attachments'),
-                                            Forms\Components\TextInput::make('config.fileAttachmentsVisibility')
+                                            TextInput::make('config.fileAttachmentsVisibility')
                                                 ->label(__('File attachments visibility'))
                                                 ->default('public'),
                                         ]),

@@ -8,6 +8,10 @@ use Backstage\Fields\Models\Field;
 use Backstage\Fields\Services\ContentCleaningService;
 use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class RichEditor extends Base implements FieldContract
 {
@@ -20,7 +24,6 @@ class RichEditor extends Base implements FieldContract
     {
         return [
             ...parent::getDefaultConfig(),
-            'disableGrammarly' => false,
             'toolbarButtons' => ['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'],
             'disableToolbarButtons' => [],
             'autoCleanContent' => true,
@@ -31,11 +34,11 @@ class RichEditor extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
+
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? null)
-            ->toolbarButtons($field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons'])
-            ->disableGrammarly($field->config['disableGrammarly'] ?? self::getDefaultConfig()['disableGrammarly'])
+            ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
 
         // Add data attribute for hiding captions if enabled
@@ -96,22 +99,19 @@ class RichEditor extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.disableGrammarly')
-                                ->inline(false)
-                                ->label(__('Disable Grammarly')),
-                            Forms\Components\Grid::make(2)
+                            Grid::make(2)
                                 ->schema([
-                                    Forms\Components\Select::make('config.toolbarButtons')
+                                    Select::make('config.toolbarButtons')
                                         ->label(__('Toolbar buttons'))
                                         ->default(['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'])
                                         ->default(ToolbarButton::array()) // Not working in Filament yet.

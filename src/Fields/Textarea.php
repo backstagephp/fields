@@ -2,9 +2,13 @@
 
 namespace Backstage\Fields\Fields;
 
-use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Tabs\Tab;
+use Backstage\Fields\Contracts\FieldContract;
 use Filament\Forms\Components\Textarea as Input;
 
 class Textarea extends Base implements FieldContract
@@ -44,55 +48,49 @@ class Textarea extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.readOnly')
+                            Toggle::make('config.readOnly')
                                 ->label(__('Read only'))
                                 ->inline(false),
-                            Forms\Components\Grid::make(2)
+                            Grid::make(2)
                                 ->schema([
-                                    Forms\Components\TextInput::make('config.placeholder')
-                                        ->label(__('Placeholder')),
-                                    Forms\Components\TextInput::make('config.minLength')
+                                    TextInput::make('config.autosize')
+                                        ->default(false)
+                                        ->label(__('Auto size')),
+                                    TextInput::make('config.rows')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->label(__('Rows')),
+                                    TextInput::make('config.cols')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->label(__('Cols')),
+                                    TextInput::make('config.minLength')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Minimum length')),
-                                    Forms\Components\TextInput::make('config.maxLength')
+                                    TextInput::make('config.maxLength')
                                         ->numeric()
                                         ->minValue(0)
                                         ->label(__('Maximum length')),
-                                    Forms\Components\TextInput::make('config.rows')
+                                    TextInput::make('config.length')
                                         ->numeric()
-                                        ->minValue(1)
-                                        ->default(3)
-                                        ->label(__('Rows')),
-                                    Forms\Components\TextInput::make('config.cols')
-                                        ->numeric()
-                                        ->minValue(1)
-                                        ->label(__('Columns')),
-                                    Forms\Components\Toggle::make('config.autosize')
-                                        ->label(__('Auto-size'))
-                                        ->inline(false),
-                                    Forms\Components\Toggle::make('config.autofocus')
-                                        ->label(__('Auto-focus'))
-                                        ->inline(false),
-                                    Forms\Components\Toggle::make('config.spellcheck')
-                                        ->label(__('Spell check'))
-                                        ->inline(false),
-                                    Forms\Components\Toggle::make('config.wrap')
-                                        ->label(__('Wrap text'))
-                                        ->inline(false),
+                                        ->minValue(0)
+                                        ->label(__('Length')),
+                                    TextInput::make('config.placeholder')
+                                        ->label(__('Placeholder')),
                                 ]),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Rules')
+                    Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([
                             ...parent::getRulesForm(),

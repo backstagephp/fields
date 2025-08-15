@@ -5,8 +5,10 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\Radio as Input;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class Radio extends Base implements FieldContract
 {
@@ -45,23 +47,23 @@ class Radio extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Toggle::make('config.inline')
+                            Toggle::make('config.inline')
                                 ->label(__('Inline'))
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.inlineLabel')
+                            Toggle::make('config.inlineLabel')
                                 ->label(__('Inline label'))
                                 ->inline(false),
-                            Forms\Components\Toggle::make('config.boolean')
+                            Toggle::make('config.boolean')
                                 ->label(__('Boolean'))
                                 ->inline(false),
                             self::optionFormFields(),

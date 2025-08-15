@@ -10,7 +10,11 @@ use Backstage\Fields\Fields\Logic\ConditionalLogicApplier;
 use Backstage\Fields\Fields\Logic\VisibilityLogicApplier;
 use Backstage\Fields\Fields\Validation\ValidationRuleApplier;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Colors\Color;
 
 abstract class Base implements FieldContract
@@ -28,24 +32,45 @@ abstract class Base implements FieldContract
     protected function getBaseFormSchema(): array
     {
         $schema = [
-            Forms\Components\Grid::make(3)
+            Grid::make(3)
                 ->schema([
-                    Forms\Components\Toggle::make('config.required')
+                    Toggle::make('config.required')
                         ->label(__('Required'))
                         ->inline(false),
-                    Forms\Components\Toggle::make('config.disabled')
+                    Toggle::make('config.disabled')
                         ->label(__('Disabled'))
                         ->inline(false),
-                    Forms\Components\Toggle::make('config.hidden')
+                    Toggle::make('config.hidden')
                         ->label(__('Hidden'))
                         ->inline(false),
                 ]),
-            Forms\Components\Grid::make(2)
+            Grid::make(2)
                 ->schema([
                     ...ValidationRulesSchema::make($this->getFieldType()),
                     ...VisibilityRulesSchema::make(),
+                    TextInput::make('config.helperText')
+                        ->live(onBlur: true)
+                        ->label(__('Helper text')),
+                    TextInput::make('config.hint')
+                        ->live(onBlur: true)
+                        ->label(__('Hint')),
+                    ColorPicker::make('config.hintColor')
+                        ->label(__('Hint color'))
+                        ->visible(function (Get $get): bool {
+                            $hint = $get('config.hint');
+
+                            return ! empty(trim($hint));
+                        }),
+                    TextInput::make('config.hintIcon')
+                        ->label(__('Hint icon'))
+                        ->placeholder('heroicon-m-')
+                        ->visible(function (Get $get): bool {
+                            $hint = $get('config.hint');
+
+                            return ! empty(trim($hint));
+                        }),
                 ]),
-            Forms\Components\TextInput::make('config.defaultValue')
+            TextInput::make('config.defaultValue')
                 ->label(__('Default value'))
                 ->helperText(__('This value will be used when creating new records.')),
         ];
@@ -136,7 +161,7 @@ abstract class Base implements FieldContract
             ->live();
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
-            $input->hintColor(Color::hex($field->config['hintColor']));
+            $input->hintColor(Color::generateV3Palette($field->config['hintColor']));
         }
 
         $input = ConditionalLogicApplier::applyConditionalLogic($input, $field);
@@ -145,7 +170,7 @@ abstract class Base implements FieldContract
 
         $input = self::applyAdditionalValidation($input, $field);
 
-        if (isset($field->config['defaultValue']) && $field->config['defaultValue'] !== null) {
+        if (isset($field->config['defaultValue'])) {
             $input->default($field->config['defaultValue']);
         }
 

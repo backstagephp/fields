@@ -5,8 +5,14 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Concerns\HasOptions;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\CheckboxList as Input;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 
 class CheckboxList extends Base implements FieldContract
 {
@@ -60,55 +66,55 @@ class CheckboxList extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Grid::make(3)
+                            Grid::make(3)
                                 ->schema([
-                                    Forms\Components\Toggle::make('config.searchable')
+                                    Toggle::make('config.searchable')
                                         ->label(__('Searchable'))
                                         ->live(debounce: 250)
                                         ->inline(false),
-                                    Forms\Components\Toggle::make('config.allowHtml')
+                                    Toggle::make('config.allowHtml')
                                         ->label(__('Allow HTML'))
                                         ->inline(false),
-                                    Forms\Components\Toggle::make('config.bulkToggleable')
+                                    Toggle::make('config.bulkToggleable')
                                         ->label(__('Bulk toggle'))
                                         ->inline(false),
                                 ]),
                             self::optionFormFields(),
-                            Forms\Components\Grid::make(2)
+                            Grid::make(2)
                                 ->schema([
-                                    Forms\Components\TextInput::make('config.columns')
+                                    TextInput::make('config.columns')
                                         ->numeric()
                                         ->minValue(1)
                                         ->label(__('Columns')),
-                                    Forms\Components\Select::make('config.gridDirection')
+                                    Select::make('config.gridDirection')
                                         ->options([
                                             'row' => __('Row'),
                                             'column' => __('Column'),
                                         ])
                                         ->label(__('Grid direction')),
                                     //
-                                    Forms\Components\TextInput::make('config.noSearchResultsMessage')
+                                    TextInput::make('config.noSearchResultsMessage')
                                         ->label(__('No search results message'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
-                                    Forms\Components\TextInput::make('config.searchPrompt')
+                                        ->visible(fn (Get $get): bool => $get('config.searchable')),
+                                    TextInput::make('config.searchPrompt')
                                         ->label(__('Search prompt'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
-                                    Forms\Components\TextInput::make('config.searchDebounce')
+                                        ->visible(fn (Get $get): bool => $get('config.searchable')),
+                                    TextInput::make('config.searchDebounce')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step(100)
                                         ->label(__('Search debounce'))
-                                        ->visible(fn (Forms\Get $get): bool => $get('config.searchable')),
+                                        ->visible(fn (Get $get): bool => $get('config.searchable')),
                                 ]),
                         ]),
                     Forms\Components\Tabs\Tab::make('Rules')
