@@ -94,7 +94,7 @@ class VisibilityRulesSchema
                                 ->columnSpanFull(),
                         ])
                         ->collapsible()
-                        ->itemLabel(fn (array $state): ?string => 'Visibility Rule')
+                        ->itemLabel(fn (array $state): string => __('Visibility Rule'))
                         ->defaultItems(0)
                         ->maxItems(1)
                         ->reorderableWithButtons()

@@ -68,7 +68,7 @@ class Radio extends Base implements FieldContract
                                 ->inline(false),
                             self::optionFormFields(),
                         ])->columns(3),
-                    Forms\Components\Tabs\Tab::make('Rules')
+                    Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([
                             ...parent::getRulesForm(),

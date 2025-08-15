@@ -73,7 +73,7 @@ class Checkbox extends Base implements FieldContract
                                     ->inline(false),
                             ]),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Rules')
+                    Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([
                             ...parent::getRulesForm(),

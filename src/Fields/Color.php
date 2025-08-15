@@ -69,7 +69,7 @@ class Color extends Base implements FieldContract
                                     ->placeholder(__('Enter a regex pattern')),
                             ]),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Rules')
+                    Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([
                             ...parent::getRulesForm(),

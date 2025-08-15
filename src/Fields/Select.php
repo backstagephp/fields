@@ -215,7 +215,7 @@ class Select extends Base implements FieldContract
                                         ->visible(fn (Get $get): bool => $get('config.searchable')),
                                 ]),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Rules')
+                    Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([
                             ...parent::getRulesForm(),
