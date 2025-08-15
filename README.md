@@ -232,7 +232,105 @@ return [
 
 ### Creating your own fields
 
-...
+To create your own custom fields, you need to extend the `Base` field class and implement the required methods. Here's an example of a custom field:
+
+```php
+<?php
+
+namespace App\Fields;
+
+use Backstage\Fields\Fields\Base;
+use Filament\Forms\Components\TextInput;
+
+class CustomField extends Base
+{
+    public static function make(string $name, ?Field $field = null): TextInput
+    {
+        $input = self::applyDefaultSettings(TextInput::make($name), $field);
+        
+        // Add your custom field logic here
+        $input->placeholder('Custom placeholder');
+        
+        return $input;
+    }
+
+    public function getForm(): array
+    {
+        return [
+            // Your custom form configuration
+            TextInput::make('config.customOption')
+                ->label('Custom Option'),
+        ];
+    }
+
+    public static function getDefaultConfig(): array
+    {
+        return [
+            ...parent::getDefaultConfig(),
+            'customOption' => null,
+        ];
+    }
+}
+```
+
+#### Excluding base fields from custom fields
+
+When creating custom fields, you may want to exclude certain base fields that don't apply to your field type. For example, a Repeater field doesn't need a "Default value" field since it's a container for other fields.
+
+You can exclude base fields by overriding the `excludeFromBaseSchema()` method:
+
+```php
+<?php
+
+namespace App\Fields;
+
+use Backstage\Fields\Fields\Base;
+
+class RepeaterField extends Base
+{
+    // Exclude the default value field since it doesn't make sense for repeaters
+    protected function excludeFromBaseSchema(): array
+    {
+        return ['defaultValue'];
+    }
+
+    // Your field implementation...
+}
+```
+
+Available base fields that can be excluded:
+- `required` - Required field toggle
+- `disabled` - Disabled field toggle  
+- `hidden` - Hidden field toggle
+- `helperText` - Helper text input
+- `hint` - Hint text input
+- `hintColor` - Hint color picker
+- `hintIcon` - Hint icon input
+- `defaultValue` - Default value input
+
+#### Best practices for field exclusion
+
+- **Only exclude what doesn't apply**: Don't exclude fields just because you don't use them - only exclude fields that conceptually don't make sense for your field type
+- **Document your exclusions**: Add comments explaining why certain fields are excluded
+- **Test thoroughly**: Make sure your field still works correctly after excluding base fields
+- **Consider inheritance**: If your field extends another custom field, make sure to call `parent::excludeFromBaseSchema()` if you need to add more exclusions
+
+Example of a field that excludes multiple base fields:
+
+```php
+class ImageField extends Base
+{
+    protected function excludeFromBaseSchema(): array
+    {
+        return [
+            'defaultValue', // Images don't have default values
+            'hint',         // Image fields typically don't need hints
+            'hintColor',    // No hint means no hint color
+            'hintIcon',     // No hint means no hint icon
+        ];
+    }
+}
+```
 
 ### Registering your own fields
 

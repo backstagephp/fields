@@ -2,15 +2,14 @@
 
 namespace Backstage\Fields\Fields;
 
-use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Support\Colors\Color;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\ColorPicker;
+use Backstage\Fields\Contracts\FieldContract;
 use Filament\Schemas\Components\Utilities\Get;
 
 abstract class Base implements FieldContract
@@ -29,6 +28,9 @@ abstract class Base implements FieldContract
                     Toggle::make('config.hidden')
                         ->label(__('Hidden'))
                         ->inline(false),
+                    TextInput::make('config.defaultValue')
+                        ->label(__('Default value'))
+                        ->helperText(__('This value will be used when creating new records.')),
                 ]),
             Grid::make(2)
                 ->schema([
@@ -109,7 +111,54 @@ abstract class Base implements FieldContract
                 ])
                 ->collapsible()
                 ->collapsed(),
+
         ];
+
+        return $this->filterExcludedFields($schema);
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return [];
+    }
+
+    private function filterExcludedFields(array $schema): array
+    {
+        $excluded = $this->excludeFromBaseSchema();
+
+        if (empty($excluded)) {
+            return $schema;
+        }
+
+        return array_filter($schema, function ($field) use ($excluded) {
+            foreach ($excluded as $excludedField) {
+                if ($this->fieldContainsConfigKey($field, $excludedField)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    private function fieldContainsConfigKey($field, string $configKey): bool
+    {
+        $reflection = new \ReflectionObject($field);
+        $propertiesToCheck = ['name', 'statePath'];
+
+        foreach ($propertiesToCheck as $propertyName) {
+            if ($reflection->hasProperty($propertyName)) {
+                $property = $reflection->getProperty($propertyName);
+                $property->setAccessible(true);
+                $value = $property->getValue($field);
+
+                if (str_contains($value, "config.{$configKey}")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public static function getDefaultConfig(): array
@@ -126,6 +175,7 @@ abstract class Base implements FieldContract
             'required_if_field' => null,
             'required_if_values' => [],
             'required_unless_values' => [],
+            'defaultValue' => null,
         ];
     }
 
@@ -173,6 +223,11 @@ abstract class Base implements FieldContract
 
                     break;
             }
+            $input->hintColor(Color::generateV3Palette($field->config['hintColor']));
+        }
+
+        if (isset($field->config['defaultValue'])) {
+            $input->default($field->config['defaultValue']);
         }
 
         return $input;

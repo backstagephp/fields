@@ -5,7 +5,6 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ColorFormat;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
 use Filament\Forms\Components\ColorPicker as Input;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

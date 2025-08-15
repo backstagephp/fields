@@ -29,10 +29,11 @@ class RichEditor extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
+
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? null)
-            ->toolbarButtons($field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons'])
+            ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
 
         // Add data attribute for hiding captions if enabled

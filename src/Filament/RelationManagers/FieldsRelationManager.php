@@ -7,10 +7,10 @@ use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,7 +21,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -39,10 +38,10 @@ class FieldsRelationManager extends RelationManager
         return $schema
             ->components([
                 Grid::make()
-                    ->columns(3)
+                    ->columnSpanFull()
                     ->schema([
                         Section::make('Field')
-                            ->columns(3)
+                            ->columnSpanFull()
                             ->schema([
                                 TextInput::make('name')
                                     ->label(__('Name'))
@@ -114,7 +113,7 @@ class FieldsRelationManager extends RelationManager
 
                             ]),
                         Section::make('Configuration')
-                            ->columns(3)
+                            ->columnSpanFull()
                             ->schema(fn (Get $get) => $this->getFieldTypeFormSchema(
                                 $get('field_type')
                             ))
@@ -131,12 +130,6 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
-            ->defaultGroup('group')
-            ->groups([
-                Group::make('group')
-                    ->label(__('Group'))
-                    ->getTitleFromRecordUsing(fn ($record): string => filled($record->group) ? $record->group : '-'),
-            ])
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
@@ -202,11 +195,12 @@ class FieldsRelationManager extends RelationManager
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
+                    BulkAction::make('delete')
+                        ->requiresConfirmation()
                         ->after(function (Component $livewire) {
                             $livewire->dispatch('refreshFields');
                         }),
-                ]),
+                ])->label('Actions'),
             ]);
     }
 

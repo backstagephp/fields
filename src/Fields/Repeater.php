@@ -82,9 +82,7 @@ class Repeater extends Base implements FieldContract
                 ->schema([
                     Tab::make('General')
                         ->label(__('General'))
-                        ->schema([
-                            ...parent::getForm(),
-                        ]),
+                        ->schema($this->getBaseFormSchema()),
                     Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
@@ -129,6 +127,8 @@ class Repeater extends Base implements FieldContract
                                 ->live(debounce: 250)
                                 ->labelKey('name')
                                 ->maxDepth(0)
+                                ->indentable(false)
+                                ->reorderable(true)
                                 ->addable(fn (string $operation) => $operation !== 'create')
                                 ->disabled(fn (string $operation) => $operation === 'create')
                                 ->hint(fn (string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
@@ -195,6 +195,11 @@ class Repeater extends Base implements FieldContract
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
+    }
+
+    protected function excludeFromBaseSchema(): array
+    {
+        return ['defaultValue'];
     }
 
     private static function generateSchemaFromChildren(Collection $children): array
