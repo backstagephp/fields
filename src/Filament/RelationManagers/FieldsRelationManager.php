@@ -2,29 +2,29 @@
 
 namespace Backstage\Fields\Filament\RelationManagers;
 
-use Livewire\Component;
-use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use Filament\Schemas\Schema;
-use Filament\Actions\BulkAction;
-use Filament\Actions\EditAction;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
+use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Backstage\Fields\Facades\Fields;
-use Filament\Actions\BulkActionGroup;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Backstage\Fields\Enums\Field as FieldEnum;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Backstage\Fields\Concerns\HasConfigurableFields;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Livewire\Component;
 
 class FieldsRelationManager extends RelationManager
 {
