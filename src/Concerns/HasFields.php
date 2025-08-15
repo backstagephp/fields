@@ -5,6 +5,7 @@ namespace Backstage\Fields\Concerns;
 use Backstage\Fields\Models\Field;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/** @phpstan-ignore-next-line */
 trait HasFields
 {
     public string $valueColumn = 'values';

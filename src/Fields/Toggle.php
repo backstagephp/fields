@@ -5,8 +5,12 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToggleColor;
 use Backstage\Fields\Models\Field;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle as Input;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Facades\FilamentColor;
 
 class Toggle extends Base implements FieldContract
@@ -56,30 +60,30 @@ class Toggle extends Base implements FieldContract
     public function getForm(): array
     {
         return [
-            Forms\Components\Tabs::make()
+            Tabs::make()
                 ->schema([
-                    Forms\Components\Tabs\Tab::make('General')
+                    Tab::make('General')
                         ->label(__('General'))
                         ->schema([
                             ...parent::getForm(),
                         ]),
-                    Forms\Components\Tabs\Tab::make('Field specific')
+                    Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Forms\Components\Grid::make(2)->schema([
-                                Forms\Components\Toggle::make('config.inline')
+                            Grid::make(2)->schema([
+                                Input::make('config.inline')
                                     ->label(__('Inline'))
                                     ->inline(false)
                                     ->columnSpanFull(),
-                                Forms\Components\Toggle::make('config.accepted')
+                                Input::make('config.accepted')
                                     ->label(__('Accepted'))
                                     ->helperText(__('Requires the checkbox to be checked'))
                                     ->inline(false),
-                                Forms\Components\Toggle::make('config.declined')
+                                Input::make('config.declined')
                                     ->label(__('Declined'))
                                     ->helperText(__('Requires the checkbox to be unchecked'))
                                     ->inline(false),
-                                Forms\Components\Select::make('config.onColor')
+                                Select::make('config.onColor')
                                     ->label(__('On color'))
                                     ->options(
                                         collect(ToggleColor::array())->map(function ($color) {
@@ -112,7 +116,7 @@ class Toggle extends Base implements FieldContract
                                             };
                                         })
                                     )->allowHtml(),
-                                Forms\Components\Select::make('config.offColor')
+                                Select::make('config.offColor')
                                     ->label(__('Off color'))
                                     ->options(
                                         collect(ToggleColor::array())->map(function ($color) {
@@ -145,9 +149,9 @@ class Toggle extends Base implements FieldContract
                                             };
                                         })
                                     )->allowHtml(),
-                                Forms\Components\TextInput::make('config.onIcon')
+                                TextInput::make('config.onIcon')
                                     ->label(__('On icon')),
-                                Forms\Components\TextInput::make('config.offIcon')
+                                TextInput::make('config.offIcon')
                                     ->label(__('Off icon')),
                             ]),
                         ]),

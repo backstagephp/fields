@@ -6,6 +6,7 @@ use Backstage\Fields\Contracts\FieldInspector;
 use Backstage\Fields\Facades\Fields;
 use Illuminate\Support\Str;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
@@ -130,7 +131,7 @@ class FieldInspectionService implements FieldInspector
     {
         try {
             return $property->getDefaultValue();
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             return null;
         }
     }

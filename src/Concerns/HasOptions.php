@@ -3,6 +3,7 @@
 namespace Backstage\Fields\Concerns;
 
 use Filament\Forms\Components\KeyValue;
+use Filament\Schemas\Components\Fieldset;
 
 trait HasOptions
 {
@@ -25,7 +26,7 @@ trait HasOptions
         ]);
     }
 
-    public function optionFormFields(): \Filament\Forms\Components\Fieldset
+    public function optionFormFields(): Fieldset
     {
         return $this->selectableValuesFormFields(
             type: 'optionType',

@@ -4,6 +4,7 @@ namespace Backstage\Fields\Concerns;
 
 use Backstage\Fields\Services\ContentCleaningService;
 
+/** @phpstan-ignore-next-line */
 trait HasContentCleaning
 {
     /**
