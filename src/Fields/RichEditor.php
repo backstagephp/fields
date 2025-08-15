@@ -2,18 +2,17 @@
 
 namespace Backstage\Fields\Fields;
 
-use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\Toggle;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
 use Backstage\Fields\Services\ContentCleaningService;
-use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Support\Facades\Log;
 
 class RichEditor extends Base implements FieldContract
 {
