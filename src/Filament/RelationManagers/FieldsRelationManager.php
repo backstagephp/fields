@@ -41,6 +41,7 @@ class FieldsRelationManager extends RelationManager
                     ->columnSpanFull()
                     ->schema([
                         Section::make('Field')
+                            ->columns(2)
                             ->columnSpanFull()
                             ->schema([
                                 TextInput::make('name')
