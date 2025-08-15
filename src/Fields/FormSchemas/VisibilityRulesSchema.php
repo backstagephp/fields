@@ -18,6 +18,7 @@ class VisibilityRulesSchema
             Section::make('Visibility rules')
                 ->collapsible()
                 ->collapsed(false)
+                ->columnSpanFull()
                 ->compact(true)
                 ->description(__('Show or hide this field based on the value of another field'))
                 ->schema([

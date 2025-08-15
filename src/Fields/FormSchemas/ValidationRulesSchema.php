@@ -19,6 +19,7 @@ class ValidationRulesSchema
         return [
             Section::make('Validation rules')
                 ->collapsible()
+                ->columnSpanFull()
                 ->collapsed(false)
                 ->compact(true)
                 ->description(__('Validate the value of this field based on the rules below'))
