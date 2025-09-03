@@ -41,7 +41,7 @@ class RichEditor extends Base implements FieldContract
             ->statePath($name)
             ->live()
             ->formatStateUsing(function ($state) {
-                if (empty($state) || $state === null) {
+                if (empty($state)) {
                     return null;
                 }
 
@@ -81,7 +81,7 @@ class RichEditor extends Base implements FieldContract
             })
 
             ->dehydrateStateUsing(function ($state) {
-                if (empty($state) || $state === null) {
+                if (empty($state)) {
                     return null;
                 }
 
@@ -126,7 +126,7 @@ class RichEditor extends Base implements FieldContract
 
     public static function cleanRichEditorState($state, array $options = [])
     {
-        if (empty($state) || $state === null) {
+        if (empty($state)) {
             return '';
         }
 
@@ -165,12 +165,12 @@ class RichEditor extends Base implements FieldContract
     {
         if (isset($data['values'][$field->ulid])) {
             $value = $data['values'][$field->ulid];
-            if (empty($value) || $value === null) {
+            if (empty($value)) {
                 $data['values'][$field->ulid] = '';
             }
         } elseif (isset($data[$record->valueColumn][$field->ulid])) {
             $value = $data[$record->valueColumn][$field->ulid];
-            if (empty($value) || $value === null) {
+            if (empty($value)) {
                 $data[$record->valueColumn][$field->ulid] = '';
             }
         }
