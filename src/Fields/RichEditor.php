@@ -34,7 +34,75 @@ class RichEditor extends Base implements FieldContract
 
         $input = $input->label($field->name ?? null)
             ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
-            ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
+            ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons'])
+            ->default(null)
+            ->placeholder('')
+            ->statePath($name)
+            ->live()
+            ->formatStateUsing(function ($state) {
+                // Handle malformed data that might be double-encoded or corrupted
+                $validatedState = self::validateAndFixRichEditorState($state);
+                
+                // If state is null, return null (Tiptap handles null better than empty string)
+                if ($validatedState === null) {
+                    return null;
+                }
+                
+                // For Filament v4 RichEditor, we need to return the array format, not HTML
+                // The error suggests Filament expects ?array for $rawState
+                if (is_string($validatedState)) {
+                    // If we have HTML, convert it back to array format for Filament
+                    $arrayFormat = self::convertHtmlToArray($validatedState);
+                    return $arrayFormat;
+                }
+                
+                // If it's already an array, return it as-is
+                if (is_array($validatedState)) {
+                    return $validatedState;
+                }
+                
+                return $validatedState;
+            })
+            ->beforeStateDehydrated(function ($state) {
+                // Handle malformed data that might be double-encoded or corrupted
+                $validatedState = self::validateAndFixRichEditorState($state);
+                
+                // If state is null, return null
+                if ($validatedState === null) {
+                    return null;
+                }
+                
+                // For Filament v4, beforeStateDehydrated expects array format
+                if (is_string($validatedState)) {
+                    // If we have HTML, convert it to array format for Filament
+                    $arrayFormat = self::convertHtmlToArray($validatedState);
+                    return $arrayFormat;
+                }
+                
+                // If it's already an array, return it as-is
+                if (is_array($validatedState)) {
+                    return $validatedState;
+                }
+                
+                return $validatedState;
+            })
+            ->dehydrateStateUsing(function ($state) {
+                // Handle malformed data that might be double-encoded or corrupted
+                $state = self::validateAndFixRichEditorState($state);
+                
+                // If state is null, return null for dehydration
+                if ($state === null) {
+                    return null;
+                }
+                
+                // For Filament v4, we need to return HTML string for dehydration
+                if (is_array($state)) {
+                    $html = self::convertArrayToHtml($state);
+                    return $html;
+                }
+                
+                return $state;
+            });
 
         // Add data attribute for hiding captions if enabled
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
@@ -52,8 +120,9 @@ class RichEditor extends Base implements FieldContract
      */
     public static function cleanRichEditorState($state, array $options = [])
     {
-        if (empty($state)) {
-            return $state;
+        // Handle null, empty string, or empty array
+        if (empty($state) || $state === null) {
+            return self::getEmptyRichEditorArray();
         }
 
         // Handle Filament v4 RichEditor format (array) vs legacy format (string)
@@ -63,22 +132,40 @@ class RichEditor extends Base implements FieldContract
             $html = self::convertArrayToHtml($state);
             if ($html) {
                 $cleanedHtml = ContentCleaningService::cleanHtmlContent($html, $options);
-                return self::convertHtmlToArray($cleanedHtml);
+                $result = self::convertHtmlToArray($cleanedHtml);
+                return $result;
             }
-            return $state;
+            // If no HTML content, return empty array structure
+            return self::getEmptyRichEditorArray();
         }
 
         // For legacy string format, clean directly
-        return ContentCleaningService::cleanHtmlContent($state, $options);
+        if (is_string($state)) {
+            $cleanedHtml = ContentCleaningService::cleanHtmlContent($state, $options);
+            $result = self::convertHtmlToArray($cleanedHtml);
+            return $result;
+        }
+
+        // Fallback for any other type
+        return self::getEmptyRichEditorArray();
     }
 
     /**
      * Convert Filament v4 RichEditor array format to HTML
      */
-    private static function convertArrayToHtml(array $state): ?string
+    private static function convertArrayToHtml($state): string
     {
+        // Handle null, empty, or non-array states
+        if (empty($state) || $state === null || !is_array($state)) {
+            return '';
+        }
+
         if (!isset($state['type']) || $state['type'] !== 'doc') {
-            return null;
+            return '';
+        }
+
+        if (!isset($state['content']) || empty($state['content'])) {
+            return '';
         }
 
         return self::convertNodeToHtml($state);
@@ -89,11 +176,18 @@ class RichEditor extends Base implements FieldContract
      */
     private static function convertNodeToHtml(array $node): string
     {
+        // Safety check for empty or invalid nodes
+        if (empty($node) || !is_array($node)) {
+            return '';
+        }
+
         $html = '';
 
         if (isset($node['content']) && is_array($node['content'])) {
             foreach ($node['content'] as $child) {
-                $html .= self::convertNodeToHtml($child);
+                if (is_array($child)) {
+                    $html .= self::convertNodeToHtml($child);
+                }
             }
         }
 
@@ -217,10 +311,18 @@ class RichEditor extends Base implements FieldContract
     private static function ensureRichEditorDataFormat($record, $field, array $data): array
     {
         // Handle different data structures from different callers
-        if (isset($data['values'][$field->ulid]) && is_string($data['values'][$field->ulid])) {
-            $data['values'][$field->ulid] = self::convertStringToArray($data['values'][$field->ulid]);
-        } elseif (isset($data[$record->valueColumn][$field->ulid]) && is_string($data[$record->valueColumn][$field->ulid])) {
-            $data[$record->valueColumn][$field->ulid] = self::convertStringToArray($data[$record->valueColumn][$field->ulid]);
+        if (isset($data['values'][$field->ulid])) {
+            $value = $data['values'][$field->ulid];
+            if (is_string($value) || empty($value) || $value === null) {
+                $converted = self::convertStringToArray($value);
+                $data['values'][$field->ulid] = $converted;
+            }
+        } elseif (isset($data[$record->valueColumn][$field->ulid])) {
+            $value = $data[$record->valueColumn][$field->ulid];
+            if (is_string($value) || empty($value) || $value === null) {
+                $converted = self::convertStringToArray($value);
+                $data[$record->valueColumn][$field->ulid] = $converted;
+            }
         }
 
         return $data;
@@ -229,10 +331,16 @@ class RichEditor extends Base implements FieldContract
     public static function mutateFormDataCallback($record, $field, array $data): array
     {
         // Convert string values to array format for Filament v4 RichEditor
-        if (isset($data['values'][$field->ulid]) && is_string($data['values'][$field->ulid])) {
-            $data['values'][$field->ulid] = self::convertStringToArray($data['values'][$field->ulid]);
-        } elseif (isset($data[$record->valueColumn][$field->ulid]) && is_string($data[$record->valueColumn][$field->ulid])) {
-            $data[$record->valueColumn][$field->ulid] = self::convertStringToArray($data[$record->valueColumn][$field->ulid]);
+        if (isset($data['values'][$field->ulid])) {
+            $value = $data['values'][$field->ulid];
+            if (is_string($value) || empty($value) || $value === null) {
+                $data['values'][$field->ulid] = self::convertStringToArray($value);
+            }
+        } elseif (isset($data[$record->valueColumn][$field->ulid])) {
+            $value = $data[$record->valueColumn][$field->ulid];
+            if (is_string($value) || empty($value) || $value === null) {
+                $data[$record->valueColumn][$field->ulid] = self::convertStringToArray($value);
+            }
         }
 
         return $data;
@@ -243,7 +351,103 @@ class RichEditor extends Base implements FieldContract
      */
     private static function convertStringToArray(?string $html): array
     {
-        return \Backstage\Fields\Services\RichEditorDataService::convertStringToRichEditorArray($html);
+        if (empty($html) || $html === null) {
+            return [
+                'type' => 'doc',
+                'content' => []
+            ];
+        }
+
+        // For now, create a simple paragraph structure
+        // In a more sophisticated implementation, you'd parse the HTML properly
+        $text = strip_tags($html);
+        
+        if (empty($text)) {
+            return [
+                'type' => 'doc',
+                'content' => []
+            ];
+        }
+        
+        return [
+            'type' => 'doc',
+            'content' => [
+                [
+                    'type' => 'paragraph',
+                    'content' => [
+                        [
+                            'type' => 'text',
+                            'text' => $text
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * Validate and fix malformed RichEditor state data
+     */
+    private static function validateAndFixRichEditorState($state)
+    {
+        // Handle null or empty states
+        if (empty($state) || $state === null) {
+            return null;
+        }
+
+        // Handle string states (might be JSON or HTML)
+        if (is_string($state)) {
+            $decoded = json_decode($state, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                // Return the decoded array directly
+                return $decoded;
+            } else {
+                return $state;
+            }
+        }
+
+        // Handle array states
+        if (is_array($state)) {
+            // Check for malformed data like the one in the error: [{"type":"doc","content":[[],{"s":"arr"}]},{"s":"arr"}]
+            if (isset($state[0]) && is_array($state[0]) && isset($state[0]['type']) && $state[0]['type'] === 'doc') {
+                $state = $state[0];
+            }
+
+            // Check for corrupted content structure
+            if (isset($state['content']) && is_array($state['content'])) {
+                $content = $state['content'];
+                // Look for corrupted content like [[],{"s":"arr"}]
+                if (count($content) > 0 && is_array($content[0]) && empty($content[0])) {
+                    $state['content'] = [];
+                }
+            }
+
+            // Ensure the structure is valid
+            if (!isset($state['type']) || $state['type'] !== 'doc') {
+                return null;
+            }
+
+            if (!isset($state['content']) || !is_array($state['content'])) {
+                $state['content'] = [];
+            }
+
+            // Return the validated array directly
+            return $state;
+        }
+
+        // Fallback for any other type
+        return null;
+    }
+
+    /**
+     * Get empty RichEditor array structure for new content
+     */
+    private static function getEmptyRichEditorArray(): array
+    {
+        return [
+            'type' => 'doc',
+            'content' => []
+        ];
     }
 
     public function getForm(): array
