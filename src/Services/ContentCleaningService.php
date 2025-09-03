@@ -83,7 +83,7 @@ class ContentCleaningService
                 if (is_array($child)) {
                     $cleanedChild = self::cleanArrayRecursively($child, $options);
                     // Only add non-empty children
-                    if (!empty($cleanedChild) && $cleanedChild !== self::getEmptyNode()) {
+                    if (! empty($cleanedChild) && $cleanedChild !== self::getEmptyNode()) {
                         $cleanedContent[] = $cleanedChild;
                     }
                 } else {
