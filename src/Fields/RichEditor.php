@@ -42,65 +42,68 @@ class RichEditor extends Base implements FieldContract
             ->formatStateUsing(function ($state) {
                 // Handle malformed data that might be double-encoded or corrupted
                 $validatedState = self::validateAndFixRichEditorState($state);
-                
+
                 // If state is null, return null (Tiptap handles null better than empty string)
                 if ($validatedState === null) {
                     return null;
                 }
-                
+
                 // For Filament v4 RichEditor, we need to return the array format, not HTML
                 // The error suggests Filament expects ?array for $rawState
                 if (is_string($validatedState)) {
                     // If we have HTML, convert it back to array format for Filament
                     $arrayFormat = self::convertHtmlToArray($validatedState);
+
                     return $arrayFormat;
                 }
-                
+
                 // If it's already an array, return it as-is
                 if (is_array($validatedState)) {
                     return $validatedState;
                 }
-                
+
                 return $validatedState;
             })
             ->beforeStateDehydrated(function ($state) {
                 // Handle malformed data that might be double-encoded or corrupted
                 $validatedState = self::validateAndFixRichEditorState($state);
-                
+
                 // If state is null, return null
                 if ($validatedState === null) {
                     return null;
                 }
-                
+
                 // For Filament v4, beforeStateDehydrated expects array format
                 if (is_string($validatedState)) {
                     // If we have HTML, convert it to array format for Filament
                     $arrayFormat = self::convertHtmlToArray($validatedState);
+
                     return $arrayFormat;
                 }
-                
+
                 // If it's already an array, return it as-is
                 if (is_array($validatedState)) {
                     return $validatedState;
                 }
-                
+
                 return $validatedState;
             })
             ->dehydrateStateUsing(function ($state) {
                 // Handle malformed data that might be double-encoded or corrupted
                 $state = self::validateAndFixRichEditorState($state);
-                
+
                 // If state is null, return null for dehydration
                 if ($state === null) {
                     return null;
                 }
-                
+
                 // For Filament v4, we need to return HTML string for dehydration
                 if (is_array($state)) {
                     $html = self::convertArrayToHtml($state);
+
                     return $html;
                 }
-                
+
                 return $state;
             });
 
@@ -133,8 +136,10 @@ class RichEditor extends Base implements FieldContract
             if ($html) {
                 $cleanedHtml = ContentCleaningService::cleanHtmlContent($html, $options);
                 $result = self::convertHtmlToArray($cleanedHtml);
+
                 return $result;
             }
+
             // If no HTML content, return empty array structure
             return self::getEmptyRichEditorArray();
         }
@@ -143,6 +148,7 @@ class RichEditor extends Base implements FieldContract
         if (is_string($state)) {
             $cleanedHtml = ContentCleaningService::cleanHtmlContent($state, $options);
             $result = self::convertHtmlToArray($cleanedHtml);
+
             return $result;
         }
 
@@ -156,15 +162,15 @@ class RichEditor extends Base implements FieldContract
     private static function convertArrayToHtml($state): string
     {
         // Handle null, empty, or non-array states
-        if (empty($state) || $state === null || !is_array($state)) {
+        if (empty($state) || $state === null || ! is_array($state)) {
             return '';
         }
 
-        if (!isset($state['type']) || $state['type'] !== 'doc') {
+        if (! isset($state['type']) || $state['type'] !== 'doc') {
             return '';
         }
 
-        if (!isset($state['content']) || empty($state['content'])) {
+        if (! isset($state['content']) || empty($state['content'])) {
             return '';
         }
 
@@ -177,7 +183,7 @@ class RichEditor extends Base implements FieldContract
     private static function convertNodeToHtml(array $node): string
     {
         // Safety check for empty or invalid nodes
-        if (empty($node) || !is_array($node)) {
+        if (empty($node) || ! is_array($node)) {
             return '';
         }
 
@@ -363,21 +369,21 @@ class RichEditor extends Base implements FieldContract
         if (empty($html) || $html === null) {
             return [
                 'type' => 'doc',
-                'content' => []
+                'content' => [],
             ];
         }
 
         // For now, create a simple paragraph structure
         // In a more sophisticated implementation, you'd parse the HTML properly
         $text = strip_tags($html);
-        
+
         if (empty($text)) {
             return [
                 'type' => 'doc',
-                'content' => []
+                'content' => [],
             ];
         }
-        
+
         return [
             'type' => 'doc',
             'content' => [
@@ -386,11 +392,11 @@ class RichEditor extends Base implements FieldContract
                     'content' => [
                         [
                             'type' => 'text',
-                            'text' => $text
-                        ]
-                    ]
-                ]
-            ]
+                            'text' => $text,
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -432,11 +438,11 @@ class RichEditor extends Base implements FieldContract
             }
 
             // Ensure the structure is valid
-            if (!isset($state['type']) || $state['type'] !== 'doc') {
+            if (! isset($state['type']) || $state['type'] !== 'doc') {
                 return null;
             }
 
-            if (!isset($state['content']) || !is_array($state['content'])) {
+            if (! isset($state['content']) || ! is_array($state['content'])) {
                 $state['content'] = [];
             }
 
@@ -455,7 +461,7 @@ class RichEditor extends Base implements FieldContract
     {
         return [
             'type' => 'doc',
-            'content' => []
+            'content' => [],
         ];
     }
 
