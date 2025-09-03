@@ -13,7 +13,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 
-
 class RichEditor extends Base implements FieldContract
 {
     public static function getDefaultConfig(): array
@@ -50,7 +49,7 @@ class RichEditor extends Base implements FieldContract
                     if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                         return $decoded;
                     }
-                    
+
                     return $state;
                 }
 
@@ -115,7 +114,6 @@ class RichEditor extends Base implements FieldContract
                 return null;
             });
 
-
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
         if ($hideCaptions) {
             $input->extraAttributes(['data-hide-captions' => 'true']);
@@ -131,11 +129,9 @@ class RichEditor extends Base implements FieldContract
         }
 
         $cleanedState = ContentCleaningService::cleanContent($state, $options);
-        
+
         return $cleanedState;
     }
-
-
 
     public static function mutateBeforeSaveCallback($record, $field, array $data): array
     {
@@ -182,8 +178,6 @@ class RichEditor extends Base implements FieldContract
     {
         return $data;
     }
-
-
 
     public function getForm(): array
     {
