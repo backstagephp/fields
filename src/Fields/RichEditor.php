@@ -63,8 +63,10 @@ class RichEditor extends Base implements FieldContract
             $html = self::convertArrayToHtml($state);
             if ($html) {
                 $cleanedHtml = ContentCleaningService::cleanHtmlContent($html, $options);
+
                 return self::convertHtmlToArray($cleanedHtml);
             }
+
             return $state;
         }
 
@@ -77,7 +79,7 @@ class RichEditor extends Base implements FieldContract
      */
     private static function convertArrayToHtml(array $state): ?string
     {
-        if (!isset($state['type']) || $state['type'] !== 'doc') {
+        if (! isset($state['type']) || $state['type'] !== 'doc') {
             return null;
         }
 
@@ -101,39 +103,48 @@ class RichEditor extends Base implements FieldContract
             case 'paragraph':
                 $align = $node['attrs']['textAlign'] ?? 'start';
                 $alignClass = $align !== 'start' ? " style=\"text-align: {$align}\"" : '';
+
                 return "<p{$alignClass}>{$html}</p>";
 
             case 'text':
                 $text = $node['text'] ?? '';
                 $marks = $node['marks'] ?? [];
-                
+
                 foreach ($marks as $mark) {
                     switch ($mark['type'] ?? '') {
                         case 'bold':
                             $text = "<strong>{$text}</strong>";
+
                             break;
                         case 'italic':
                             $text = "<em>{$text}</em>";
+
                             break;
                         case 'underline':
                             $text = "<u>{$text}</u>";
+
                             break;
                         case 'strike':
                             $text = "<s>{$text}</s>";
+
                             break;
                         case 'code':
                             $text = "<code>{$text}</code>";
+
                             break;
                         case 'link':
                             $href = $mark['attrs']['href'] ?? '#';
                             $text = "<a href=\"{$href}\">{$text}</a>";
+
                             break;
                     }
                 }
+
                 return $text;
 
             case 'heading':
                 $level = $node['attrs']['level'] ?? 1;
+
                 return "<h{$level}>{$html}</h{$level}>";
 
             case 'bulletList':
@@ -178,11 +189,11 @@ class RichEditor extends Base implements FieldContract
                     'content' => [
                         [
                             'type' => 'text',
-                            'text' => strip_tags($html)
-                        ]
-                    ]
-                ]
-            ]
+                            'text' => strip_tags($html),
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 

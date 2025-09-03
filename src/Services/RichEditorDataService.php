@@ -11,7 +11,7 @@ class RichEditorDataService
      */
     public static function convertRichEditorStringsToArrays(array $data, string $valueColumn): array
     {
-        if (!isset($data[$valueColumn])) {
+        if (! isset($data[$valueColumn])) {
             return $data;
         }
 
@@ -21,7 +21,7 @@ class RichEditorDataService
 
         // Use recursive conversion to handle all nested structures
         $data[$valueColumn] = self::convertRichEditorStringsRecursively(
-            $data[$valueColumn], 
+            $data[$valueColumn],
             $richEditorFields
         );
 
@@ -87,21 +87,21 @@ class RichEditorDataService
         if (empty($html) || $html === null) {
             return [
                 'type' => 'doc',
-                'content' => []
+                'content' => [],
             ];
         }
 
         // For now, create a simple paragraph structure
         // In a more sophisticated implementation, you'd parse the HTML properly
         $text = strip_tags($html);
-        
+
         if (empty($text)) {
             return [
                 'type' => 'doc',
-                'content' => []
+                'content' => [],
             ];
         }
-        
+
         return [
             'type' => 'doc',
             'content' => [
@@ -110,11 +110,11 @@ class RichEditorDataService
                     'content' => [
                         [
                             'type' => 'text',
-                            'text' => $text
-                        ]
-                    ]
-                ]
-            ]
+                            'text' => $text,
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -145,7 +145,7 @@ class RichEditorDataService
     {
         return [
             'type' => 'doc',
-            'content' => []
+            'content' => [],
         ];
     }
 }
