@@ -42,7 +42,26 @@ class RichEditor extends Base implements FieldContract
             $input->extraAttributes(['data-hide-captions' => 'true']);
         }
 
-        // Add content processing to automatically clean HTML
+        // Content cleaning is handled in mutateBeforeSaveCallback to avoid state type conflicts
+
+        return $input;
+    }
+
+    /**
+     * Clean RichEditor content for database storage
+     */
+    private static function cleanRichEditorState($state, array $options = [])
+    {
+        if (empty($state)) {
+            return $state;
+        }
+
+        // Clean the content using the ContentCleaningService
+        return ContentCleaningService::cleanHtmlContent($state, $options);
+    }
+
+    public static function mutateBeforeSaveCallback($record, $field, array $data): array
+    {
         $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
 
         if ($autoCleanContent) {
@@ -50,38 +69,14 @@ class RichEditor extends Base implements FieldContract
                 'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
             ];
 
-            // Clean content when state is updated (including file uploads)
-            $input->afterStateUpdated(function ($state) use ($options) {
-                if (! empty($state)) {
-                    return ContentCleaningService::cleanHtmlContent($state, $options);
-                }
-
-                return $state;
-            });
-
-            // Ensure cleaned content is saved to database
-            $input->dehydrateStateUsing(function ($state) use ($options) {
-                if (! empty($state)) {
-                    return ContentCleaningService::cleanHtmlContent($state, $options);
-                }
-
-                return $state;
-            });
-        }
-
-        return $input;
-    }
-
-    public static function mutateBeforeSaveCallback($record, $field, array $data): array
-    {
-        $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
-
-        if ($autoCleanContent && isset($data['values'][$field->ulid])) {
-            $options = [
-                'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
-            ];
-
-            $data['values'][$field->ulid] = ContentCleaningService::cleanHtmlContent($data['values'][$field->ulid], $options);
+            // Handle different data structures from different callers
+            if (isset($data['values'][$field->ulid])) {
+                // Called from ContentResource
+                $data['values'][$field->ulid] = self::cleanRichEditorState($data['values'][$field->ulid], $options);
+            } elseif (isset($data[$record->valueColumn][$field->ulid])) {
+                // Called from CanMapDynamicFields trait
+                $data[$record->valueColumn][$field->ulid] = self::cleanRichEditorState($data[$record->valueColumn][$field->ulid], $options);
+            }
         }
 
         return $data;
