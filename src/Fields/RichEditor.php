@@ -29,11 +29,11 @@ class RichEditor extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
+        /**
+         * @var Input $input
+         */
 
         $input = self::applyDefaultSettings(Input::make($name), $field);
-
-        // Disable array casting
-        $input->json(false);
 
         $input = $input->label($field->name ?? null)
             ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
@@ -42,6 +42,13 @@ class RichEditor extends Base implements FieldContract
             ->placeholder('')
             ->statePath($name)
             ->live()
+            ->json(false)
+            ->beforeStateDehydrated(function() {
+                return ;
+            })
+            ->saveRelationshipsUsing(function(){
+                return;
+            })
             ->formatStateUsing(function ($state) {
                 if (empty($state)) {
                     return null;
@@ -116,7 +123,7 @@ class RichEditor extends Base implements FieldContract
 
                 return null;
             });
-
+            
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
         if ($hideCaptions) {
             $input->extraAttributes(['data-hide-captions' => 'true']);
