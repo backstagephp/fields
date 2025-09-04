@@ -32,7 +32,6 @@ class RichEditor extends Base implements FieldContract
         /**
          * @var Input $input
          */
-
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? null)
@@ -43,12 +42,8 @@ class RichEditor extends Base implements FieldContract
             ->statePath($name)
             ->live()
             ->json(false)
-            ->beforeStateDehydrated(function() {
-                return ;
-            })
-            ->saveRelationshipsUsing(function(){
-                return;
-            })
+            ->beforeStateDehydrated(function () {})
+            ->saveRelationshipsUsing(function () {})
             ->formatStateUsing(function ($state) {
                 if (empty($state)) {
                     return null;
@@ -123,7 +118,7 @@ class RichEditor extends Base implements FieldContract
 
                 return null;
             });
-            
+
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
         if ($hideCaptions) {
             $input->extraAttributes(['data-hide-captions' => 'true']);
