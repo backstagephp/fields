@@ -32,6 +32,9 @@ class RichEditor extends Base implements FieldContract
 
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
+        // Disable array casting
+        $input->json(false);
+
         $input = $input->label($field->name ?? null)
             ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons'])
