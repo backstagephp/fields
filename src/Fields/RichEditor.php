@@ -29,7 +29,9 @@ class RichEditor extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
-
+        /**
+         * @var Input $input
+         */
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? null)
@@ -39,6 +41,9 @@ class RichEditor extends Base implements FieldContract
             ->placeholder('')
             ->statePath($name)
             ->live()
+            ->json(false)
+            ->beforeStateDehydrated(function () {})
+            ->saveRelationshipsUsing(function () {})
             ->formatStateUsing(function ($state) {
                 if (empty($state)) {
                     return null;
