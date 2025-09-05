@@ -15,10 +15,14 @@ jobs:
         id: branch
         run: echo "branch_name=${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
 
-      - name: Determine label based on branch prefix
+      - name: Determine label based on branch prefix or author
         id: label
         run: |
-          if [[ "${{ github.head_ref }}" == feature/* ]] || [[ "${{ github.head_ref }}" == feat/* ]]; then
+          # Check if it's a Dependabot PR
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            echo "label=dependencies" >> $GITHUB_OUTPUT
+          # Check branch prefixes
+          elif [[ "${{ github.head_ref }}" == feature/* ]] || [[ "${{ github.head_ref }}" == feat/* ]]; then
             echo "label=enhancement" >> $GITHUB_OUTPUT
           elif [[ "${{ github.head_ref }}" == fix/* ]]; then
             echo "label=fix" >> $GITHUB_OUTPUT
