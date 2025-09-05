@@ -1,0 +1,52 @@
+name: PR Auto Assignment and Labeling
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  auto-assign-and-label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Get branch name
+        id: branch
+        run: echo "branch_name=${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
+
+      - name: Determine label based on branch prefix
+        id: label
+        run: |
+          if [[ "${{ github.head_ref }}" == feature/* ]] || [[ "${{ github.head_ref }}" == feat/* ]]; then
+            echo "label=enhancement" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.head_ref }}" == fix/* ]]; then
+            echo "label=fix" >> $GITHUB_OUTPUT
+          else
+            echo "label=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add label to PR
+        if: steps.label.outputs.label != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['${{ steps.label.outputs.label }}']
+            })
+
+      - name: Assign reviewer
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const reviewer = 'baspa';
+            
+            github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: [reviewer]
+            });
