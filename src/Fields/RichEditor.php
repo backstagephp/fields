@@ -29,102 +29,105 @@ class RichEditor extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
-        /**
-         * @var Input $input
-         */
-        $input = self::applyDefaultSettings(Input::make($name), $field);
+        $input = self::createBaseInput($name, $field);
+        $input = self::configureToolbarButtons($input, $field);
+        $input = self::configureStateHandling($input, $name);
+        $input = self::configureCaptions($input, $field);
 
-        $input = $input->label($field->name ?? null)
-            ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
-            ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons'])
+        return $input;
+    }
+
+    private static function createBaseInput(string $name, ?Field $field): Input
+    {
+        return self::applyDefaultSettings(Input::make($name), $field)
+            ->label($field->name ?? null)
             ->default(null)
             ->placeholder('')
             ->statePath($name)
             ->live()
             ->json(false)
             ->beforeStateDehydrated(function () {})
-            ->saveRelationshipsUsing(function () {})
-            ->formatStateUsing(function ($state) {
-                if (empty($state)) {
-                    return null;
-                }
+            ->saveRelationshipsUsing(function () {});
+    }
 
-                if (is_string($state)) {
-                    $decoded = json_decode($state, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        return $decoded;
-                    }
+    private static function configureToolbarButtons(Input $input, ?Field $field): Input
+    {
+        $config = self::getDefaultConfig();
 
-                    return $state;
-                }
+        return $input
+            ->toolbarButtons([$field->config['toolbarButtons'] ?? $config['toolbarButtons']])
+            ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? $config['disableToolbarButtons']);
+    }
 
-                if (is_array($state)) {
-                    if (isset($state[0]) && is_array($state[0]) && isset($state[0]['type']) && $state[0]['type'] === 'doc') {
-                        $state = $state[0];
-                    }
+    private static function configureStateHandling(Input $input, string $name): Input
+    {
+        return $input->formatStateUsing(function ($state) {
+            return self::formatRichEditorState($state);
+        });
+    }
 
-                    if (isset($state['content']) && is_array($state['content'])) {
-                        $content = $state['content'];
-                        if (count($content) > 0 && is_array($content[0]) && empty($content[0])) {
-                            $state['content'] = [];
-                        }
-                    }
-
-                    if (! isset($state['type']) || $state['type'] !== 'doc') {
-                        return null;
-                    }
-
-                    if (! isset($state['content']) || ! is_array($state['content'])) {
-                        $state['content'] = [];
-                    }
-
-                    return $state;
-                }
-
-                return null;
-            })
-
-            ->dehydrateStateUsing(function ($state) {
-                if (empty($state)) {
-                    return null;
-                }
-
-                if (is_string($state)) {
-                    return $state;
-                }
-
-                if (is_array($state)) {
-                    if (isset($state[0]) && is_array($state[0]) && isset($state[0]['type']) && $state[0]['type'] === 'doc') {
-                        $state = $state[0];
-                    }
-
-                    if (isset($state['content']) && is_array($state['content'])) {
-                        $content = $state['content'];
-                        if (count($content) > 0 && is_array($content[0]) && empty($content[0])) {
-                            $state['content'] = [];
-                        }
-                    }
-
-                    if (! isset($state['type']) || $state['type'] !== 'doc') {
-                        return null;
-                    }
-
-                    if (! isset($state['content']) || ! is_array($state['content'])) {
-                        $state['content'] = [];
-                    }
-
-                    return $state;
-                }
-
-                return null;
-            });
-
+    private static function configureCaptions(Input $input, ?Field $field): Input
+    {
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
+
         if ($hideCaptions) {
             $input->extraAttributes(['data-hide-captions' => 'true']);
         }
 
         return $input;
+    }
+
+    private static function formatRichEditorState($state)
+    {
+        if (empty($state)) {
+            return null;
+        }
+
+        // If it's already a string (HTML), return it as is
+        if (is_string($state)) {
+            return $state;
+        }
+
+        // If it's an array (JSON format), handle it
+        if (is_array($state)) {
+            return self::formatJsonState($state);
+        }
+
+        return null;
+    }
+
+    private static function formatJsonState(array $state): ?array
+    {
+        // Handle nested doc structure
+        if (isset($state[0]) && is_array($state[0]) && isset($state[0]['type']) && $state[0]['type'] === 'doc') {
+            $state = $state[0];
+        }
+
+        // Clean up empty content arrays
+        if (isset($state['content']) && is_array($state['content'])) {
+            $state = self::cleanContentArray($state);
+        }
+
+        // Validate doc structure
+        if (! isset($state['type']) || $state['type'] !== 'doc') {
+            return null;
+        }
+
+        if (! isset($state['content']) || ! is_array($state['content'])) {
+            $state['content'] = [];
+        }
+
+        return $state;
+    }
+
+    private static function cleanContentArray(array $state): array
+    {
+        $content = $state['content'];
+        if (count($content) > 0 && is_array($content[0]) && empty($content[0])) {
+            $state['content'] = [];
+        }
+
+        return $state;
     }
 
     public static function cleanRichEditorState($state, array $options = [])
@@ -142,38 +145,61 @@ class RichEditor extends Base implements FieldContract
     {
         $data = self::ensureRichEditorDataFormat($record, $field, $data);
 
-        $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
-
-        if ($autoCleanContent) {
-            $options = [
-                'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
-            ];
-
-            // Handle different data structures from different callers
-            if (isset($data['values'][$field->ulid])) {
-                // Called from ContentResource
-                $data['values'][$field->ulid] = self::cleanRichEditorState($data['values'][$field->ulid], $options);
-            } elseif (isset($data[$record->valueColumn][$field->ulid])) {
-                // Called from CanMapDynamicFields trait
-                $data[$record->valueColumn][$field->ulid] = self::cleanRichEditorState($data[$record->valueColumn][$field->ulid], $options);
-            }
+        if (self::shouldAutoCleanContent($field)) {
+            $data = self::applyContentCleaning($record, $field, $data);
         }
 
         return $data;
     }
 
+    private static function shouldAutoCleanContent($field): bool
+    {
+        return $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
+    }
+
+    private static function applyContentCleaning($record, $field, array $data): array
+    {
+        $options = self::getCleaningOptions($field);
+
+        if (isset($data['values'][$field->ulid])) {
+            // Called from ContentResource
+            $data['values'][$field->ulid] = self::cleanRichEditorState($data['values'][$field->ulid], $options);
+        } elseif (isset($data[$record->valueColumn][$field->ulid])) {
+            // Called from CanMapDynamicFields trait
+            $data[$record->valueColumn][$field->ulid] = self::cleanRichEditorState($data[$record->valueColumn][$field->ulid], $options);
+        }
+
+        return $data;
+    }
+
+    private static function getCleaningOptions($field): array
+    {
+        return [
+            'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
+        ];
+    }
+
     private static function ensureRichEditorDataFormat($record, $field, array $data): array
     {
-        if (isset($data['values'][$field->ulid])) {
-            $value = $data['values'][$field->ulid];
-            if (empty($value)) {
-                $data['values'][$field->ulid] = '';
-            }
-        } elseif (isset($data[$record->valueColumn][$field->ulid])) {
-            $value = $data[$record->valueColumn][$field->ulid];
-            if (empty($value)) {
-                $data[$record->valueColumn][$field->ulid] = '';
-            }
+        $data = self::normalizeContentResourceValue($data, $field);
+        $data = self::normalizeDynamicFieldValue($record, $data, $field);
+
+        return $data;
+    }
+
+    private static function normalizeContentResourceValue(array $data, $field): array
+    {
+        if (isset($data['values'][$field->ulid]) && empty($data['values'][$field->ulid])) {
+            $data['values'][$field->ulid] = '';
+        }
+
+        return $data;
+    }
+
+    private static function normalizeDynamicFieldValue($record, array $data, $field): array
+    {
+        if (isset($data[$record->valueColumn][$field->ulid]) && empty($data[$record->valueColumn][$field->ulid])) {
+            $data[$record->valueColumn][$field->ulid] = '';
         }
 
         return $data;
@@ -181,6 +207,13 @@ class RichEditor extends Base implements FieldContract
 
     public static function mutateFormDataCallback($record, $field, array $data): array
     {
+        // Get the raw value from the database without JSON decoding
+        $rawValue = $record->values()->where('field_ulid', $field->ulid)->first()?->value;
+
+        if ($rawValue !== null) {
+            $data[$record->valueColumn][$field->ulid] = $rawValue;
+        }
+
         return $data;
     }
 
