@@ -44,9 +44,15 @@ jobs:
           script: |
             const reviewer = 'baspa';
             
-            github.rest.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              reviewers: [reviewer]
-            });
+            // Only assign reviewer if they are not the PR author
+            if (context.payload.pull_request.user.login !== reviewer) {
+              github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                reviewers: [reviewer]
+              });
+              console.log(`Assigned ${reviewer} as reviewer`);
+            } else {
+              console.log(`Skipping reviewer assignment - ${reviewer} is the PR author`);
+            }
