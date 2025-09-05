@@ -12,7 +12,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Support\Facades\Log;
 
 class RichEditor extends Base implements FieldContract
 {
