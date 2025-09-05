@@ -6,15 +6,20 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
 use Backstage\Fields\Services\ContentCleaningService;
-use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 
 class RichEditor extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'rich-editor';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -239,22 +244,27 @@ class RichEditor extends Base implements FieldContract
                                         ->multiple()
                                         ->options(ToolbarButton::array())
                                         ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.autoCleanContent')
+                                    Toggle::make('config.autoCleanContent')
                                         ->label(__('Auto-clean content'))
                                         ->helperText(__('Automatically remove figcaption and unwrap images from links'))
                                         ->inline(false)
                                         ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.preserveCustomCaptions')
+                                    Toggle::make('config.preserveCustomCaptions')
                                         ->label(__('Preserve custom captions'))
                                         ->helperText(__('Only remove default captions, keep custom ones'))
                                         ->inline(false)
                                         ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.hideCaptions')
+                                    Toggle::make('config.hideCaptions')
                                         ->label(__('Hide caption fields'))
                                         ->helperText(__('Hide the caption input field that appears when uploading images'))
                                         ->inline(false)
                                         ->columnSpanFull(),
                                 ]),
+                        ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];
