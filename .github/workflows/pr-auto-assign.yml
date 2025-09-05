@@ -22,6 +22,8 @@ jobs:
             echo "label=enhancement" >> $GITHUB_OUTPUT
           elif [[ "${{ github.head_ref }}" == fix/* ]]; then
             echo "label=fix" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.head_ref }}" == docs/* ]]; then
+            echo "label=documentation" >> $GITHUB_OUTPUT
           else
             echo "label=" >> $GITHUB_OUTPUT
           fi
