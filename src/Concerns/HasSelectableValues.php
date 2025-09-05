@@ -212,6 +212,8 @@ trait HasSelectableValues
                                 $set("config.{$type}", is_array($value) ? $value : (is_bool($value) ? [] : [$value]));
                             })
                             ->label(__('Type'))
+                            ->in(['array', 'relationship', ''])
+                            ->nullable()
                             ->live(),
                         // Array options
                         $arrayComponent::make('config.options')

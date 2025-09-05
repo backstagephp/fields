@@ -35,63 +35,189 @@ class RichEditor extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
+        $input = self::createBaseInput($name, $field);
+        $input = self::configureToolbarButtons($input, $field);
+        $input = self::configureStateHandling($input, $name);
+        $input = self::configureCaptions($input, $field);
 
-        $input = self::applyDefaultSettings(Input::make($name), $field);
+        return $input;
+    }
 
-        $input = $input->label($field->name ?? null)
-            ->toolbarButtons([$field->config['toolbarButtons'] ?? self::getDefaultConfig()['toolbarButtons']])
-            ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? self::getDefaultConfig()['disableToolbarButtons']);
+    private static function createBaseInput(string $name, ?Field $field): Input
+    {
+        return self::applyDefaultSettings(Input::make($name), $field)
+            ->label($field->name ?? null)
+            ->default(null)
+            ->placeholder('')
+            ->statePath($name)
+            ->live()
+            ->json(false)
+            ->beforeStateDehydrated(function () {})
+            ->saveRelationshipsUsing(function () {});
+    }
 
-        // Add data attribute for hiding captions if enabled
+    private static function configureToolbarButtons(Input $input, ?Field $field): Input
+    {
+        $config = self::getDefaultConfig();
+
+        return $input
+            ->toolbarButtons([$field->config['toolbarButtons'] ?? $config['toolbarButtons']])
+            ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? $config['disableToolbarButtons']);
+    }
+
+    private static function configureStateHandling(Input $input, string $name): Input
+    {
+        return $input->formatStateUsing(function ($state) {
+            return self::formatRichEditorState($state);
+        });
+    }
+
+    private static function configureCaptions(Input $input, ?Field $field): Input
+    {
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
+
         if ($hideCaptions) {
             $input->extraAttributes(['data-hide-captions' => 'true']);
-        }
-
-        // Add content processing to automatically clean HTML
-        $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
-
-        if ($autoCleanContent) {
-            $options = [
-                'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
-            ];
-
-            // Clean content when state is updated (including file uploads)
-            $input->afterStateUpdated(function ($state) use ($options) {
-                if (! empty($state)) {
-                    return ContentCleaningService::cleanHtmlContent($state, $options);
-                }
-
-                return $state;
-            });
-
-            // Ensure cleaned content is saved to database
-            $input->dehydrateStateUsing(function ($state) use ($options) {
-                if (! empty($state)) {
-                    return ContentCleaningService::cleanHtmlContent($state, $options);
-                }
-
-                return $state;
-            });
         }
 
         return $input;
     }
 
+    private static function formatRichEditorState($state)
+    {
+        if (empty($state)) {
+            return null;
+        }
+
+        // If it's already a string (HTML), return it as is
+        if (is_string($state)) {
+            return $state;
+        }
+
+        // If it's an array (JSON format), handle it
+        if (is_array($state)) {
+            return self::formatJsonState($state);
+        }
+
+        return null;
+    }
+
+    private static function formatJsonState(array $state): ?array
+    {
+        // Handle nested doc structure
+        if (isset($state[0]) && is_array($state[0]) && isset($state[0]['type']) && $state[0]['type'] === 'doc') {
+            $state = $state[0];
+        }
+
+        // Clean up empty content arrays
+        if (isset($state['content']) && is_array($state['content'])) {
+            $state = self::cleanContentArray($state);
+        }
+
+        // Validate doc structure
+        if (! isset($state['type']) || $state['type'] !== 'doc') {
+            return null;
+        }
+
+        if (! isset($state['content']) || ! is_array($state['content'])) {
+            $state['content'] = [];
+        }
+
+        return $state;
+    }
+
+    private static function cleanContentArray(array $state): array
+    {
+        $content = $state['content'];
+        if (count($content) > 0 && is_array($content[0]) && empty($content[0])) {
+            $state['content'] = [];
+        }
+
+        return $state;
+    }
+
+    public static function cleanRichEditorState($state, array $options = [])
+    {
+        if (empty($state)) {
+            return '';
+        }
+
+        $cleanedState = ContentCleaningService::cleanContent($state, $options);
+
+        return $cleanedState;
+    }
+
     public static function mutateBeforeSaveCallback($record, $field, array $data): array
     {
-        $autoCleanContent = $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
+        $data = self::ensureRichEditorDataFormat($record, $field, $data);
 
-        if ($autoCleanContent && isset($data['values'][$field->ulid])) {
-            Log::info('RichEditor mutateBeforeSaveCallback before cleaning:', ['content' => $data['values'][$field->ulid]]);
+        if (self::shouldAutoCleanContent($field)) {
+            $data = self::applyContentCleaning($record, $field, $data);
+        }
 
-            $options = [
-                'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
-            ];
+        return $data;
+    }
 
-            $data['values'][$field->ulid] = ContentCleaningService::cleanHtmlContent($data['values'][$field->ulid], $options);
+    private static function shouldAutoCleanContent($field): bool
+    {
+        return $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
+    }
 
-            Log::info('RichEditor mutateBeforeSaveCallback after cleaning:', ['content' => $data['values'][$field->ulid]]);
+    private static function applyContentCleaning($record, $field, array $data): array
+    {
+        $options = self::getCleaningOptions($field);
+
+        if (isset($data['values'][$field->ulid])) {
+            // Called from ContentResource
+            $data['values'][$field->ulid] = self::cleanRichEditorState($data['values'][$field->ulid], $options);
+        } elseif (isset($data[$record->valueColumn][$field->ulid])) {
+            // Called from CanMapDynamicFields trait
+            $data[$record->valueColumn][$field->ulid] = self::cleanRichEditorState($data[$record->valueColumn][$field->ulid], $options);
+        }
+
+        return $data;
+    }
+
+    private static function getCleaningOptions($field): array
+    {
+        return [
+            'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
+        ];
+    }
+
+    private static function ensureRichEditorDataFormat($record, $field, array $data): array
+    {
+        $data = self::normalizeContentResourceValue($data, $field);
+        $data = self::normalizeDynamicFieldValue($record, $data, $field);
+
+        return $data;
+    }
+
+    private static function normalizeContentResourceValue(array $data, $field): array
+    {
+        if (isset($data['values'][$field->ulid]) && empty($data['values'][$field->ulid])) {
+            $data['values'][$field->ulid] = '';
+        }
+
+        return $data;
+    }
+
+    private static function normalizeDynamicFieldValue($record, array $data, $field): array
+    {
+        if (isset($data[$record->valueColumn][$field->ulid]) && empty($data[$record->valueColumn][$field->ulid])) {
+            $data[$record->valueColumn][$field->ulid] = '';
+        }
+
+        return $data;
+    }
+
+    public static function mutateFormDataCallback($record, $field, array $data): array
+    {
+        // Get the raw value from the database without JSON decoding
+        $rawValue = $record->values()->where('field_ulid', $field->ulid)->first()?->value;
+
+        if ($rawValue !== null) {
+            $data[$record->valueColumn][$field->ulid] = $rawValue;
         }
 
         return $data;
