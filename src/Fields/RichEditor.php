@@ -53,7 +53,7 @@ class RichEditor extends Base implements FieldContract
     private static function configureToolbarButtons(Input $input, ?Field $field): Input
     {
         $config = self::getDefaultConfig();
-        
+
         return $input
             ->toolbarButtons([$field->config['toolbarButtons'] ?? $config['toolbarButtons']])
             ->disableToolbarButtons($field->config['disableToolbarButtons'] ?? $config['disableToolbarButtons']);
@@ -69,7 +69,7 @@ class RichEditor extends Base implements FieldContract
     private static function configureCaptions(Input $input, ?Field $field): Input
     {
         $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
-        
+
         if ($hideCaptions) {
             $input->extraAttributes(['data-hide-captions' => 'true']);
         }
@@ -144,7 +144,7 @@ class RichEditor extends Base implements FieldContract
     public static function mutateBeforeSaveCallback($record, $field, array $data): array
     {
         $data = self::ensureRichEditorDataFormat($record, $field, $data);
-        
+
         if (self::shouldAutoCleanContent($field)) {
             $data = self::applyContentCleaning($record, $field, $data);
         }
@@ -209,11 +209,11 @@ class RichEditor extends Base implements FieldContract
     {
         // Get the raw value from the database without JSON decoding
         $rawValue = $record->values()->where('field_ulid', $field->ulid)->first()?->value;
-        
+
         if ($rawValue !== null) {
             $data[$record->valueColumn][$field->ulid] = $rawValue;
         }
-        
+
         return $data;
     }
 
