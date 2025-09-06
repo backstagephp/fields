@@ -163,7 +163,7 @@ class RichEditor extends Base implements FieldContract
     private static function getFieldValueFromRecord(Model $record, Field $field): mixed
     {
         // Check if record has values method
-        if (!method_exists($record, 'values')) {
+        if (! method_exists($record, 'values')) {
             return null;
         }
 
