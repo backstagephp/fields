@@ -10,6 +10,8 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class RichEditor extends Base implements FieldContract
 {
@@ -60,7 +62,7 @@ class RichEditor extends Base implements FieldContract
         });
     }
 
-    private static function formatRichEditorState($state)
+    private static function formatRichEditorState(mixed $state): mixed
     {
         if (empty($state)) {
             return null;
@@ -113,14 +115,14 @@ class RichEditor extends Base implements FieldContract
         return $state;
     }
 
-    public static function mutateBeforeSaveCallback($record, $field, array $data): array
+    public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
     {
         $data = self::ensureRichEditorDataFormat($record, $field, $data);
 
         return $data;
     }
 
-    private static function ensureRichEditorDataFormat($record, $field, array $data): array
+    private static function ensureRichEditorDataFormat(Model $record, Field $field, array $data): array
     {
         $data = self::normalizeContentResourceValue($data, $field);
         $data = self::normalizeDynamicFieldValue($record, $data, $field);
@@ -128,7 +130,7 @@ class RichEditor extends Base implements FieldContract
         return $data;
     }
 
-    private static function normalizeContentResourceValue(array $data, $field): array
+    private static function normalizeContentResourceValue(array $data, Field $field): array
     {
         if (isset($data['values'][$field->ulid]) && empty($data['values'][$field->ulid])) {
             $data['values'][$field->ulid] = '';
@@ -137,7 +139,7 @@ class RichEditor extends Base implements FieldContract
         return $data;
     }
 
-    private static function normalizeDynamicFieldValue($record, array $data, $field): array
+    private static function normalizeDynamicFieldValue(Model $record, array $data, Field $field): array
     {
         if (isset($data[$record->valueColumn][$field->ulid]) && empty($data[$record->valueColumn][$field->ulid])) {
             $data[$record->valueColumn][$field->ulid] = '';
@@ -146,16 +148,45 @@ class RichEditor extends Base implements FieldContract
         return $data;
     }
 
-    public static function mutateFormDataCallback($record, $field, array $data): array
+    public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
-        // Get the raw value from the database without JSON decoding
-        $rawValue = $record->values()->where('field_ulid', $field->ulid)->first()?->value;
+        $rawValue = self::getFieldValueFromRecord($record, $field);
 
         if ($rawValue !== null) {
             $data[$record->valueColumn][$field->ulid] = $rawValue;
         }
 
         return $data;
+    }
+
+    private static function getFieldValueFromRecord(Model $record, Field $field): mixed
+    {
+        // Check if record has values method
+        if (!method_exists($record, 'values') || !is_callable([$record, 'values'])) {
+            return null;
+        }
+
+        $values = $record->values();
+
+        // Handle relationship-based values (like Content model)
+        if (self::isRelationship($values)) {
+            return $values->where('field_ulid', $field->ulid)->first()?->value;
+        }
+
+        // Handle array/collection-based values (like Settings model)
+        if (is_array($values) || $values instanceof \Illuminate\Support\Collection) {
+            return $values[$field->ulid] ?? null;
+        }
+
+        return null;
+    }
+
+    private static function isRelationship(mixed $values): bool
+    {
+        return is_object($values) 
+            && method_exists($values, 'where')
+            && method_exists($values, 'get')
+            && !($values instanceof \Illuminate\Support\Collection);
     }
 
     public function getForm(): array
