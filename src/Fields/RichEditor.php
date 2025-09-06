@@ -5,13 +5,12 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
-use Backstage\Fields\Services\ContentCleaningService;
-use Filament\Forms;
 use Filament\Forms\Components\RichEditor as Input;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Model;
 
 class RichEditor extends Base implements FieldContract
 {
@@ -21,9 +20,6 @@ class RichEditor extends Base implements FieldContract
             ...parent::getDefaultConfig(),
             'toolbarButtons' => ['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'],
             'disableToolbarButtons' => [],
-            'autoCleanContent' => true,
-            'preserveCustomCaptions' => false,
-            'hideCaptions' => true,
         ];
     }
 
@@ -32,7 +28,6 @@ class RichEditor extends Base implements FieldContract
         $input = self::createBaseInput($name, $field);
         $input = self::configureToolbarButtons($input, $field);
         $input = self::configureStateHandling($input, $name);
-        $input = self::configureCaptions($input, $field);
 
         return $input;
     }
@@ -66,18 +61,7 @@ class RichEditor extends Base implements FieldContract
         });
     }
 
-    private static function configureCaptions(Input $input, ?Field $field): Input
-    {
-        $hideCaptions = $field->config['hideCaptions'] ?? self::getDefaultConfig()['hideCaptions'];
-
-        if ($hideCaptions) {
-            $input->extraAttributes(['data-hide-captions' => 'true']);
-        }
-
-        return $input;
-    }
-
-    private static function formatRichEditorState($state)
+    private static function formatRichEditorState(mixed $state): mixed
     {
         if (empty($state)) {
             return null;
@@ -130,64 +114,23 @@ class RichEditor extends Base implements FieldContract
         return $state;
     }
 
-    public static function cleanRichEditorState($state, array $options = [])
-    {
-        if (empty($state)) {
-            return '';
-        }
-
-        $cleanedState = ContentCleaningService::cleanContent($state, $options);
-
-        return $cleanedState;
-    }
-
-    public static function mutateBeforeSaveCallback($record, $field, array $data): array
+    public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
     {
         $data = self::ensureRichEditorDataFormat($record, $field, $data);
 
-        if (self::shouldAutoCleanContent($field)) {
-            $data = self::applyContentCleaning($record, $field, $data);
-        }
-
         return $data;
     }
 
-    private static function shouldAutoCleanContent($field): bool
+    private static function ensureRichEditorDataFormat(Model $record, Field $field, array $data): array
     {
-        return $field->config['autoCleanContent'] ?? self::getDefaultConfig()['autoCleanContent'];
-    }
-
-    private static function applyContentCleaning($record, $field, array $data): array
-    {
-        $options = self::getCleaningOptions($field);
-
-        if (isset($data['values'][$field->ulid])) {
-            // Called from ContentResource
-            $data['values'][$field->ulid] = self::cleanRichEditorState($data['values'][$field->ulid], $options);
-        } elseif (isset($data[$record->valueColumn][$field->ulid])) {
-            // Called from CanMapDynamicFields trait
-            $data[$record->valueColumn][$field->ulid] = self::cleanRichEditorState($data[$record->valueColumn][$field->ulid], $options);
-        }
-
-        return $data;
-    }
-
-    private static function getCleaningOptions($field): array
-    {
-        return [
-            'preserveCustomCaptions' => $field->config['preserveCustomCaptions'] ?? self::getDefaultConfig()['preserveCustomCaptions'],
-        ];
-    }
-
-    private static function ensureRichEditorDataFormat($record, $field, array $data): array
-    {
+        $valueColumn = $record->valueColumn ?? 'values';
         $data = self::normalizeContentResourceValue($data, $field);
-        $data = self::normalizeDynamicFieldValue($record, $data, $field);
+        $data = self::normalizeDynamicFieldValue($record, $data, $field, $valueColumn);
 
         return $data;
     }
 
-    private static function normalizeContentResourceValue(array $data, $field): array
+    private static function normalizeContentResourceValue(array $data, Field $field): array
     {
         if (isset($data['values'][$field->ulid]) && empty($data['values'][$field->ulid])) {
             $data['values'][$field->ulid] = '';
@@ -196,25 +139,55 @@ class RichEditor extends Base implements FieldContract
         return $data;
     }
 
-    private static function normalizeDynamicFieldValue($record, array $data, $field): array
+    private static function normalizeDynamicFieldValue(Model $record, array $data, Field $field, string $valueColumn): array
     {
-        if (isset($data[$record->valueColumn][$field->ulid]) && empty($data[$record->valueColumn][$field->ulid])) {
-            $data[$record->valueColumn][$field->ulid] = '';
+        if (isset($data[$valueColumn][$field->ulid]) && empty($data[$valueColumn][$field->ulid])) {
+            $data[$valueColumn][$field->ulid] = '';
         }
 
         return $data;
     }
 
-    public static function mutateFormDataCallback($record, $field, array $data): array
+    public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
-        // Get the raw value from the database without JSON decoding
-        $rawValue = $record->values()->where('field_ulid', $field->ulid)->first()?->value;
+        $rawValue = self::getFieldValueFromRecord($record, $field);
 
         if ($rawValue !== null) {
-            $data[$record->valueColumn][$field->ulid] = $rawValue;
+            $valueColumn = $record->valueColumn ?? 'values';
+            $data[$valueColumn][$field->ulid] = $rawValue;
         }
 
         return $data;
+    }
+
+    private static function getFieldValueFromRecord(Model $record, Field $field): mixed
+    {
+        // Check if record has values method
+        if (! method_exists($record, 'values')) {
+            return null;
+        }
+
+        $values = $record->values();
+
+        // Handle relationship-based values (like Content model)
+        if (self::isRelationship($values)) {
+            return $values->where('field_ulid', $field->ulid)->first()?->value;
+        }
+
+        // Handle array/collection-based values (like Settings model)
+        if (is_array($values) || $values instanceof \Illuminate\Support\Collection) {
+            return $values[$field->ulid] ?? null;
+        }
+
+        return null;
+    }
+
+    private static function isRelationship(mixed $values): bool
+    {
+        return is_object($values)
+            && method_exists($values, 'where')
+            && method_exists($values, 'get')
+            && ! ($values instanceof \Illuminate\Support\Collection);
     }
 
     public function getForm(): array
@@ -238,21 +211,6 @@ class RichEditor extends Base implements FieldContract
                                         ->default(ToolbarButton::array()) // Not working in Filament yet.
                                         ->multiple()
                                         ->options(ToolbarButton::array())
-                                        ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.autoCleanContent')
-                                        ->label(__('Auto-clean content'))
-                                        ->helperText(__('Automatically remove figcaption and unwrap images from links'))
-                                        ->inline(false)
-                                        ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.preserveCustomCaptions')
-                                        ->label(__('Preserve custom captions'))
-                                        ->helperText(__('Only remove default captions, keep custom ones'))
-                                        ->inline(false)
-                                        ->columnSpanFull(),
-                                    Forms\Components\Toggle::make('config.hideCaptions')
-                                        ->label(__('Hide caption fields'))
-                                        ->helperText(__('Hide the caption input field that appears when uploading images'))
-                                        ->inline(false)
                                         ->columnSpanFull(),
                                 ]),
                         ]),
