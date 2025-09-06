@@ -11,7 +11,6 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
 
 class RichEditor extends Base implements FieldContract
 {
@@ -185,10 +184,10 @@ class RichEditor extends Base implements FieldContract
 
     private static function isRelationship(mixed $values): bool
     {
-        return is_object($values) 
+        return is_object($values)
             && method_exists($values, 'where')
             && method_exists($values, 'get')
-            && !($values instanceof \Illuminate\Support\Collection);
+            && ! ($values instanceof \Illuminate\Support\Collection);
     }
 
     public function getForm(): array
