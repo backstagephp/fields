@@ -124,8 +124,9 @@ class RichEditor extends Base implements FieldContract
 
     private static function ensureRichEditorDataFormat(Model $record, Field $field, array $data): array
     {
+        $valueColumn = $record->valueColumn ?? 'values';
         $data = self::normalizeContentResourceValue($data, $field);
-        $data = self::normalizeDynamicFieldValue($record, $data, $field);
+        $data = self::normalizeDynamicFieldValue($record, $data, $field, $valueColumn);
 
         return $data;
     }
@@ -139,10 +140,10 @@ class RichEditor extends Base implements FieldContract
         return $data;
     }
 
-    private static function normalizeDynamicFieldValue(Model $record, array $data, Field $field): array
+    private static function normalizeDynamicFieldValue(Model $record, array $data, Field $field, string $valueColumn): array
     {
-        if (isset($data[$record->valueColumn][$field->ulid]) && empty($data[$record->valueColumn][$field->ulid])) {
-            $data[$record->valueColumn][$field->ulid] = '';
+        if (isset($data[$valueColumn][$field->ulid]) && empty($data[$valueColumn][$field->ulid])) {
+            $data[$valueColumn][$field->ulid] = '';
         }
 
         return $data;
@@ -153,7 +154,8 @@ class RichEditor extends Base implements FieldContract
         $rawValue = self::getFieldValueFromRecord($record, $field);
 
         if ($rawValue !== null) {
-            $data[$record->valueColumn][$field->ulid] = $rawValue;
+            $valueColumn = $record->valueColumn ?? 'values';
+            $data[$valueColumn][$field->ulid] = $rawValue;
         }
 
         return $data;
@@ -162,7 +164,7 @@ class RichEditor extends Base implements FieldContract
     private static function getFieldValueFromRecord(Model $record, Field $field): mixed
     {
         // Check if record has values method
-        if (!method_exists($record, 'values') || !is_callable([$record, 'values'])) {
+        if (!method_exists($record, 'values')) {
             return null;
         }
 
