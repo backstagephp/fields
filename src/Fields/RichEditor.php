@@ -39,8 +39,7 @@ class RichEditor extends Base implements FieldContract
             ->default(null)
             ->placeholder('')
             ->statePath($name)
-            ->live()
-            ->json(false)
+            ->json(true)
             ->beforeStateDehydrated(function () {})
             ->saveRelationshipsUsing(function () {});
     }
