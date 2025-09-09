@@ -178,7 +178,7 @@ class RichEditor extends Base implements FieldContract
             return $values[$field->ulid] ?? null;
         }
 
-        return null;
+        return $record->values[$field->ulid] ?? null;
     }
 
     private static function isRelationship(mixed $values): bool
