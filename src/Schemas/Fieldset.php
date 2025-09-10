@@ -4,9 +4,9 @@ namespace Backstage\Fields\Schemas;
 
 use Backstage\Fields\Contracts\SchemaContract;
 use Backstage\Fields\Models\Schema;
+use Filament\Forms\Components\Fieldset as FilamentFieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Fieldset as FilamentFieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 
