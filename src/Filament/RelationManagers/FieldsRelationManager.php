@@ -33,7 +33,6 @@ class FieldsRelationManager extends RelationManager
     use HasFieldTypeResolver;
 
     protected static string $relationship = 'fields';
-    
 
     public function form(Schema $schema): Schema
     {
