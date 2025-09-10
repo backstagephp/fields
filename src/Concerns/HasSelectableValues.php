@@ -132,7 +132,9 @@ trait HasSelectableValues
                 continue;
             }
 
-            $opts = $results->pluck($relation['relationValue'] ?? 'name', $relation['relationKey'])->toArray();
+            // Use the model's primary key instead of the configured relationKey for better compatibility
+            $primaryKey = $model->getKeyName();
+            $opts = $results->pluck($relation['relationValue'] ?? 'name', $primaryKey)->toArray();
 
             if (count($opts) === 0) {
                 continue;
@@ -286,7 +288,7 @@ trait HasSelectableValues
                                             ->visible(fn (Get $get): bool => ! empty($get('resource')))
                                             ->required(fn (Get $get): bool => ! empty($get('resource'))),
                                         Hidden::make('relationKey')
-                                            ->default('ulid')
+                                            ->default('id')
                                             ->label(__('Key'))
                                             ->required(
                                                 fn (Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
