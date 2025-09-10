@@ -47,6 +47,7 @@ class FieldsRelationManager extends RelationManager
                                 TextInput::make('name')
                                     ->label(__('Name'))
                                     ->required()
+                                    ->autocomplete(false)
                                     ->placeholder(__('Name'))
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?Field $record) {

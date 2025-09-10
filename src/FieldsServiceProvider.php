@@ -153,6 +153,7 @@ class FieldsServiceProvider extends PackageServiceProvider
             'create_fields_table',
             'change_unique_column_in_fields',
             'add_group_column_to_fields_table',
+            'create_schemas_table',
         ];
     }
 }

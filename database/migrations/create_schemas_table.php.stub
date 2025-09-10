@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('schemas', function (Blueprint $table) {
+            $table->ulid('ulid')->primary();
+            $table->string('name');
+            $table->string('slug');
+            $table->string('field_type');
+            $table->json('config')->nullable();
+            $table->integer('position')->default(0);
+            $table->string('model_type');
+            $table->string('model_key');
+            $table->ulid('parent_ulid')->nullable();
+            $table->timestamps();
+
+            $table->index(['model_type', 'model_key']);
+            $table->index(['model_type', 'model_key', 'position']);
+            $table->index(['parent_ulid']);
+            
+            $table->unique(['model_type', 'model_key', 'slug']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('schemas');
+    }
+};
