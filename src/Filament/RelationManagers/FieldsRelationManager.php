@@ -7,6 +7,7 @@ use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -113,6 +114,26 @@ class FieldsRelationManager extends RelationManager
                                             ->toArray();
                                     }),
 
+                                SelectTree::make('schema_id')
+                                    ->label(__('Attach to Schema'))
+                                    ->placeholder(__('Select a schema (optional)'))
+                                    ->relationship(
+                                        relationship: 'schema',
+                                        titleAttribute: 'name',
+                                        parentAttribute: 'parent_ulid',
+                                        modifyQueryUsing: function ($query) {
+                                            $key = $this->ownerRecord->getKeyName();
+
+                                            return $query->where('model_key', $this->ownerRecord->{$key})
+                                                ->where('model_type', get_class($this->ownerRecord))
+                                                ->orderBy('position');
+                                        }
+                                    )
+                                    ->enableBranchNode()
+                                    ->multiple(false)
+                                    ->searchable()
+                                    ->helperText(__('Attach this field to a specific schema for better organization')),
+
                             ]),
                         Section::make('Configuration')
                             ->columnSpanFull()
@@ -141,6 +162,12 @@ class FieldsRelationManager extends RelationManager
                 TextColumn::make('field_type')
                     ->label(__('Type'))
                     ->searchable(),
+
+                TextColumn::make('schema.name')
+                    ->label(__('Schema'))
+                    ->placeholder(__('No schema'))
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([])
             ->headerActions([
@@ -153,7 +180,7 @@ class FieldsRelationManager extends RelationManager
                         return [
                             ...$data,
                             'position' => Field::where('model_key', $key)->get()->max('position') + 1,
-                            'model_type' => 'setting',
+                            'model_type' => get_class($this->ownerRecord),
                             'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
@@ -170,7 +197,7 @@ class FieldsRelationManager extends RelationManager
 
                         return [
                             ...$data,
-                            'model_type' => 'setting',
+                            'model_type' => get_class($this->ownerRecord),
                             'model_key' => $this->ownerRecord->{$key},
                         ];
                     })

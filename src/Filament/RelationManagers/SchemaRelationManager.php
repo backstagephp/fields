@@ -6,7 +6,8 @@ use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Schema as SchemaEnum;
 use Backstage\Fields\Models\Field;
-use Backstage\Fields\Models\Schema;
+use Backstage\Fields\Models\Schema as SchemaModel;
+use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -61,6 +62,26 @@ class SchemaRelationManager extends RelationManager
 
                         TextInput::make('slug'),
 
+                        SelectTree::make('parent_ulid')
+                            ->label(__('Parent Schema'))
+                            ->placeholder(__('Select a parent schema (optional)'))
+                            ->relationship(
+                                relationship: 'parent',
+                                titleAttribute: 'name',
+                                parentAttribute: 'parent_ulid',
+                                modifyQueryUsing: function ($query) {
+                                    $key = $this->ownerRecord->getKeyName();
+
+                                    return $query->where('model_key', $this->ownerRecord->{$key})
+                                        ->where('model_type', get_class($this->ownerRecord))
+                                        ->orderBy('position');
+                                }
+                            )
+                            ->enableBranchNode()
+                            ->multiple(false)
+                            ->searchable()
+                            ->helperText(__('Attach this schema to a parent schema for nested layouts')),
+
                         Select::make('field_type')
                             ->searchable()
                             ->preload()
@@ -113,6 +134,12 @@ class SchemaRelationManager extends RelationManager
                 TextColumn::make('field_type')
                     ->label(__('Type'))
                     ->searchable(),
+
+                TextColumn::make('parent.name')
+                    ->label(__('Parent Schema'))
+                    ->placeholder(__('Root level'))
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([])
             ->headerActions([
@@ -121,10 +148,21 @@ class SchemaRelationManager extends RelationManager
                     ->mutateDataUsing(function (array $data) {
 
                         $key = $this->ownerRecord->getKeyName();
+                        $parentUlid = $data['parent_ulid'] ?? null;
+
+                        // Calculate position based on parent
+                        $positionQuery = SchemaModel::where('model_key', $key)
+                            ->where('model_type', get_class($this->ownerRecord));
+
+                        if ($parentUlid) {
+                            $positionQuery->where('parent_ulid', $parentUlid);
+                        } else {
+                            $positionQuery->whereNull('parent_ulid');
+                        }
 
                         return [
                             ...$data,
-                            'position' => Schema::where('model_key', $key)->get()->max('position') + 1,
+                            'position' => $positionQuery->get()->max('position') + 1,
                             'model_type' => get_class($this->ownerRecord),
                             'model_key' => $this->ownerRecord->getKey(),
                         ];
