@@ -125,6 +125,7 @@ class SchemaRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
+            ->defaultGroup('parent.name')
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))

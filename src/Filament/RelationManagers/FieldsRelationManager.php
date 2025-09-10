@@ -33,6 +33,7 @@ class FieldsRelationManager extends RelationManager
     use HasFieldTypeResolver;
 
     protected static string $relationship = 'fields';
+    
 
     public function form(Schema $schema): Schema
     {
@@ -124,9 +125,9 @@ class FieldsRelationManager extends RelationManager
                                         modifyQueryUsing: function ($query) {
                                             $key = $this->ownerRecord->getKeyName();
 
-                                            return $query->where('model_key', $this->ownerRecord->{$key})
-                                                ->where('model_type', get_class($this->ownerRecord))
-                                                ->orderBy('position');
+                                            return $query->where('schemas.model_key', $this->ownerRecord->{$key})
+                                                ->where('schemas.model_type', get_class($this->ownerRecord))
+                                                ->orderBy('schemas.position');
                                         }
                                     )
                                     ->enableBranchNode()
@@ -153,11 +154,19 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
+            ->defaultGroup('schema.slug')
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable()
                     ->limit(),
+
+                TextColumn::make('group')
+                    ->label(__('Group'))
+                    ->placeholder(__('No Group'))
+                    ->searchable()
+                    ->sortable()
+                    ->getStateUsing(fn (Field $record): string => $record->group ?? __('No Group')),
 
                 TextColumn::make('field_type')
                     ->label(__('Type'))
@@ -167,9 +176,27 @@ class FieldsRelationManager extends RelationManager
                     ->label(__('Schema'))
                     ->placeholder(__('No schema'))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn (Field $record): string => $record->schema?->name ?? __('No Schema')),
             ])
-            ->filters([])
+            ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('group')
+                    ->label(__('Group'))
+                    ->options(function () {
+                        return Field::where('model_type', get_class($this->ownerRecord))
+                            ->where('model_key', $this->ownerRecord->getKey())
+                            ->pluck('group')
+                            ->filter()
+                            ->unique()
+                            ->mapWithKeys(fn ($group) => [$group => $group])
+                            ->prepend(__('No Group'), '')
+                            ->toArray();
+                    }),
+                \Filament\Tables\Filters\SelectFilter::make('schema_id')
+                    ->label(__('Schema'))
+                    ->relationship('schema', 'name')
+                    ->placeholder(__('All Schemas')),
+            ])
             ->headerActions([
                 CreateAction::make()
                     ->slideOver()
