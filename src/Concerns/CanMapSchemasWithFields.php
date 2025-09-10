@@ -93,6 +93,7 @@ trait CanMapSchemasWithFields
                 if (isset($this->record->values[$field->ulid])) {
                     $data[$this->record->valueColumn][$field->ulid] = $this->record->values[$field->ulid];
                 }
+
                 return $data;
             }
 
