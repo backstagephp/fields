@@ -10,4 +10,5 @@ enum Schema: string
 
     case Section = 'section';
     case Grid = 'grid';
+    case Fieldset = 'fieldset';
 }
