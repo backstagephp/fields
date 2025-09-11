@@ -14,6 +14,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class RichEditor extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'rich-editor';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -212,6 +217,11 @@ class RichEditor extends Base implements FieldContract
                                         ->options(ToolbarButton::array())
                                         ->columnSpanFull(),
                                 ]),
+                        ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

@@ -146,11 +146,7 @@ To make a resource page configurable, you need to add the `CanMapDynamicFields` 
 
 namespace Backstage\Resources\ContentResource\Pages;
 
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Tabs\Tab;
-use Filament\Forms\Form;
-use Filament\Resources\Pages\EditRecord;
+// ...
 use Backstage\Fields\Concerns\CanMapDynamicFields;
 
 class EditContent extends EditRecord
