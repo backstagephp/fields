@@ -55,12 +55,7 @@ trait CanMapDynamicFields
         'tags' => Tags::class,
     ];
 
-    public function boot(): void
-    {
-        $this->fieldInspector = app(FieldInspector::class);
-    }
-
-    #[On('refreshFields')]
+    #[On('refreshFields', 'refreshSchemas')]
     public function refresh(): void
     {
         //
@@ -291,6 +286,11 @@ trait CanMapDynamicFields
      */
     private function resolveFieldConfigAndInstance(Model $field): array
     {
+        // Initialize field inspector if not already done
+        if (! isset($this->fieldInspector)) {
+            $this->fieldInspector = app(FieldInspector::class);
+        }
+
         // Try to resolve from custom fields first
         $fieldConfig = Fields::resolveField($field->field_type) ?
             $this->fieldInspector->initializeCustomField($field->field_type) :
