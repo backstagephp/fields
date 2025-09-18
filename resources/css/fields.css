@@ -1,0 +1,29 @@
+/* Jump Anchor Plugin Styles */
+.jump-anchor {
+    @apply bg-yellow-100 border-b-2 border-yellow-400 px-1 rounded-sm;
+    position: relative;
+}
+
+.jump-anchor:hover {
+    @apply bg-yellow-200;
+}
+
+.jump-anchor::after {
+    content: "🔗";
+    @apply text-xs ml-1 opacity-60;
+}
+
+/* Jump anchor in editor */
+.ProseMirror .jump-anchor {
+    @apply bg-yellow-100 border-b-2 border-yellow-400 px-1 rounded-sm;
+    cursor: pointer;
+}
+
+.ProseMirror .jump-anchor:hover {
+    @apply bg-yellow-200;
+}
+
+.ProseMirror .jump-anchor::after {
+    content: "🔗";
+    @apply text-xs ml-1 opacity-60;
+}
