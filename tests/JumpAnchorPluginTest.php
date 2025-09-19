@@ -49,7 +49,7 @@ class JumpAnchorPluginTest extends TestCase
     {
         // Mock the FilamentAsset facade to avoid dependency issues
         FilamentAsset::shouldReceive('getScriptSrc')
-            ->with('rich-content-plugins/jump-anchor')
+            ->with('rich-content-plugins/jump-anchor', 'backstage/fields')
             ->andReturn('/path/to/jump-anchor.js');
         
         $plugin = new JumpAnchorRichContentPlugin();
