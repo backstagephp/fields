@@ -10,7 +10,6 @@ use Filament\Forms\Components\RichEditor\RichEditorTool;
 use Backstage\Fields\TipTapExtensions\JumpAnchorExtension;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Width;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Icons\Heroicon;
@@ -58,6 +57,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                 ->modalHeading('Add Jump Anchor')
                 ->modalDescription('Add an anchor to the selected text that can be used for navigation.')
                 ->modalWidth(Width::Medium)
+                ->modalSubmitActionLabel(__('Save'))
                 ->fillForm(fn (array $arguments): array => [
                     'anchorId' => $arguments['anchorId'] ?? '',
                     'attributeType' => $arguments['attributeType'] ?? 'id',
