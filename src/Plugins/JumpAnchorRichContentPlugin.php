@@ -10,6 +10,7 @@ use Filament\Forms\Components\RichEditor\RichEditorTool;
 use Backstage\Fields\TipTapExtensions\JumpAnchorExtension;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\Width;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Icons\Heroicon;
@@ -72,7 +73,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                         ->default('id')
                         ->live()
                         ->required(),
-                    
+
                     TextInput::make('anchorId')
                         ->label('Anchor Value')
                         ->placeholder('e.g., section-1')
@@ -86,7 +87,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                                 $set('anchorId', 'anchor-' . uniqid());
                             }
                         }),
-                    
+
                     TextInput::make('customAttribute')
                         ->label('Custom Attribute Name')
                         ->placeholder('e.g., data-section, data-anchor')
@@ -100,11 +101,11 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                         'anchorId' => $data['anchorId'],
                         'attributeType' => $data['attributeType'],
                     ];
-                    
-                    if ($data['attributeType'] === 'custom' && !empty($data['customAttribute'])) {
+
+                    if ($data['attributeType'] === 'custom' && ! empty($data['customAttribute'])) {
                         $attributes['customAttribute'] = $data['customAttribute'];
                     }
-                    
+
                     $component->runCommands(
                         [
                             EditorCommand::make(
