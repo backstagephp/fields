@@ -25,7 +25,6 @@ class JumpAnchorExtension extends Mark
         ];
     }
 
-
     public function parseHTML(): array
     {
         return [
