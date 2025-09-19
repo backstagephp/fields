@@ -43,7 +43,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
     {
         return [
             RichEditorTool::make('jumpAnchor')
-                ->action(arguments: '{ anchorId: $getEditor().getAttributes(\'jumpAnchor\')?.[\'data-anchor-id\'] }')
+                ->action(arguments: '{ anchorId: $getEditor().getAttributes(\'jumpAnchor\')?.[\'anchorId\'] }')
                 ->icon(Heroicon::Hashtag)
                 ->label(__('Add Jump Anchor')),
         ];
