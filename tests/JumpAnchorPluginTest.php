@@ -12,12 +12,12 @@ class JumpAnchorPluginTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Set up a minimal Laravel application context for facades
-        if (!Facade::getFacadeApplication()) {
+        if (! Facade::getFacadeApplication()) {
             $app = new \Illuminate\Foundation\Application(realpath(__DIR__ . '/../'));
             $app->singleton('filament.assets', function () {
-                return new \Filament\Support\Assets\AssetManager();
+                return new \Filament\Support\Assets\AssetManager;
             });
             Facade::setFacadeApplication($app);
         }
@@ -26,21 +26,21 @@ class JumpAnchorPluginTest extends TestCase
     public function test_plugin_can_be_instantiated()
     {
         $plugin = JumpAnchorRichContentPlugin::get();
-        
+
         $this->assertInstanceOf(JumpAnchorRichContentPlugin::class, $plugin);
     }
 
     public function test_plugin_has_correct_id()
     {
-        $plugin = new JumpAnchorRichContentPlugin();
-        
+        $plugin = new JumpAnchorRichContentPlugin;
+
         $this->assertEquals('jump-anchor', $plugin->getId());
     }
 
     public function test_plugin_returns_empty_php_extensions()
     {
-        $plugin = new JumpAnchorRichContentPlugin();
-        
+        $plugin = new JumpAnchorRichContentPlugin;
+
         $this->assertIsArray($plugin->getTipTapPhpExtensions());
         $this->assertEmpty($plugin->getTipTapPhpExtensions());
     }
@@ -51,11 +51,11 @@ class JumpAnchorPluginTest extends TestCase
         FilamentAsset::shouldReceive('getScriptSrc')
             ->with('rich-content-plugins/jump-anchor', 'backstage/fields')
             ->andReturn('/path/to/jump-anchor.js');
-        
-        $plugin = new JumpAnchorRichContentPlugin();
-        
+
+        $plugin = new JumpAnchorRichContentPlugin;
+
         $extensions = $plugin->getTipTapJsExtensions();
-        
+
         $this->assertIsArray($extensions);
         $this->assertNotEmpty($extensions);
         $this->assertEquals('/path/to/jump-anchor.js', $extensions[0]);
@@ -63,10 +63,10 @@ class JumpAnchorPluginTest extends TestCase
 
     public function test_plugin_returns_editor_tools()
     {
-        $plugin = new JumpAnchorRichContentPlugin();
-        
+        $plugin = new JumpAnchorRichContentPlugin;
+
         $tools = $plugin->getEditorTools();
-        
+
         $this->assertIsArray($tools);
         $this->assertCount(1, $tools);
         $this->assertEquals('jumpAnchor', $tools[0]->getName());
@@ -74,10 +74,10 @@ class JumpAnchorPluginTest extends TestCase
 
     public function test_plugin_returns_editor_actions()
     {
-        $plugin = new JumpAnchorRichContentPlugin();
-        
+        $plugin = new JumpAnchorRichContentPlugin;
+
         $actions = $plugin->getEditorActions();
-        
+
         $this->assertIsArray($actions);
         $this->assertCount(1, $actions);
         $this->assertEquals('jumpAnchor', $actions[0]->getName());
