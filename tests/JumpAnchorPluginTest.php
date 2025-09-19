@@ -5,7 +5,6 @@ namespace Backstage\Fields\Tests;
 use Backstage\Fields\Plugins\JumpAnchorRichContentPlugin;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Facade;
-use Mockery;
 use PHPUnit\Framework\TestCase;
 
 class JumpAnchorPluginTest extends TestCase
@@ -39,7 +38,7 @@ class JumpAnchorPluginTest extends TestCase
             $app->singleton('translator', function () use ($translator) {
                 return $translator;
             });
-            
+
             Facade::setFacadeApplication($app);
         }
     }
