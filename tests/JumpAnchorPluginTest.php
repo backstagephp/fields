@@ -21,12 +21,20 @@ class JumpAnchorPluginTest extends TestCase
                 return new \Filament\Support\Assets\AssetManager;
             });
             
-            // Mock the translator service
-            $translator = \Mockery::mock(\Illuminate\Contracts\Translation\Translator::class);
-            $translator->shouldReceive('get')->andReturn('Jump Anchor');
-            $translator->shouldReceive('choice')->andReturn('Jump Anchor');
-            $translator->shouldReceive('trans')->andReturn('Jump Anchor');
-            $translator->shouldReceive('transChoice')->andReturn('Jump Anchor');
+            // Mock the translator service for __() functions
+            $translator = Mockery::mock(\Illuminate\Contracts\Translation\Translator::class);
+            $translator->shouldReceive('get')->andReturnUsing(function ($key, $replace = [], $locale = null) {
+                return $key; // Return the key as-is for testing
+            });
+            $translator->shouldReceive('choice')->andReturnUsing(function ($key, $number, $replace = [], $locale = null) {
+                return $key;
+            });
+            $translator->shouldReceive('trans')->andReturnUsing(function ($key, $replace = [], $locale = null) {
+                return $key;
+            });
+            $translator->shouldReceive('transChoice')->andReturnUsing(function ($key, $number, $replace = [], $locale = null) {
+                return $key;
+            });
             
             $app->singleton('translator', function () use ($translator) {
                 return $translator;

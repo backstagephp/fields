@@ -45,7 +45,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
             RichEditorTool::make('jumpAnchor')
                 ->action(arguments: '{ anchorId: $getEditor().getAttributes(\'jumpAnchor\')?.[\'data-anchor-id\'] }')
                 ->icon(Heroicon::Hashtag)
-                ->label('Add Jump Anchor'),
+                ->label(__('Add Jump Anchor')),
         ];
     }
 
@@ -53,8 +53,8 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
     {
         return [
             Action::make('jumpAnchor')
-                ->modalHeading('Add Jump Anchor')
-                ->modalDescription('Add an anchor to the selected text that can be used for navigation.')
+                ->modalHeading(__('Add Jump Anchor'))
+                ->modalDescription(__('Add an anchor to the selected text that can be used for navigation.'))
                 ->modalWidth(Width::Medium)
                 ->modalSubmitActionLabel(__('Save'))
                 ->fillForm(fn (array $arguments): array => [
@@ -64,11 +64,11 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                 ])
                 ->schema([
                     TextInput::make('anchorId')
-                        ->label('Anchor ID')
-                        ->placeholder('e.g., section-1, my-anchor')
+                        ->label(__('Anchor ID'))
+                        ->placeholder(__('e.g., section-1, my-anchor'))
                         ->required()
                         ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
-                        // ->helperText('The ID that will be assigned to the span element (e.g., "section-1" for id="section-1")')
+                        // ->helperText(__('The ID that will be assigned to the span element (e.g., "section-1" for id="section-1")'))
                         ->live()
                         ->afterStateUpdated(function ($state, callable $set) {
                             // Generate a slug-like ID if empty
