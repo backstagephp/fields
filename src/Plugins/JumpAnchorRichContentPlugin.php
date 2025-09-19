@@ -7,6 +7,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\EditorCommand;
 use Filament\Forms\Components\RichEditor\Plugins\Contracts\RichContentPlugin;
 use Filament\Forms\Components\RichEditor\RichEditorTool;
+use Backstage\Fields\TipTapExtensions\JumpAnchorExtension;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
@@ -27,7 +28,9 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
 
     public function getTipTapPhpExtensions(): array
     {
-        return [];
+        return [
+            app(JumpAnchorExtension::class),
+        ];
     }
 
     public function getTipTapJsExtensions(): array

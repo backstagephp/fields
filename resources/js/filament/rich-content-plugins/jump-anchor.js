@@ -9,6 +9,14 @@ export default Mark.create({
         }
     },
 
+    group: 'textStyle',
+
+    priority: 1000,
+
+    excludes: '',
+
+    inclusive: false,
+
     addAttributes() {
         return {
             'anchorId': {
@@ -25,7 +33,7 @@ export default Mark.create({
                     
                     if (attributeType === 'id') {
                         result['id'] = attributes['anchorId']
-                        result['data-anchor-id'] = attributes['anchorId']
+                        // Don't add data-anchor-id when using ID mode
                     } else if (attributeType === 'custom' && customAttribute) {
                         result[customAttribute] = attributes['anchorId']
                         // Don't add data-anchor-id when using custom attributes
@@ -68,7 +76,7 @@ export default Mark.create({
         return {
             setJumpAnchor:
                 (attributes) =>
-                ({ commands }) => {
+                ({ commands, state }) => {
                     return commands.setMark(this.name, attributes)
                 },
             unsetJumpAnchor:
@@ -87,10 +95,14 @@ export default Mark.create({
     parseHTML() {
         return [
             {
-                tag: 'span[data-anchor-id]',
-            },
-            {
                 tag: 'span[id]',
+                getAttrs: element => {
+                    const id = element.getAttribute('id')
+                    return id ? { 
+                        'anchorId': id,
+                        'attributeType': 'id'
+                    } : false
+                },
             },
             {
                 tag: 'span',
@@ -113,7 +125,25 @@ export default Mark.create({
         ]
     },
 
-    renderHTML({ HTMLAttributes }) {
+    parseMarkdown() {
+        return {
+            // This ensures the mark is preserved when parsing markdown
+            match: (node) => node.type === 'text' && node.marks?.some(mark => mark.type === 'jumpAnchor'),
+            runner: (state, node, type) => {
+                const mark = node.marks.find(mark => mark.type === 'jumpAnchor')
+                if (mark) {
+                    state.openMark(type.create(mark.attrs))
+                    state.addText(node.text)
+                    state.closeMark(type)
+                } else {
+                    state.addText(node.text)
+                }
+            }
+        }
+    },
+
+    renderHTML({ HTMLAttributes, mark }) {
         return ['span', HTMLAttributes, 0]
     },
+
 })
