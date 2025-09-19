@@ -3,7 +3,6 @@
 namespace Backstage\Fields\TipTapExtensions;
 
 use Tiptap\Core\Mark;
-use Tiptap\Utils\HTML;
 
 class JumpAnchorExtension extends Mark
 {
@@ -57,6 +56,7 @@ class JumpAnchorExtension extends Mark
                             ];
                         }
                     }
+
                     return false;
                 },
             ],
@@ -66,7 +66,7 @@ class JumpAnchorExtension extends Mark
     public function renderHTML($mark, $HTMLAttributes = []): array
     {
         $attributes = (array) $mark->attrs;
-        
+
         if (empty($attributes['anchorId'])) {
             return ['span', $HTMLAttributes, 0];
         }
