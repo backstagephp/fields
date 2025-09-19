@@ -69,7 +69,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                         ->placeholder('e.g., section-1, my-anchor')
                         ->required()
                         ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
-                        ->helperText('The ID that will be assigned to the span element (e.g., "section-1" for id="section-1")')
+                        // ->helperText('The ID that will be assigned to the span element (e.g., "section-1" for id="section-1")')
                         ->live()
                         ->afterStateUpdated(function ($state, callable $set) {
                             // Generate a slug-like ID if empty
