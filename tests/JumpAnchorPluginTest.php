@@ -19,7 +19,7 @@ class JumpAnchorPluginTest extends TestCase
             $app->singleton('filament.assets', function () {
                 return new \Filament\Support\Assets\AssetManager;
             });
-            
+
             // Mock the translator service for __() functions
             $translator = Mockery::mock(\Illuminate\Contracts\Translation\Translator::class);
             $translator->shouldReceive('get')->andReturnUsing(function ($key, $replace = [], $locale = null) {
@@ -34,7 +34,7 @@ class JumpAnchorPluginTest extends TestCase
             $translator->shouldReceive('transChoice')->andReturnUsing(function ($key, $number, $replace = [], $locale = null) {
                 return $key;
             });
-            
+
             $app->singleton('translator', function () use ($translator) {
                 return $translator;
             });
