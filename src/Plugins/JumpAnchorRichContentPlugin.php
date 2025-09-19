@@ -8,6 +8,7 @@ use Filament\Forms\Components\RichEditor\EditorCommand;
 use Filament\Forms\Components\RichEditor\Plugins\Contracts\RichContentPlugin;
 use Filament\Forms\Components\RichEditor\RichEditorTool;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Width;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Icons\Heroicon;
@@ -55,10 +56,22 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                 ->modalWidth(Width::Medium)
                 ->fillForm(fn (array $arguments): array => [
                     'anchorId' => $arguments['anchorId'] ?? '',
+                    'attributeType' => $arguments['attributeType'] ?? 'id',
+                    'customAttribute' => $arguments['customAttribute'] ?? '',
                 ])
                 ->schema([
+                    Select::make('attributeType')
+                        ->label('Attribute Type')
+                        ->options([
+                            'id' => 'ID (for standard HTML anchors)',
+                            'custom' => 'Custom Attribute',
+                        ])
+                        ->default('id')
+                        ->live()
+                        ->required(),
+                    
                     TextInput::make('anchorId')
-                        ->label('Anchor ID')
+                        ->label('Anchor Value')
                         ->placeholder('e.g., section-1')
                         ->required()
                         ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
@@ -70,17 +83,30 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                                 $set('anchorId', 'anchor-' . uniqid());
                             }
                         }),
+                    
+                    TextInput::make('customAttribute')
+                        ->label('Custom Attribute Name')
+                        ->placeholder('e.g., data-section, data-anchor')
+                        ->visible(fn (callable $get) => $get('attributeType') === 'custom')
+                        ->required(fn (callable $get) => $get('attributeType') === 'custom')
+                        ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
+                        ->helperText('Custom attribute name (without data- prefix)'),
                 ])
                 ->action(function (array $arguments, array $data, RichEditor $component): void {
+                    $attributes = [
+                        'anchorId' => $data['anchorId'],
+                        'attributeType' => $data['attributeType'],
+                    ];
+                    
+                    if ($data['attributeType'] === 'custom' && !empty($data['customAttribute'])) {
+                        $attributes['customAttribute'] = $data['customAttribute'];
+                    }
+                    
                     $component->runCommands(
                         [
                             EditorCommand::make(
                                 'setJumpAnchor',
-                                arguments: [
-                                    [
-                                        'anchorId' => $data['anchorId'],
-                                    ],
-                                ],
+                                arguments: [$attributes],
                             ),
                         ],
                         editorSelection: $arguments['editorSelection'],
