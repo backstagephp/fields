@@ -25,9 +25,9 @@ php artisan filament:assets
 ```
 
 3. Use in rich editor:
-   - Select text
-   - Click hashtag button in toolbar
-   - Enter anchor ID
+    - Select text
+    - Click hashtag button in toolbar
+    - Enter anchor ID
 
 ## HTML Output
 
