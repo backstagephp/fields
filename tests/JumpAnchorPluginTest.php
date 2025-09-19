@@ -5,7 +5,6 @@ namespace Backstage\Fields\Tests;
 use Backstage\Fields\Plugins\JumpAnchorRichContentPlugin;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Facade;
-use Mockery;
 use PHPUnit\Framework\TestCase;
 
 class JumpAnchorPluginTest extends TestCase
@@ -20,18 +19,18 @@ class JumpAnchorPluginTest extends TestCase
             $app->singleton('filament.assets', function () {
                 return new \Filament\Support\Assets\AssetManager;
             });
-            
+
             // Mock the translator service
             $translator = \Mockery::mock(\Illuminate\Contracts\Translation\Translator::class);
             $translator->shouldReceive('get')->andReturn('Jump Anchor');
             $translator->shouldReceive('choice')->andReturn('Jump Anchor');
             $translator->shouldReceive('trans')->andReturn('Jump Anchor');
             $translator->shouldReceive('transChoice')->andReturn('Jump Anchor');
-            
+
             $app->singleton('translator', function () use ($translator) {
                 return $translator;
             });
-            
+
             Facade::setFacadeApplication($app);
         }
     }
