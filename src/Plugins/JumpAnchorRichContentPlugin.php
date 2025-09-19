@@ -8,9 +8,8 @@ use Filament\Forms\Components\RichEditor\EditorCommand;
 use Filament\Forms\Components\RichEditor\Plugins\Contracts\RichContentPlugin;
 use Filament\Forms\Components\RichEditor\RichEditorTool;
 use Filament\Forms\Components\TextInput;
-use Filament\Support\Assets\Js;
-use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Enums\Width;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Icons\Heroicon;
 
 class JumpAnchorRichContentPlugin implements RichContentPlugin
@@ -33,7 +32,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
     public function getTipTapJsExtensions(): array
     {
         return [
-            FilamentAsset::getScriptSrc('rich-content-plugins/jump-anchor'),
+            FilamentAsset::getScriptSrc('rich-content-plugins/jump-anchor', 'backstage/fields'),
         ];
     }
 

@@ -1,8 +1,4 @@
 import { Extension } from '@tiptap/core'
-import { Plugin, PluginKey } from '@tiptap/pm/state'
-import { Decoration, DecorationSet } from '@tiptap/pm/view'
-
-const JumpAnchorPluginKey = new PluginKey('jumpAnchor')
 
 export default Extension.create({
     name: 'jumpAnchor',
@@ -49,37 +45,6 @@ export default Extension.create({
                     return commands.toggleMark(this.name, attributes)
                 },
         }
-    },
-
-    addProseMirrorPlugins() {
-        return [
-            new Plugin({
-                key: JumpAnchorPluginKey,
-                props: {
-                    decorations: (state) => {
-                        const decorations = []
-                        const { doc, selection } = state
-
-                        doc.descendants((node, pos) => {
-                            if (node.isText && node.marks) {
-                                node.marks.forEach((mark) => {
-                                    if (mark.type.name === this.name && mark.attrs['data-anchor-id']) {
-                                        const decoration = Decoration.inline(pos, pos + node.nodeSize, {
-                                            class: 'jump-anchor',
-                                            'data-anchor-id': mark.attrs['data-anchor-id'],
-                                            title: `Jump to: ${mark.attrs['data-anchor-id']}`,
-                                        })
-                                        decorations.push(decoration)
-                                    }
-                                })
-                            }
-                        })
-
-                        return DecorationSet.create(doc, decorations)
-                    },
-                },
-            }),
-        ]
     },
 
     parseHTML() {
