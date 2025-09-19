@@ -39,7 +39,6 @@ async function buildRichEditorPlugins() {
             entryPoints,
             outdir: './resources/js/dist',
             format: 'esm',
-            external: ['@tiptap/core', '@tiptap/pm/state', '@tiptap/pm/view'],
         })
 
         await context.rebuild()

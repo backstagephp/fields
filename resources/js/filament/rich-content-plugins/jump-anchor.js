@@ -1,11 +1,10 @@
-import { Extension } from '@tiptap/core'
+import { Mark } from '@tiptap/core'
 
-export default Extension.create({
+export default Mark.create({
     name: 'jumpAnchor',
 
     addOptions() {
         return {
-            types: ['textStyle'],
             HTMLAttributes: {},
         }
     },
@@ -21,6 +20,20 @@ export default Extension.create({
                     }
                     return {
                         'data-anchor-id': attributes['data-anchor-id'],
+                        'id': attributes['data-anchor-id'],
+                    }
+                },
+            },
+            'anchorId': {
+                default: null,
+                parseHTML: element => element.getAttribute('data-anchor-id'),
+                renderHTML: attributes => {
+                    if (!attributes['anchorId']) {
+                        return {}
+                    }
+                    return {
+                        'data-anchor-id': attributes['anchorId'],
+                        'id': attributes['anchorId'],
                     }
                 },
             },
@@ -51,6 +64,13 @@ export default Extension.create({
         return [
             {
                 tag: 'span[data-anchor-id]',
+            },
+            {
+                tag: 'span[id]',
+                getAttrs: element => {
+                    const id = element.getAttribute('id')
+                    return id ? { 'data-anchor-id': id } : false
+                },
             },
         ]
     },
