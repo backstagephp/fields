@@ -19,6 +19,12 @@ class JumpAnchorPluginTest extends TestCase
             $app->singleton('filament.assets', function () {
                 return new \Filament\Support\Assets\AssetManager;
             });
+            $app->singleton('translator', function () {
+                return new \Illuminate\Translation\Translator(
+                    new \Illuminate\Translation\ArrayLoader(),
+                    'en'
+                );
+            });
             Facade::setFacadeApplication($app);
         }
     }
@@ -37,12 +43,12 @@ class JumpAnchorPluginTest extends TestCase
         $this->assertEquals('jump-anchor', $plugin->getId());
     }
 
-    public function test_plugin_returns_empty_php_extensions()
+    public function test_plugin_returns_php_extensions()
     {
         $plugin = new JumpAnchorRichContentPlugin;
 
         $this->assertIsArray($plugin->getTipTapPhpExtensions());
-        $this->assertEmpty($plugin->getTipTapPhpExtensions());
+        $this->assertNotEmpty($plugin->getTipTapPhpExtensions());
     }
 
     public function test_plugin_returns_js_extensions()

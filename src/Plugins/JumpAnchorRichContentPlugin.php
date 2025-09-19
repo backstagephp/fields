@@ -64,22 +64,12 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                     'customAttribute' => $arguments['customAttribute'] ?? '',
                 ])
                 ->schema([
-                    Select::make('attributeType')
-                        ->label('Attribute Type')
-                        ->options([
-                            'id' => 'ID (for standard HTML anchors)',
-                            'custom' => 'Custom Attribute',
-                        ])
-                        ->default('id')
-                        ->live()
-                        ->required(),
-
                     TextInput::make('anchorId')
-                        ->label('Anchor Value')
-                        ->placeholder('e.g., section-1')
+                        ->label('Anchor ID')
+                        ->placeholder('e.g., section-1, my-anchor')
                         ->required()
                         ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
-                        ->helperText('Use only letters, numbers, hyphens, and underscores. No spaces allowed.')
+                        ->helperText('The ID that will be assigned to the span element (e.g., "section-1" for id="section-1")')
                         ->live()
                         ->afterStateUpdated(function ($state, callable $set) {
                             // Generate a slug-like ID if empty
@@ -87,24 +77,12 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                                 $set('anchorId', 'anchor-' . uniqid());
                             }
                         }),
-
-                    TextInput::make('customAttribute')
-                        ->label('Custom Attribute Name')
-                        ->placeholder('e.g., data-section, data-anchor')
-                        ->visible(fn (callable $get) => $get('attributeType') === 'custom')
-                        ->required(fn (callable $get) => $get('attributeType') === 'custom')
-                        ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
-                        ->helperText('Custom attribute name (without data- prefix)'),
                 ])
                 ->action(function (array $arguments, array $data, RichEditor $component): void {
                     $attributes = [
                         'anchorId' => $data['anchorId'],
-                        'attributeType' => $data['attributeType'],
+                        'attributeType' => 'id',
                     ];
-
-                    if ($data['attributeType'] === 'custom' && ! empty($data['customAttribute'])) {
-                        $attributes['customAttribute'] = $data['customAttribute'];
-                    }
 
                     $component->runCommands(
                         [

@@ -17,60 +17,23 @@ export default Mark.create({
 
     inclusive: false,
 
-    addAttributes() {
-        return {
-            'anchorId': {
-                default: null,
-                parseHTML: element => element.getAttribute('id') || element.getAttribute('data-anchor-id'),
-                renderHTML: attributes => {
-                    if (!attributes['anchorId']) {
-                        return {}
-                    }
-                    
-                    const result = {}
-                    const attributeType = attributes['attributeType'] || 'id'
-                    const customAttribute = attributes['customAttribute']
-                    
-                    if (attributeType === 'id') {
-                        result['id'] = attributes['anchorId']
-                        // Don't add data-anchor-id when using ID mode
-                    } else if (attributeType === 'custom' && customAttribute) {
-                        result[customAttribute] = attributes['anchorId']
-                        // Don't add data-anchor-id when using custom attributes
-                    }
-                    
-                    return result
-                },
+            addAttributes() {
+                return {
+                    'anchorId': {
+                        default: null,
+                        parseHTML: element => element.getAttribute('id'),
+                        renderHTML: attributes => {
+                            if (!attributes['anchorId']) {
+                                return {}
+                            }
+                            
+                            return {
+                                'id': attributes['anchorId']
+                            }
+                        },
+                    },
+                }
             },
-            'attributeType': {
-                default: 'id',
-                parseHTML: element => {
-                    if (element.hasAttribute('id')) return 'id'
-                    return 'custom'
-                },
-                renderHTML: attributes => {
-                    return {}
-                },
-            },
-            'customAttribute': {
-                default: null,
-                parseHTML: element => {
-                    // Find the first non-standard attribute
-                    const attrs = element.attributes
-                    for (let i = 0; i < attrs.length; i++) {
-                        const attr = attrs[i]
-                        if (attr.name !== 'id' && attr.name !== 'data-anchor-id' && attr.name !== 'class') {
-                            return attr.name
-                        }
-                    }
-                    return null
-                },
-                renderHTML: attributes => {
-                    return {}
-                },
-            },
-        }
-    },
 
     addCommands() {
         return {
@@ -92,38 +55,19 @@ export default Mark.create({
         }
     },
 
-    parseHTML() {
-        return [
-            {
-                tag: 'span[id]',
-                getAttrs: element => {
-                    const id = element.getAttribute('id')
-                    return id ? { 
-                        'anchorId': id,
-                        'attributeType': 'id'
-                    } : false
-                },
+            parseHTML() {
+                return [
+                    {
+                        tag: 'span[id]',
+                        getAttrs: element => {
+                            const id = element.getAttribute('id')
+                            return id ? { 
+                                'anchorId': id
+                            } : false
+                        },
+                    },
+                ]
             },
-            {
-                tag: 'span',
-                getAttrs: element => {
-                    // Check for any custom attribute that looks like an anchor
-                    const attrs = element.attributes
-                    for (let i = 0; i < attrs.length; i++) {
-                        const attr = attrs[i]
-                        if (attr.name.startsWith('data-') && attr.name !== 'data-anchor-id') {
-                            return { 
-                                'anchorId': attr.value,
-                                'attributeType': 'custom',
-                                'customAttribute': attr.name
-                            }
-                        }
-                    }
-                    return false
-                },
-            },
-        ]
-    },
 
     parseMarkdown() {
         return {

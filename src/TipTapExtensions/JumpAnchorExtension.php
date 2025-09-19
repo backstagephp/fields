@@ -21,18 +21,11 @@ class JumpAnchorExtension extends Mark
         return [
             'anchorId' => [
                 'default' => null,
-                'parseHTML' => fn ($DOMNode) => $DOMNode->getAttribute('id') ?: $DOMNode->getAttribute('data-anchor-id'),
-            ],
-            'attributeType' => [
-                'default' => 'id',
-                'parseHTML' => fn ($DOMNode) => $DOMNode->hasAttribute('id') ? 'id' : 'custom',
-            ],
-            'customAttribute' => [
-                'default' => null,
-                'parseHTML' => fn ($DOMNode) => null,
+                'parseHTML' => fn ($DOMNode) => $DOMNode->getAttribute('id'),
             ],
         ];
     }
+
 
     public function parseHTML(): array
     {
@@ -41,24 +34,7 @@ class JumpAnchorExtension extends Mark
                 'tag' => 'span[id]',
                 'getAttrs' => fn ($DOMNode) => [
                     'anchorId' => $DOMNode->getAttribute('id'),
-                    'attributeType' => 'id',
                 ],
-            ],
-            [
-                'tag' => 'span',
-                'getAttrs' => function ($DOMNode) {
-                    // Check for any custom attribute that looks like an anchor
-                    foreach ($DOMNode->attributes as $attribute) {
-                        if (strpos($attribute->name, 'data-') === 0 && $attribute->name !== 'data-anchor-id') {
-                            return [
-                                'anchorId' => $attribute->value,
-                                'attributeType' => 'custom',
-                                'customAttribute' => $attribute->name,
-                            ];
-                        }
-                    }
-                    return false;
-                },
             ],
         ];
     }
@@ -71,17 +47,6 @@ class JumpAnchorExtension extends Mark
             return ['span', $HTMLAttributes, 0];
         }
 
-        // Always use the mark attributes, not the HTMLAttributes parameter
-        $result = [];
-        $attributeType = $attributes['attributeType'] ?? 'id';
-        $customAttribute = $attributes['customAttribute'] ?? null;
-
-        if ($attributeType === 'id') {
-            $result['id'] = $attributes['anchorId'];
-        } elseif ($attributeType === 'custom' && $customAttribute) {
-            $result[$customAttribute] = $attributes['anchorId'];
-        }
-
-        return ['span', $result, 0];
+        return ['span', ['id' => $attributes['anchorId']], 0];
     }
 }

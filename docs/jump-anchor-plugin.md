@@ -5,7 +5,7 @@ Add anchor links to rich editor content for navigation.
 ## Features
 
 -   Add anchor links to selected text
--   Choose between `id` attributes or custom attributes (e.g., `data-scroll`)
+-   Uses standard HTML `id` attributes
 -   Hashtag icon in the toolbar
 -   Modal interface for configuration
 -   Automatic ID generation
@@ -25,23 +25,14 @@ php artisan filament:assets
 ```
 
 3. Use in rich editor:
-    - Select text
-    - Click hashtag button in toolbar
-    - Choose attribute type (ID or custom)
-    - Enter anchor value
+   - Select text
+   - Click hashtag button in toolbar
+   - Enter anchor ID
 
 ## HTML Output
 
-**ID attribute:**
-
 ```html
 <span id="section-1">Selected Text</span>
-```
-
-**Custom attribute:**
-
-```html
-<span data-scroll="section-1">Selected Text</span>
 ```
 
 ## Validation
