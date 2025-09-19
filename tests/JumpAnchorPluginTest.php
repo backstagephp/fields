@@ -21,7 +21,7 @@ class JumpAnchorPluginTest extends TestCase
             });
             $app->singleton('translator', function () {
                 return new \Illuminate\Translation\Translator(
-                    new \Illuminate\Translation\ArrayLoader(),
+                    new \Illuminate\Translation\ArrayLoader,
                     'en'
                 );
             });
