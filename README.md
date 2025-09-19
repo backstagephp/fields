@@ -15,31 +15,31 @@ This package aims to help you add dynamic, configurable fields to your Filament 
 
 ## Features
 
-- 🎯 **Easy Integration**: Seamlessly integrates with your Filament resources
-- 🔧 **Configurable Fields**: Add and manage custom fields for your models
-- 🎨 **Built-in Field Types**: Includes common Filament form fields like:
-  - Text
-  - Textarea 
-  - Rich Text Editor
-  - Select
-  - Checkbox
-  - Checkbox List
-  - Key-Value
-  - Radio
-  - Toggle
-  - Color Picker
-  - DateTime
-  - Tags
-- ✨ **Extensible**: Create your own custom field types
-- 🔄 **Data Mutation**: Hooks to modify field data before filling forms or saving
-- 🏢 **Multi-tenant Support**: Built-in support for multi-tenant applications
+-   🎯 **Easy Integration**: Seamlessly integrates with your Filament resources
+-   🔧 **Configurable Fields**: Add and manage custom fields for your models
+-   🎨 **Built-in Field Types**: Includes common Filament form fields like:
+    -   Text
+    -   Textarea
+    -   Rich Text Editor (with Jump Anchor plugin)
+    -   Select
+    -   Checkbox
+    -   Checkbox List
+    -   Key-Value
+    -   Radio
+    -   Toggle
+    -   Color Picker
+    -   DateTime
+    -   Tags
+-   ✨ **Extensible**: Create your own custom field types
+-   🔄 **Data Mutation**: Hooks to modify field data before filling forms or saving
+-   🏢 **Multi-tenant Support**: Built-in support for multi-tenant applications
 
 This package is perfect for scenarios where you need to:
-- Add dynamic custom fields to your models
-- Allow users to configure form fields through the admin panel
-- Build flexible content management systems
-- Create customizable settings pages
 
+-   Add dynamic custom fields to your models
+-   Allow users to configure form fields through the admin panel
+-   Build flexible content management systems
+-   Create customizable settings pages
 
 ## Installation
 
@@ -63,7 +63,7 @@ The content of the `fields.php` file is as follows:
 <?php
 
 return [
-    
+
     'tenancy' => [
         'is_tenant_aware' => true,
 
@@ -168,7 +168,7 @@ class EditContent extends EditRecord
     public function mutateFormDataBeforeSave(array $data): array
     {
         $this->mutateBeforeSave($data);
-        
+
         return $data;
     }
 }
@@ -223,7 +223,7 @@ When using select fields, you may want to populate the options with relations in
 ```php
 return [
     // ...
-    
+
     'selectable_resources' => [
         App\Filament\Resources\ContentResource::class,
     ]
@@ -247,10 +247,10 @@ class CustomField extends Base
     public static function make(string $name, ?Field $field = null): TextInput
     {
         $input = self::applyDefaultSettings(TextInput::make($name), $field);
-        
+
         // Add your custom field logic here
         $input->placeholder('Custom placeholder');
-        
+
         return $input;
     }
 
@@ -299,21 +299,22 @@ class RepeaterField extends Base
 ```
 
 Available base fields that can be excluded:
-- `required` - Required field toggle
-- `disabled` - Disabled field toggle  
-- `hidden` - Hidden field toggle
-- `helperText` - Helper text input
-- `hint` - Hint text input
-- `hintColor` - Hint color picker
-- `hintIcon` - Hint icon input
-- `defaultValue` - Default value input
+
+-   `required` - Required field toggle
+-   `disabled` - Disabled field toggle
+-   `hidden` - Hidden field toggle
+-   `helperText` - Helper text input
+-   `hint` - Hint text input
+-   `hintColor` - Hint color picker
+-   `hintIcon` - Hint icon input
+-   `defaultValue` - Default value input
 
 #### Best practices for field exclusion
 
-- **Only exclude what doesn't apply**: Don't exclude fields just because you don't use them - only exclude fields that conceptually don't make sense for your field type
-- **Document your exclusions**: Add comments explaining why certain fields are excluded
-- **Test thoroughly**: Make sure your field still works correctly after excluding base fields
-- **Consider inheritance**: If your field extends another custom field, make sure to call `parent::excludeFromBaseSchema()` if you need to add more exclusions
+-   **Only exclude what doesn't apply**: Don't exclude fields just because you don't use them - only exclude fields that conceptually don't make sense for your field type
+-   **Document your exclusions**: Add comments explaining why certain fields are excluded
+-   **Test thoroughly**: Make sure your field still works correctly after excluding base fields
+-   **Consider inheritance**: If your field extends another custom field, make sure to call `parent::excludeFromBaseSchema()` if you need to add more exclusions
 
 Example of a field that excludes multiple base fields:
 
@@ -342,6 +343,14 @@ To register your own fields, you can add them to the `fields.fields` config arra
 ],
 ```
 
+## Documentation
+
+### Rich Editor Plugins
+
+The package includes a powerful Rich Editor with custom plugins:
+
+-   **[Jump Anchor Plugin](docs/jump-anchor-plugin.md)** - Add anchor links to selected text for navigation and jumping to specific sections
+
 ## Testing
 
 ```bash
@@ -362,8 +371,8 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Baspa](https://github.com/Backstage)
-- [All Contributors](../../contributors)
+-   [Baspa](https://github.com/Backstage)
+-   [All Contributors](../../contributors)
 
 ## License
 
