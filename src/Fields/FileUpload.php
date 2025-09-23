@@ -69,24 +69,24 @@ class FileUpload extends Base implements FieldContract
 
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
-        if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->name])) {
+        if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->ulid])) {
             return $data;
         }
 
-        $value = $record->values[$field->name];
-        $data[$record->valueColumn][$field->name] = self::normalizeFileValue($value, $field);
+        $value = $record->values[$field->ulid];
+        $data[$record->valueColumn][$field->ulid] = self::normalizeFileValue($value, $field);
 
         return $data;
     }
 
     public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
     {
-        if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][$field->name])) {
+        if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][$field->ulid])) {
             return $data;
         }
 
-        $value = $data[$record->valueColumn][$field->name];
-        $data[$record->valueColumn][$field->name] = self::normalizeFileValue($value, $field);
+        $value = $data[$record->valueColumn][$field->ulid];
+        $data[$record->valueColumn][$field->ulid] = self::normalizeFileValue($value, $field);
 
         return $data;
     }
