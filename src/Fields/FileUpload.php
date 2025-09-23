@@ -4,6 +4,7 @@ namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Models\Field;
+use Filament\Forms\Components\FileUpload as FilamentFileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -35,36 +36,33 @@ class FileUpload extends Base implements FieldContract
         ];
     }
 
-    public static function make(string $name, ?Field $field = null): \Filament\Forms\Components\FileUpload
+    public static function make(string $name, ?Field $field = null): FilamentFileUpload
     {
-        $config = $field?->config ?? self::getDefaultConfig();
+        $config = array_merge(self::getDefaultConfig(), $field?->config ?? []);
 
-        $component = \Filament\Forms\Components\FileUpload::make($name)
+        $component = FilamentFileUpload::make($name)
             ->label($field->name ?? null)
-            ->disk($config['disk'] ?? 'public')
-            ->directory($config['directory'] ?? 'uploads')
-            ->visibility($config['visibility'] ?? 'public')
-            ->maxFiles($config['maxFiles'] ?? 1)
-            ->multiple($config['multiple'] ?? false)
-            ->appendFiles($config['appendFiles'] ?? false)
-            ->reorderable($config['reorderable'] ?? false)
-            ->openable($config['openable'] ?? true)
-            ->downloadable($config['downloadable'] ?? true)
-            ->previewable($config['previewable'] ?? true)
-            ->deletable($config['deletable'] ?? true);
+            ->disk($config['disk'])
+            ->directory($config['directory'])
+            ->visibility($config['visibility'])
+            ->maxFiles($config['maxFiles'])
+            ->multiple($config['multiple'])
+            ->appendFiles($config['appendFiles'])
+            ->reorderable($config['reorderable'])
+            ->openable($config['openable'])
+            ->downloadable($config['downloadable'])
+            ->previewable($config['previewable'])
+            ->deletable($config['deletable']);
 
-        if (isset($config['acceptedFileTypes']) && $config['acceptedFileTypes']) {
+        if ($config['acceptedFileTypes']) {
             $component->acceptedFileTypes(explode(',', $config['acceptedFileTypes']));
         }
 
-        if (isset($config['maxSize']) && $config['maxSize']) {
+        if ($config['maxSize']) {
             $component->maxSize($config['maxSize']);
         }
 
-        // Apply default settings
-        $component = self::applyDefaultSettings($component, $field);
-
-        return $component;
+        return self::applyDefaultSettings($component, $field);
     }
 
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
@@ -73,8 +71,7 @@ class FileUpload extends Base implements FieldContract
             return $data;
         }
 
-        $value = $record->values[$field->ulid];
-        $data[$record->valueColumn][$field->ulid] = self::normalizeFileValue($value, $field);
+        $data[$record->valueColumn][$field->ulid] = self::decodeFileValueForForm($record->values[$field->ulid]);
 
         return $data;
     }
@@ -85,15 +82,44 @@ class FileUpload extends Base implements FieldContract
             return $data;
         }
 
-        $value = $data[$record->valueColumn][$field->ulid];
-        $data[$record->valueColumn][$field->ulid] = self::normalizeFileValue($value, $field);
+        $data[$record->valueColumn][$field->ulid] = self::normalizeFileValue($data[$record->valueColumn][$field->ulid]);
 
         return $data;
     }
 
-    private static function normalizeFileValue($value, Field $field): mixed
+    private static function decodeFileValueForForm(mixed $value): array
     {
-        // Handle file upload values - they should be stored as JSON strings or arrays
+        if (is_null($value) || $value === '') {
+            return [];
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && json_validate($value)) {
+            $decoded = json_decode($value, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        if (is_string($value) && ! empty($value)) {
+            return [$value];
+        }
+
+        if (! empty($value)) {
+            return [(string) $value];
+        }
+
+        return [];
+    }
+
+    private static function normalizeFileValue(mixed $value): ?string
+    {
+        if (is_null($value) || $value === '') {
+            return null;
+        }
+
         if (is_array($value)) {
             return json_encode($value);
         }
@@ -102,9 +128,12 @@ class FileUpload extends Base implements FieldContract
             return $value;
         }
 
-        // For single file uploads, convert to array format
         if (is_string($value) && ! empty($value)) {
             return json_encode([$value]);
+        }
+
+        if (! empty($value)) {
+            return json_encode([(string) $value]);
         }
 
         return null;

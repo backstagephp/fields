@@ -318,6 +318,10 @@ trait CanMapDynamicFields
 
         collect($blocks)->map(function ($block) use (&$processedFields) {
             foreach ($block as $key => $values) {
+                if (! is_array($values) || ! isset($values['data'])) {
+                    continue;
+                }
+
                 $fields = $values['data'];
                 $fields = ModelsField::whereIn('ulid', array_keys($fields))->get();
 
