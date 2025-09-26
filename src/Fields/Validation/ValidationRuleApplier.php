@@ -160,13 +160,17 @@ class ValidationRuleApplier
 
             case 'different':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->different($fieldName ?? '');
+                if ($fieldName) {
+                    $input->different($fieldName);
+                }
 
                 break;
 
             case 'same':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->same($fieldName ?? '');
+                if ($fieldName) {
+                    $input->same($fieldName);
+                }
 
                 break;
 
@@ -255,7 +259,9 @@ class ValidationRuleApplier
 
             case 'prohibits':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->prohibits($fieldName ?? '');
+                if ($fieldName) {
+                    $input->prohibits($fieldName);
+                }
 
                 break;
 
@@ -303,31 +309,41 @@ class ValidationRuleApplier
 
             case 'required_if_accepted':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->requiredIfAccepted($fieldName ?? '');
+                if ($fieldName) {
+                    $input->requiredIfAccepted($fieldName);
+                }
 
                 break;
 
             case 'greater_than':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->gt($fieldName ?? '');
+                if ($fieldName) {
+                    $input->gt($fieldName);
+                }
 
                 break;
 
             case 'greater_than_or_equal':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->gte($fieldName ?? '');
+                if ($fieldName) {
+                    $input->gte($fieldName);
+                }
 
                 break;
 
             case 'less_than':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->lt($fieldName ?? '');
+                if ($fieldName) {
+                    $input->lt($fieldName);
+                }
 
                 break;
 
             case 'less_than_or_equal':
                 $fieldName = FieldOptionsHelper::getFieldNameFromUlid($parameters['field'] ?? '', $field);
-                $input->lte($fieldName ?? '');
+                if ($fieldName) {
+                    $input->lte($fieldName);
+                }
 
                 break;
 
