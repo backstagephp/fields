@@ -137,6 +137,41 @@ class ContentResource extends Resource
 }
 ```
 
+### Field Configuration
+
+#### Validation Rules
+
+Each field supports validation rules that can be configured through the admin interface. The package includes support for all standard Laravel and Filament validation rules:
+
+-   **Basic Rules**: Required, nullable, filled
+-   **String Rules**: Min/max length, alpha, alphanumeric, email, URL
+-   **Numeric Rules**: Min/max values, integer, decimal, numeric
+-   **Date Rules**: Date format, before/after dates, date equals
+-   **Comparison Rules**: Same as field, different from field, greater/less than field
+-   **Conditional Rules**: Required if/unless, prohibited if/unless, required with/without
+-   **Pattern Rules**: Regex, starts/ends with, in/not in list
+-   **Database Rules**: Exists, unique
+
+##### Field Dependencies
+
+Validation rules can depend on other fields in the form:
+
+-   **Field Comparison**: Compare values with other fields (`same`, `different`, `greater_than`, etc.)
+-   **Conditional Requirements**: Make fields required based on other field values (`required_if`, `required_unless`)
+-   **Multi-field Dependencies**: Require fields based on multiple other fields (`required_with_all`, `required_without_all`)
+
+When no other fields are available for dependency rules, the field selection will be disabled and show a helpful message.
+
+#### Visibility Rules
+
+Control when fields are shown or hidden based on conditions:
+
+-   **Conditional Display**: Show/hide fields based on other field values
+-   **Dynamic Forms**: Create adaptive forms that change based on user input
+-   **Complex Logic**: Support for multiple conditions and logical operators
+
+The visibility system works seamlessly with validation rules to create intelligent, user-friendly forms.
+
 ### Making a resource page configurable
 
 To make a resource page configurable, you need to add the `CanMapDynamicFields` trait to your page. For this example, we'll make a `EditContent` page configurable.
