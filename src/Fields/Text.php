@@ -168,7 +168,17 @@ class Text extends Base implements FieldContract
                                         ->visible(fn (Get $get): bool => $get('config.type') === 'tel'),
                                 ]),
                         ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
+                        ]),
                 ])->columnSpanFull(),
         ];
+    }
+
+    public function getFieldType(): ?string
+    {
+        return 'text';
     }
 }

@@ -15,6 +15,11 @@ use Filament\Support\Facades\FilamentColor;
 
 class Toggle extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'toggle';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -154,6 +159,11 @@ class Toggle extends Base implements FieldContract
                                 TextInput::make('config.offIcon')
                                     ->label(__('Off icon')),
                             ]),
+                        ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

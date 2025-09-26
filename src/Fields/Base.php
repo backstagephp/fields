@@ -3,6 +3,12 @@
 namespace Backstage\Fields\Fields;
 
 use Backstage\Fields\Contracts\FieldContract;
+use Backstage\Fields\Fields\FormSchemas\BasicSettingsSchema;
+use Backstage\Fields\Fields\FormSchemas\ValidationRulesSchema;
+use Backstage\Fields\Fields\FormSchemas\VisibilityRulesSchema;
+use Backstage\Fields\Fields\Logic\ConditionalLogicApplier;
+use Backstage\Fields\Fields\Logic\VisibilityLogicApplier;
+use Backstage\Fields\Fields\Validation\ValidationRuleApplier;
 use Backstage\Fields\Models\Field;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\TextInput;
@@ -10,12 +16,21 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Colors\Color;
+use ReflectionObject;
 
 abstract class Base implements FieldContract
 {
     public function getForm(): array
     {
-        return $this->getBaseFormSchema();
+        return BasicSettingsSchema::make();
+    }
+
+    public function getRulesForm(): array
+    {
+        return [
+            ...ValidationRulesSchema::make($this->getFieldType()),
+            ...VisibilityRulesSchema::make(),
+        ];
     }
 
     protected function getBaseFormSchema(): array
@@ -91,7 +106,7 @@ abstract class Base implements FieldContract
 
     private function fieldContainsConfigKey($field, string $configKey): bool
     {
-        $reflection = new \ReflectionObject($field);
+        $reflection = new ReflectionObject($field);
         $propertiesToCheck = ['name', 'statePath'];
 
         foreach ($propertiesToCheck as $propertyName) {
@@ -109,6 +124,13 @@ abstract class Base implements FieldContract
         return false;
     }
 
+    public function getFieldType(): ?string
+    {
+        // This method should be overridden by specific field classes
+        // to return their field type
+        return null;
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -119,6 +141,12 @@ abstract class Base implements FieldContract
             'hint' => null,
             'hintColor' => null,
             'hintIcon' => null,
+            'conditionalField' => null,
+            'conditionalOperator' => null,
+            'conditionalValue' => null,
+            'conditionalAction' => null,
+            'validationRules' => [],
+            'visibilityRules' => [],
             'defaultValue' => null,
         ];
     }
@@ -131,11 +159,18 @@ abstract class Base implements FieldContract
             ->hidden($field->config['hidden'] ?? self::getDefaultConfig()['hidden'])
             ->helperText($field->config['helperText'] ?? self::getDefaultConfig()['helperText'])
             ->hint($field->config['hint'] ?? self::getDefaultConfig()['hint'])
-            ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon']);
+            ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon'])
+            ->live();
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
             $input->hintColor(Color::generateV3Palette($field->config['hintColor']));
         }
+
+        $input = ConditionalLogicApplier::applyConditionalLogic($input, $field);
+        $input = ConditionalLogicApplier::applyConditionalValidation($input, $field);
+        $input = VisibilityLogicApplier::applyVisibilityLogic($input, $field);
+
+        $input = self::applyAdditionalValidation($input, $field);
 
         if (isset($field->config['defaultValue'])) {
             $input->default($field->config['defaultValue']);
@@ -144,12 +179,18 @@ abstract class Base implements FieldContract
         return $input;
     }
 
-    protected static function ensureArray($value, string $delimiter = ','): array
+    protected static function applyAdditionalValidation($input, ?Field $field = null): mixed
     {
-        if (is_array($value)) {
-            return $value;
+        if (! $field || empty($field->config['validationRules'])) {
+            return $input;
         }
 
-        return ! empty($value) ? explode($delimiter, $value) : [];
+        $rules = $field->config['validationRules'];
+
+        foreach ($rules as $rule) {
+            $input = ValidationRuleApplier::applyValidationRule($input, $rule, $field);
+        }
+
+        return $input;
     }
 }

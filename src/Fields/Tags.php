@@ -13,6 +13,11 @@ use Filament\Schemas\Components\Tabs\Tab;
 
 class Tags extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'tags';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -91,5 +96,16 @@ class Tags extends Base implements FieldContract
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
+    }
+
+    protected static function ensureArray(array | string $value, string $delimiter = ','): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        $trimmed = trim($value);
+
+        return $trimmed !== '' ? explode($delimiter, $trimmed) : [];
     }
 }
