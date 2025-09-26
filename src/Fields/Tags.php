@@ -105,6 +105,7 @@ class Tags extends Base implements FieldContract
         }
 
         $trimmed = trim($value);
+
         return $trimmed !== '' ? explode($delimiter, $trimmed) : [];
     }
 }
