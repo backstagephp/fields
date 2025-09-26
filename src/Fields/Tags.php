@@ -100,6 +100,11 @@ class Tags extends Base implements FieldContract
 
     protected static function ensureArray(array | string $value, string $delimiter = ','): array
     {
-        return ! empty($value) ? explode($delimiter, $value) : [];
+        if (is_array($value)) {
+            return $value;
+        }
+
+        $trimmed = trim($value);
+        return $trimmed !== '' ? explode($delimiter, $trimmed) : [];
     }
 }
