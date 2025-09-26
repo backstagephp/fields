@@ -11,4 +11,6 @@ interface FieldContract
     public static function make(string $name, Field $field);
 
     public static function getDefaultConfig(): array;
+
+    public function getFieldType(): ?string;
 }

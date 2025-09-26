@@ -20,6 +20,11 @@ class Select extends Base implements FieldContract
     use HasAffixes;
     use HasOptions;
 
+    public function getFieldType(): ?string
+    {
+        return 'select';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -297,6 +302,11 @@ class Select extends Base implements FieldContract
                                         ->searchable()
                                         ->live(),
                                 ]),
+                    ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];

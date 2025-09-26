@@ -3,7 +3,6 @@
 namespace Backstage\Fields\Concerns;
 
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -136,10 +135,9 @@ trait HasSelectableValues
                 continue;
             }
 
-            // Use the model's primary key instead of the configured relationKey for better compatibility
-            $primaryKey = $model->getKeyName();
-            $opts = $results->pluck($relation['relationValue'] ?? 'name', $primaryKey)->toArray();
-
+            // Fallback to model's primary key for existing records that don't have relationKey set
+            $relationKey = $relation['relationKey'] ?? $model->getKeyName();
+            $opts = $results->pluck($relation['relationValue'] ?? 'name', $relationKey)->toArray();
 
             if (count($opts) === 0) {
                 continue;
@@ -262,8 +260,13 @@ trait HasSelectableValues
                                                     return [$column => Str::title($column)];
                                                 })->toArray();
 
+                                                // Get the primary key of the model
+                                                $primaryKey = $model->getKeyName();
+
                                                 $set('relationValue', null);
                                                 $set('relationValue_options', $columnOptions);
+                                                $set('relationKey_options', $columnOptions);
+                                                $set('relationKey', $primaryKey);
                                             })
                                             ->options(function () {
                                                 $resources = config('backstage.fields.selectable_resources');
@@ -285,20 +288,23 @@ trait HasSelectableValues
                                                 fn (Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
                                                 $get("../../config.{$type}") === 'relationship'
                                             ),
-                                        Select::make('relationValue')
-                                            ->label(__('Column'))
-                                            ->helperText(__('The column to use as name for the options'))
-                                            ->options(fn (Get $get) => $get('relationValue_options') ?? [])
+                                        Select::make('relationKey')
+                                            ->label(__('Key Column'))
+                                            ->helperText(__('The column to use as the unique identifier/value for each option'))
+                                            ->options(fn (Get $get) => $get('relationKey_options') ?? [])
                                             ->searchable()
                                             ->visible(fn (Get $get): bool => ! empty($get('resource')))
-                                            ->required(fn (Get $get): bool => ! empty($get('resource'))),
-                                        Hidden::make('relationKey')
-                                            ->default('id')
-                                            ->label(__('Key'))
                                             ->required(
                                                 fn (Get $get): bool => is_array($get("../../config.{$type}")) && in_array('relationship', $get("../../config.{$type}")) ||
                                                 $get("../../config.{$type}") === 'relationship'
                                             ),
+                                        Select::make('relationValue')
+                                            ->label(__('Display Column'))
+                                            ->helperText(__('The column to use as the display text/label for each option'))
+                                            ->options(fn (Get $get) => $get('relationValue_options') ?? [])
+                                            ->searchable()
+                                            ->visible(fn (Get $get): bool => ! empty($get('resource')))
+                                            ->required(fn (Get $get): bool => ! empty($get('resource'))),
                                         Repeater::make('relationValue_filters')
                                             ->label(__('Filters'))
                                             ->visible(fn (Get $get): bool => ! empty($get('resource')))

@@ -42,6 +42,7 @@ class FieldsRelationManager extends RelationManager
                     ->columnSpanFull()
                     ->schema([
                         Section::make('Field')
+                            ->columns(2)
                             ->columnSpanFull()
                             ->columns(2)
                             ->schema([

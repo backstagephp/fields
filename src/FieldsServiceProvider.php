@@ -67,6 +67,12 @@ class FieldsServiceProvider extends PackageServiceProvider
             $this->getAssetPackageName()
         );
 
+        // Rich Editor Plugin Assets
+        FilamentAsset::register(
+            $this->getRichEditorPluginAssets(),
+            $this->getAssetPackageName()
+        );
+
         FilamentAsset::registerScriptData(
             $this->getScriptData(),
             $this->getAssetPackageName()
@@ -109,6 +115,17 @@ class FieldsServiceProvider extends PackageServiceProvider
             // AlpineComponent::make('fields', __DIR__ . '/../resources/dist/components/fields.js'),
             Css::make('fields-styles', __DIR__ . '/../resources/css/fields.css'),
             // Js::make('fields-scripts', __DIR__ . '/../resources/dist/fields.js'),
+        ];
+    }
+
+    /**
+     * @return array<Asset>
+     */
+    protected function getRichEditorPluginAssets(): array
+    {
+        return [
+            Js::make('rich-content-plugins/jump-anchor', __DIR__ . '/../resources/js/dist/filament/rich-content-plugins/jump-anchor.js')
+                ->loadedOnRequest(),
         ];
     }
 

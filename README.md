@@ -15,31 +15,31 @@ This package aims to help you add dynamic, configurable fields to your Filament 
 
 ## Features
 
-- 🎯 **Easy Integration**: Seamlessly integrates with your Filament resources
-- 🔧 **Configurable Fields**: Add and manage custom fields for your models
-- 🎨 **Built-in Field Types**: Includes common Filament form fields like:
-  - Text
-  - Textarea 
-  - Rich Text Editor
-  - Select
-  - Checkbox
-  - Checkbox List
-  - Key-Value
-  - Radio
-  - Toggle
-  - Color Picker
-  - DateTime
-  - Tags
-- ✨ **Extensible**: Create your own custom field types
-- 🔄 **Data Mutation**: Hooks to modify field data before filling forms or saving
-- 🏢 **Multi-tenant Support**: Built-in support for multi-tenant applications
+-   🎯 **Easy Integration**: Seamlessly integrates with your Filament resources
+-   🔧 **Configurable Fields**: Add and manage custom fields for your models
+-   🎨 **Built-in Field Types**: Includes common Filament form fields like:
+    -   Text
+    -   Textarea
+    -   Rich Text Editor (with Jump Anchor plugin)
+    -   Select
+    -   Checkbox
+    -   Checkbox List
+    -   Key-Value
+    -   Radio
+    -   Toggle
+    -   Color Picker
+    -   DateTime
+    -   Tags
+-   ✨ **Extensible**: Create your own custom field types
+-   🔄 **Data Mutation**: Hooks to modify field data before filling forms or saving
+-   🏢 **Multi-tenant Support**: Built-in support for multi-tenant applications
 
 This package is perfect for scenarios where you need to:
-- Add dynamic custom fields to your models
-- Allow users to configure form fields through the admin panel
-- Build flexible content management systems
-- Create customizable settings pages
 
+-   Add dynamic custom fields to your models
+-   Allow users to configure form fields through the admin panel
+-   Build flexible content management systems
+-   Create customizable settings pages
 
 ## Installation
 
@@ -63,7 +63,7 @@ The content of the `fields.php` file is as follows:
 <?php
 
 return [
-    
+
     'tenancy' => [
         'is_tenant_aware' => true,
 
@@ -137,6 +137,41 @@ class ContentResource extends Resource
 }
 ```
 
+### Field Configuration
+
+#### Validation Rules
+
+Each field supports validation rules that can be configured through the admin interface. The package includes support for all standard Laravel and Filament validation rules:
+
+-   **Basic Rules**: Required, nullable, filled
+-   **String Rules**: Min/max length, alpha, alphanumeric, email, URL
+-   **Numeric Rules**: Min/max values, integer, decimal, numeric
+-   **Date Rules**: Date format, before/after dates, date equals
+-   **Comparison Rules**: Same as field, different from field, greater/less than field
+-   **Conditional Rules**: Required if/unless, prohibited if/unless, required with/without
+-   **Pattern Rules**: Regex, starts/ends with, in/not in list
+-   **Database Rules**: Exists, unique
+
+##### Field Dependencies
+
+Validation rules can depend on other fields in the form:
+
+-   **Field Comparison**: Compare values with other fields (`same`, `different`, `greater_than`, etc.)
+-   **Conditional Requirements**: Make fields required based on other field values (`required_if`, `required_unless`)
+-   **Multi-field Dependencies**: Require fields based on multiple other fields (`required_with_all`, `required_without_all`)
+
+When no other fields are available for dependency rules, the field selection will be disabled and show a helpful message.
+
+#### Visibility Rules
+
+Control when fields are shown or hidden based on conditions:
+
+-   **Conditional Display**: Show/hide fields based on other field values
+-   **Dynamic Forms**: Create adaptive forms that change based on user input
+-   **Complex Logic**: Support for multiple conditions and logical operators
+
+The visibility system works seamlessly with validation rules to create intelligent, user-friendly forms.
+
 ### Making a resource page configurable
 
 To make a resource page configurable, you need to add the `CanMapDynamicFields` trait to your page. For this example, we'll make a `EditContent` page configurable.
@@ -146,11 +181,7 @@ To make a resource page configurable, you need to add the `CanMapDynamicFields` 
 
 namespace Backstage\Resources\ContentResource\Pages;
 
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Tabs\Tab;
-use Filament\Forms\Form;
-use Filament\Resources\Pages\EditRecord;
+// ...
 use Backstage\Fields\Concerns\CanMapDynamicFields;
 
 class EditContent extends EditRecord
@@ -168,7 +199,7 @@ class EditContent extends EditRecord
     public function mutateFormDataBeforeSave(array $data): array
     {
         $this->mutateBeforeSave($data);
-        
+
         return $data;
     }
 }
@@ -223,7 +254,7 @@ When using select fields, you may want to populate the options with relations in
 ```php
 return [
     // ...
-    
+
     'selectable_resources' => [
         App\Filament\Resources\ContentResource::class,
     ]
@@ -247,10 +278,10 @@ class CustomField extends Base
     public static function make(string $name, ?Field $field = null): TextInput
     {
         $input = self::applyDefaultSettings(TextInput::make($name), $field);
-        
+
         // Add your custom field logic here
         $input->placeholder('Custom placeholder');
-        
+
         return $input;
     }
 
@@ -299,21 +330,22 @@ class RepeaterField extends Base
 ```
 
 Available base fields that can be excluded:
-- `required` - Required field toggle
-- `disabled` - Disabled field toggle  
-- `hidden` - Hidden field toggle
-- `helperText` - Helper text input
-- `hint` - Hint text input
-- `hintColor` - Hint color picker
-- `hintIcon` - Hint icon input
-- `defaultValue` - Default value input
+
+-   `required` - Required field toggle
+-   `disabled` - Disabled field toggle
+-   `hidden` - Hidden field toggle
+-   `helperText` - Helper text input
+-   `hint` - Hint text input
+-   `hintColor` - Hint color picker
+-   `hintIcon` - Hint icon input
+-   `defaultValue` - Default value input
 
 #### Best practices for field exclusion
 
-- **Only exclude what doesn't apply**: Don't exclude fields just because you don't use them - only exclude fields that conceptually don't make sense for your field type
-- **Document your exclusions**: Add comments explaining why certain fields are excluded
-- **Test thoroughly**: Make sure your field still works correctly after excluding base fields
-- **Consider inheritance**: If your field extends another custom field, make sure to call `parent::excludeFromBaseSchema()` if you need to add more exclusions
+-   **Only exclude what doesn't apply**: Don't exclude fields just because you don't use them - only exclude fields that conceptually don't make sense for your field type
+-   **Document your exclusions**: Add comments explaining why certain fields are excluded
+-   **Test thoroughly**: Make sure your field still works correctly after excluding base fields
+-   **Consider inheritance**: If your field extends another custom field, make sure to call `parent::excludeFromBaseSchema()` if you need to add more exclusions
 
 Example of a field that excludes multiple base fields:
 
@@ -342,6 +374,14 @@ To register your own fields, you can add them to the `fields.fields` config arra
 ],
 ```
 
+## Documentation
+
+### Rich Editor Plugins
+
+The package includes a powerful Rich Editor with custom plugins:
+
+-   **[Jump Anchor Plugin](docs/jump-anchor-plugin.md)** - Add anchor links to selected text for navigation and jumping to specific sections
+
 ## Testing
 
 ```bash
@@ -362,8 +402,8 @@ Please review [our security policy](../../security/policy) on how to report secu
 
 ## Credits
 
-- [Baspa](https://github.com/Backstage)
-- [All Contributors](../../contributors)
+-   [Baspa](https://github.com/Backstage)
+-   [All Contributors](../../contributors)
 
 ## License
 
