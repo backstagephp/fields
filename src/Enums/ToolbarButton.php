@@ -16,6 +16,7 @@ enum ToolbarButton: string
     case H2 = 'h2';
     case H3 = 'h3';
     case Italic = 'italic';
+    case JumpAnchor = 'jumpAnchor';
     case Link = 'link';
     case OrderedList = 'orderedList';
     case Redo = 'redo';

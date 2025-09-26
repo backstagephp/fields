@@ -5,6 +5,7 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\ToolbarButton;
 use Backstage\Fields\Models\Field;
+use Backstage\Fields\Plugins\JumpAnchorRichContentPlugin;
 use Filament\Forms\Components\RichEditor as Input;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
@@ -23,7 +24,7 @@ class RichEditor extends Base implements FieldContract
     {
         return [
             ...parent::getDefaultConfig(),
-            'toolbarButtons' => ['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'],
+            'toolbarButtons' => ['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'jumpAnchor', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'],
             'disableToolbarButtons' => [],
         ];
     }
@@ -46,7 +47,10 @@ class RichEditor extends Base implements FieldContract
             ->statePath($name)
             ->json(true)
             ->beforeStateDehydrated(function () {})
-            ->saveRelationshipsUsing(function () {});
+            ->saveRelationshipsUsing(function () {})
+            ->plugins([
+                JumpAnchorRichContentPlugin::get(),
+            ]);
     }
 
     private static function configureToolbarButtons(Input $input, ?Field $field): Input
@@ -183,7 +187,7 @@ class RichEditor extends Base implements FieldContract
             return $values[$field->ulid] ?? null;
         }
 
-        return null;
+        return $record->values[$field->ulid] ?? null;
     }
 
     private static function isRelationship(mixed $values): bool
@@ -211,7 +215,7 @@ class RichEditor extends Base implements FieldContract
                                 ->schema([
                                     Select::make('config.toolbarButtons')
                                         ->label(__('Toolbar buttons'))
-                                        ->default(['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'])
+                                        ->default(['attachFiles', 'blockquote', 'bold', 'bulletList', 'codeBlock', 'h2', 'h3', 'italic', 'jumpAnchor', 'link', 'orderedList', 'redo', 'strike', 'underline', 'undo'])
                                         ->default(ToolbarButton::array()) // Not working in Filament yet.
                                         ->multiple()
                                         ->options(ToolbarButton::array())
