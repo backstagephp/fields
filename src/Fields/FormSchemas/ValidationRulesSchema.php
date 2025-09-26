@@ -33,7 +33,8 @@ class ValidationRulesSchema
                                 ->preload()
                                 ->options($validationOptions)
                                 ->reactive()
-                                ->required(),
+                                ->required()
+                                ->columnSpanFull(),
                             TextInput::make('parameters.value')
                                 ->label(__('Value'))
                                 ->required(fn (Get $get): bool => in_array($get('type'), ['min', 'max', 'min_length', 'max_length', 'decimal', 'multiple_of', 'prohibited_if', 'prohibited_unless', 'required_if', 'required_unless']))
@@ -69,6 +70,36 @@ class ValidationRulesSchema
 
                                     return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
                                 })
+                                ->disabled(function ($livewire) {
+                                    $excludeUlid = null;
+                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                        $record = $livewire->getMountedTableActionRecord();
+                                        if ($record && isset($record->ulid)) {
+                                            $excludeUlid = $record->ulid;
+                                        }
+                                    }
+
+                                    $options = FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+
+                                    return empty($options);
+                                })
+                                ->helperText(function ($livewire) {
+                                    $excludeUlid = null;
+                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                        $record = $livewire->getMountedTableActionRecord();
+                                        if ($record && isset($record->ulid)) {
+                                            $excludeUlid = $record->ulid;
+                                        }
+                                    }
+
+                                    $options = FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+
+                                    if (empty($options)) {
+                                        return __('No other fields available to depend on. Please create other fields first.');
+                                    }
+
+                                    return null;
+                                })
                                 ->visible(fn (Get $get): bool => in_array($get('type'), ['different', 'same', 'prohibited_if', 'prohibited_unless', 'prohibits', 'required_if', 'required_unless', 'required_if_accepted', 'greater_than', 'greater_than_or_equal', 'less_than', 'less_than_or_equal'])),
                             Select::make('parameters.fields')
                                 ->label(__('Field names'))
@@ -86,6 +117,36 @@ class ValidationRulesSchema
                                     }
 
                                     return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+                                })
+                                ->disabled(function ($livewire) {
+                                    $excludeUlid = null;
+                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                        $record = $livewire->getMountedTableActionRecord();
+                                        if ($record && isset($record->ulid)) {
+                                            $excludeUlid = $record->ulid;
+                                        }
+                                    }
+
+                                    $options = FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+
+                                    return empty($options);
+                                })
+                                ->helperText(function ($livewire) {
+                                    $excludeUlid = null;
+                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                        $record = $livewire->getMountedTableActionRecord();
+                                        if ($record && isset($record->ulid)) {
+                                            $excludeUlid = $record->ulid;
+                                        }
+                                    }
+
+                                    $options = FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+
+                                    if (empty($options)) {
+                                        return __('No other fields available to depend on. Please create other fields first.');
+                                    }
+
+                                    return null;
                                 })
                                 ->visible(fn (Get $get): bool => in_array($get('type'), ['required_with', 'required_with_all', 'required_without', 'required_without_all'])),
                             TextInput::make('parameters.date')
