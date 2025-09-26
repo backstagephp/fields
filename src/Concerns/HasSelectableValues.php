@@ -18,7 +18,7 @@ trait HasSelectableValues
     protected static function resolveResourceModel(string $tableName): ?object
     {
         $resources = config('backstage.fields.selectable_resources');
-        
+
         $resourceClass = collect($resources)->first(function ($resource) use ($tableName) {
             $res = new $resource;
             $model = $res->getModel();
@@ -100,7 +100,6 @@ trait HasSelectableValues
     {
         $relationshipOptions = [];
 
-
         foreach ($field->config['relations'] ?? [] as $relation) {
             if (! isset($relation['resource'])) {
                 continue;
@@ -117,8 +116,8 @@ trait HasSelectableValues
             // Apply filters if they exist
             if (isset($relation['relationValue_filters'])) {
                 foreach ($relation['relationValue_filters'] as $filter) {
-                    if (isset($filter['column'], $filter['operator'], $filter['value']) && 
-                        !empty($filter['column']) && !empty($filter['operator']) && $filter['value'] !== null) {
+                    if (isset($filter['column'], $filter['operator'], $filter['value']) &&
+                        ! empty($filter['column']) && ! empty($filter['operator']) && $filter['value'] !== null) {
                         if (preg_match('/{session\.([^\}]+)}/', $filter['value'], $matches)) {
                             $sessionValue = session($matches[1]);
                             $filter['value'] = str_replace($matches[0], $sessionValue, $filter['value']);
@@ -129,7 +128,6 @@ trait HasSelectableValues
             }
 
             $results = $query->get();
-
 
             if ($results->isEmpty()) {
                 continue;

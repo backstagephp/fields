@@ -70,12 +70,12 @@ class Select extends Base implements FieldContract
         if (isset($field->config['dependsOnField']) && $field->config['dependsOnField']) {
             $input = self::addFieldDependency($input, $field);
         }
-        
+
         // Add dynamic options first (from relationships, etc.)
         $input = self::addOptionsToInput($input, $field);
-        
+
         // Set static options as fallback if no dynamic options were added
-        if (empty($field->config['optionType']) || !is_array($field->config['optionType']) || !in_array('relationship', $field->config['optionType'])) {
+        if (empty($field->config['optionType']) || ! is_array($field->config['optionType']) || ! in_array('relationship', $field->config['optionType'])) {
             $input = $input->options($field->config['options'] ?? self::getDefaultConfig()['options']);
         }
 
@@ -110,12 +110,11 @@ class Select extends Base implements FieldContract
                 // The field name in the form is {valueColumn}.{field_ulid}
                 $dependentFieldName = "values.{$dependsOnField}";
                 $dependentValue = $get($dependentFieldName);
-                
+
                 // Show this field only when the dependent field has a value
-                return !empty($dependentValue);
+                return ! empty($dependentValue);
             });
     }
-
 
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
@@ -258,30 +257,30 @@ class Select extends Base implements FieldContract
                                         ->options(function ($record, $component) {
                                             // Try to get the form slug from various sources
                                             $formSlug = null;
-                                            
+
                                             // Method 1: From the record's model_key (most reliable)
                                             if ($record && isset($record->model_key)) {
                                                 $formSlug = $record->model_key;
                                             }
-                                            
+
                                             // Method 2: From route parameters as fallback
-                                            if (!$formSlug) {
+                                            if (! $formSlug) {
                                                 $routeParams = request()->route()?->parameters() ?? [];
                                                 $formSlug = $routeParams['record'] ?? $routeParams['form'] ?? $routeParams['id'] ?? null;
                                             }
-                                            
+
                                             // Method 3: Try to get from the component's owner record if available
-                                            if (!$formSlug && method_exists($component, 'getOwnerRecord')) {
+                                            if (! $formSlug && method_exists($component, 'getOwnerRecord')) {
                                                 $ownerRecord = $component->getOwnerRecord();
                                                 if ($ownerRecord) {
                                                     $formSlug = $ownerRecord->getKey();
                                                 }
                                             }
-                                            
-                                            if (!$formSlug) {
+
+                                            if (! $formSlug) {
                                                 return ['debug' => 'No form slug found. Record: ' . ($record ? json_encode($record->toArray()) : 'null')];
                                             }
-                                            
+
                                             // Get all select fields in the same form
                                             $fields = \Backstage\Fields\Models\Field::where('model_type', 'App\Models\Form')
                                                 ->where('model_key', $formSlug)
@@ -292,17 +291,17 @@ class Select extends Base implements FieldContract
                                                 ->orderBy('name')
                                                 ->pluck('name', 'ulid')
                                                 ->toArray();
-                                            
+
                                             if (empty($fields)) {
                                                 return ['debug' => 'No select fields found for form: ' . $formSlug . '. Total fields: ' . \Backstage\Fields\Models\Field::where('model_type', 'App\Models\Form')->where('model_key', $formSlug)->count()];
                                             }
-                                            
+
                                             return $fields;
                                         })
                                         ->searchable()
                                         ->live(),
                                 ]),
-                    ]),
+                        ]),
                     Tab::make('Rules')
                         ->label(__('Rules'))
                         ->schema([

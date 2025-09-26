@@ -2,29 +2,29 @@
 
 namespace Backstage\Fields\Fields;
 
-use Filament\Forms;
-use Illuminate\Support\Str;
-use Forms\Components\Placeholder;
-use Backstage\Fields\Models\Field;
-use Illuminate\Support\Collection;
-use Backstage\Fields\Facades\Fields;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Tabs;
-use Filament\Support\Enums\Alignment;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Concerns\HasOptions;
-use Filament\Schemas\Components\Tabs\Tab;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
+use Backstage\Fields\Models\Field;
+use Filament\Forms;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater as Input;
+use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Forms\Components\Repeater as Input;
-use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Filament\Forms\Components\Repeater\TableColumn;
-use Backstage\Fields\Concerns\HasConfigurableFields;
+use Filament\Support\Enums\Alignment;
+use Forms\Components\Placeholder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
 
 class Repeater extends Base implements FieldContract
@@ -80,11 +80,11 @@ class Repeater extends Base implements FieldContract
 
         if ($field && $field->children->count() > 0) {
             $input = $input->schema(self::generateSchemaFromChildren($field->children));
-            
+
             // Apply table mode if enabled
             if ($field->config['tableMode'] ?? self::getDefaultConfig()['tableMode']) {
                 $tableColumns = self::generateTableColumnsFromChildren($field->children, $field->config['tableColumns'] ?? []);
-                if (!empty($tableColumns)) {
+                if (! empty($tableColumns)) {
                     $input = $input->table($tableColumns);
                 }
             }
@@ -141,7 +141,7 @@ class Repeater extends Base implements FieldContract
                                 ->label(__('Columns'))
                                 ->default(1)
                                 ->numeric()
-                                ->visible(fn (Get $get): bool => !($get('config.tableMode') ?? false)),
+                                ->visible(fn (Get $get): bool => ! ($get('config.tableMode') ?? false)),
                             AdjacencyList::make('config.form')
                                 ->columnSpanFull()
                                 ->label(__('Fields'))
@@ -260,26 +260,26 @@ class Repeater extends Base implements FieldContract
         foreach ($children as $child) {
             $slug = $child['slug'];
             $name = $child['name'];
-            
+
             $columnConfig = $tableColumnsConfig[$slug] ?? [];
-            
+
             $tableColumn = TableColumn::make($name);
-            
+
             // Apply custom configuration if provided
             if (isset($columnConfig['hiddenHeaderLabel']) && $columnConfig['hiddenHeaderLabel']) {
                 $tableColumn = $tableColumn->hiddenHeaderLabel();
             }
-            
+
             if (isset($columnConfig['markAsRequired']) && $columnConfig['markAsRequired']) {
                 $tableColumn = $tableColumn->markAsRequired();
             }
-            
+
             if (isset($columnConfig['wrapHeader']) && $columnConfig['wrapHeader']) {
                 $tableColumn = $tableColumn->wrapHeader();
             }
-            
+
             if (isset($columnConfig['alignment'])) {
-                $alignment = match($columnConfig['alignment']) {
+                $alignment = match ($columnConfig['alignment']) {
                     'start' => Alignment::Start,
                     'center' => Alignment::Center,
                     'end' => Alignment::End,
@@ -287,11 +287,11 @@ class Repeater extends Base implements FieldContract
                 };
                 $tableColumn = $tableColumn->alignment($alignment);
             }
-            
+
             if (isset($columnConfig['width'])) {
                 $tableColumn = $tableColumn->width($columnConfig['width']);
             }
-            
+
             $tableColumns[] = $tableColumn;
         }
 

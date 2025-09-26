@@ -425,20 +425,17 @@ trait CanMapDynamicFields
 
         $inputName = $this->generateInputName($field, $record, $isNested);
 
-
         // Try to resolve from custom fields first (giving them priority)
         if ($customFieldClass = $customFields->get($field->field_type)) {
             $input = $customFieldClass::make($inputName, $field);
-            
-            
+
             return $input;
         }
 
         // Fall back to standard field type map if no custom field found
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
             $input = $fieldClass::make(name: $inputName, field: $field);
-            
-            
+
             return $input;
         }
 
@@ -448,7 +445,7 @@ trait CanMapDynamicFields
     private function generateInputName(Model $field, mixed $record, bool $isNested): string
     {
         $name = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
-        
+
         return $name;
     }
 
