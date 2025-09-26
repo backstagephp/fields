@@ -55,12 +55,7 @@ trait CanMapDynamicFields
         'tags' => Tags::class,
     ];
 
-    public function boot(): void
-    {
-        $this->fieldInspector = app(FieldInspector::class);
-    }
-
-    #[On('refreshFields')]
+    #[On('refreshFields', 'refreshSchemas')]
     public function refresh(): void
     {
         //
@@ -291,6 +286,11 @@ trait CanMapDynamicFields
      */
     private function resolveFieldConfigAndInstance(Model $field): array
     {
+        // Initialize field inspector if not already done
+        if (! isset($this->fieldInspector)) {
+            $this->fieldInspector = app(FieldInspector::class);
+        }
+
         // Try to resolve from custom fields first
         $fieldConfig = Fields::resolveField($field->field_type) ?
             $this->fieldInspector->initializeCustomField($field->field_type) :
@@ -404,7 +404,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->mapWithKeys(fn ($fieldClass, $key) => [$key => $fieldClass]);
     }
 
     /**
@@ -426,13 +426,17 @@ trait CanMapDynamicFields
         $inputName = $this->generateInputName($field, $record, $isNested);
 
         // Try to resolve from custom fields first (giving them priority)
-        if ($customField = $customFields->get($field->field_type)) {
-            return $customField::make($inputName, $field);
+        if ($customFieldClass = $customFields->get($field->field_type)) {
+            $input = $customFieldClass::make($inputName, $field);
+
+            return $input;
         }
 
         // Fall back to standard field type map if no custom field found
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
-            return $fieldClass::make(name: $inputName, field: $field);
+            $input = $fieldClass::make(name: $inputName, field: $field);
+
+            return $input;
         }
 
         return null;
@@ -440,7 +444,9 @@ trait CanMapDynamicFields
 
     private function generateInputName(Model $field, mixed $record, bool $isNested): string
     {
-        return $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
+        $name = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
+
+        return $name;
     }
 
     /**
