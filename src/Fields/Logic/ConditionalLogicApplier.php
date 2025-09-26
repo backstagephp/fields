@@ -83,9 +83,9 @@ class ConditionalLogicApplier
                 } elseif ($operator === 'not_equals' && $value !== null) {
                     $input->requiredUnless($conditionalFieldName, $value);
                 } elseif ($operator === 'is_empty') {
-                    $input->requiredUnless($conditionalFieldName, '');
-                } elseif ($operator === 'is_not_empty') {
                     $input->requiredIf($conditionalFieldName, '');
+                } elseif ($operator === 'is_not_empty') {
+                    $input->requiredUnless($conditionalFieldName, '');
                 }
 
                 break;
