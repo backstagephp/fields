@@ -131,7 +131,9 @@ trait HasSelectableValues
                 continue;
             }
 
-            $opts = $results->pluck($relation['relationValue'] ?? 'name', $relation['relationKey'])->toArray();
+            // Fallback to model's primary key for existing records that don't have relationKey set
+            $relationKey = $relation['relationKey'] ?? $model->getKeyName();
+            $opts = $results->pluck($relation['relationValue'] ?? 'name', $relationKey)->toArray();
 
             if (count($opts) === 0) {
                 continue;
