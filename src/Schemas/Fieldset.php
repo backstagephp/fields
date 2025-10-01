@@ -4,9 +4,9 @@ namespace Backstage\Fields\Schemas;
 
 use Backstage\Fields\Contracts\SchemaContract;
 use Backstage\Fields\Models\Schema;
-use Filament\Forms\Components\Fieldset as FilamentFieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Fieldset as FilamentFieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 
@@ -26,9 +26,9 @@ class Fieldset extends Base implements SchemaContract
     public static function make(string $name, Schema $schema): FilamentFieldset
     {
         $fieldset = FilamentFieldset::make($schema->config['label'] ?? self::getDefaultConfig()['label'])
-            ->columns($schema->config['columns'] ?? self::getDefaultConfig()['columns'])
-            ->collapsible($schema->config['collapsible'] ?? self::getDefaultConfig()['collapsible'])
-            ->collapsed($schema->config['collapsed'] ?? self::getDefaultConfig()['collapsed']);
+            ->columns($schema->config['columns'] ?? self::getDefaultConfig()['columns']);
+
+        // Note: collapsible and collapsed methods may not be available on Fieldset in Filament v4
 
         return $fieldset;
     }

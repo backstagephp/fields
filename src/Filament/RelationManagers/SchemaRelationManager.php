@@ -7,7 +7,6 @@ use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Schema as SchemaEnum;
 use Backstage\Fields\Models\Field;
 use Backstage\Fields\Models\Schema as SchemaModel;
-use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -62,13 +61,12 @@ class SchemaRelationManager extends RelationManager
 
                         TextInput::make('slug'),
 
-                        SelectTree::make('parent_ulid')
+                        Select::make('parent_ulid')
                             ->label(__('Parent Schema'))
                             ->placeholder(__('Select a parent schema (optional)'))
                             ->relationship(
-                                relationship: 'parent',
+                                name: 'parent',
                                 titleAttribute: 'name',
-                                parentAttribute: 'parent_ulid',
                                 modifyQueryUsing: function ($query) {
                                     $key = $this->ownerRecord->getKeyName();
 
@@ -77,8 +75,6 @@ class SchemaRelationManager extends RelationManager
                                         ->orderBy('position');
                                 }
                             )
-                            ->enableBranchNode()
-                            ->multiple(false)
                             ->searchable()
                             ->helperText(__('Attach this schema to a parent schema for nested layouts')),
 

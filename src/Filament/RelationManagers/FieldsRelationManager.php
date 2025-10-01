@@ -7,7 +7,6 @@ use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
-use CodeWithDennis\FilamentSelectTree\SelectTree;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -115,13 +114,12 @@ class FieldsRelationManager extends RelationManager
                                             ->toArray();
                                     }),
 
-                                SelectTree::make('schema_id')
+                                Select::make('schema_id')
                                     ->label(__('Attach to Schema'))
                                     ->placeholder(__('Select a schema (optional)'))
                                     ->relationship(
-                                        relationship: 'schema',
+                                        name: 'schema',
                                         titleAttribute: 'name',
-                                        parentAttribute: 'parent_ulid',
                                         modifyQueryUsing: function ($query) {
                                             $key = $this->ownerRecord->getKeyName();
 
@@ -130,8 +128,6 @@ class FieldsRelationManager extends RelationManager
                                                 ->orderBy('schemas.position');
                                         }
                                     )
-                                    ->enableBranchNode()
-                                    ->multiple(false)
                                     ->searchable()
                                     ->helperText(__('Attach this field to a specific schema for better organization')),
 
@@ -177,7 +173,7 @@ class FieldsRelationManager extends RelationManager
                     ->placeholder(__('No schema'))
                     ->searchable()
                     ->sortable()
-                    ->getStateUsing(fn (Field $record): string => $record->schema?->name ?? __('No Schema')),
+                    ->getStateUsing(fn (Field $record): string => $record->schema->name ?? __('No Schema')),
             ])
             ->filters([
                 \Filament\Tables\Filters\SelectFilter::make('group')
