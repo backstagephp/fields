@@ -113,7 +113,7 @@ class Select extends Base implements FieldContract
      * Normalize the select value to an array or a single value. This is needed because the select field can be
      * changed from single to multiple or vice versa.
      */
-    private static function normalizeSelectValue($value, Field $field): mixed
+    protected static function normalizeSelectValue($value, Field $field): mixed
     {
         $isMultiple = $field->config['multiple'] ?? false;
 
