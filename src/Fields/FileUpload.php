@@ -38,7 +38,7 @@ class FileUpload extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): FilamentFileUpload
     {
-        $config = array_merge(self::getDefaultConfig(), $field?->config ?? []);
+        $config = array_merge(self::getDefaultConfig(), $field->config ?? []);
 
         $component = FilamentFileUpload::make($name)
             ->label($field->name ?? null)
