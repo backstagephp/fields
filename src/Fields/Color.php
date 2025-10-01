@@ -19,6 +19,11 @@ use Filament\Schemas\Components\Tabs\Tab;
  */
 class Color extends Base implements FieldContract
 {
+    public function getFieldType(): ?string
+    {
+        return 'color';
+    }
+
     public static function getDefaultConfig(): array
     {
         return [
@@ -63,6 +68,11 @@ class Color extends Base implements FieldContract
                                     ->label(__('Regex'))
                                     ->placeholder(__('Enter a regex pattern')),
                             ]),
+                        ]),
+                    Tab::make('Rules')
+                        ->label(__('Rules'))
+                        ->schema([
+                            ...parent::getRulesForm(),
                         ]),
                 ])->columnSpanFull(),
         ];
