@@ -83,6 +83,12 @@ return [
     'selectable_resources' => [
         // App\Filament\Resources\ContentResource::class,
     ],
+
+    // Models that can be used for visibility rules
+    'visibility_models' => [
+        // \App\Models\Content::class,
+        // Add any models you want to use in visibility conditions
+    ],
 ];
 ```
 
@@ -164,13 +170,113 @@ When no other fields are available for dependency rules, the field selection wil
 
 #### Visibility Rules
 
-Control when fields are shown or hidden based on conditions:
+Control when fields are shown or hidden based on conditions. The visibility system supports two types of conditions:
 
--   **Conditional Display**: Show/hide fields based on other field values
--   **Dynamic Forms**: Create adaptive forms that change based on user input
--   **Complex Logic**: Support for multiple conditions and logical operators
+##### Field-Based Conditions
 
-The visibility system works seamlessly with validation rules to create intelligent, user-friendly forms.
+Show/hide fields based on other field values in the same form:
+
+-   **Field Selection**: Choose from available fields in the current form
+-   **Dynamic Options**: Field options update automatically based on available fields
+-   **Self-Exclusion**: Fields cannot reference themselves to prevent infinite loops
+
+##### Model Attribute Conditions
+
+Show/hide fields based on properties of the current record:
+
+-   **Record Properties**: Access any attribute of the current model instance
+-   **Model Selection**: Choose from configured models in your application
+-   **Attribute Discovery**: Automatically discover available attributes from database schema
+
+##### Configuration
+
+To enable model attribute conditions, add your models to the `visibility_models` config array:
+
+```php
+return [
+    // ... other config
+
+    // Models that can be used for visibility rules
+    'visibility_models' => [
+        // \App\Models\Content::class,
+    ],
+];
+```
+
+##### Supported Operators
+
+The visibility system supports a comprehensive set of comparison operators:
+
+-   **Equality**: `equals`, `not_equals`
+-   **Text Operations**: `contains`, `not_contains`, `starts_with`, `ends_with`
+-   **Empty Checks**: `is_empty`, `is_not_empty`
+-   **Numeric Comparisons**: `greater_than`, `less_than`, `greater_than_or_equal`, `less_than_or_equal`
+-   **List Operations**: `in`, `not_in` (comma-separated values)
+
+##### Logical Operators
+
+Combine multiple conditions with logical operators:
+
+-   **AND Logic**: All conditions must be met for the field to be visible
+-   **OR Logic**: Any condition can be met for the field to be visible
+
+##### Example Use Cases
+
+**Content Type-Based Fields**:
+```json
+{
+  "logic": "AND",
+  "conditions": [
+    {
+      "source": "model_attribute",
+      "model": "App\\Models\\Content",
+      "property": "type_slug",
+      "operator": "equals",
+      "value": "article"
+    }
+  ]
+}
+```
+
+**Multi-Condition Logic**:
+```json
+{
+  "logic": "OR",
+  "conditions": [
+    {
+      "source": "model_attribute",
+      "model": "App\\Models\\Content",
+      "property": "status",
+      "operator": "equals",
+      "value": "published"
+    },
+    {
+      "source": "field",
+      "property": "field_ulid_here",
+      "operator": "equals",
+      "value": "draft"
+    }
+  ]
+}
+```
+
+**Hide on Specific Pages**:
+```json
+{
+  "logic": "AND",
+  "conditions": [
+    {
+      "source": "model_attribute",
+      "model": "App\\Models\\Content",
+      "property": "slug",
+      "operator": "not_equals",
+      "value": "home"
+    }
+  ]
+}
+```
+
+The visibility system works seamlessly with validation rules to create intelligent, user-friendly forms that adapt to your data and user interactions.
 
 ### Making a resource page configurable
 
@@ -381,6 +487,10 @@ To register your own fields, you can add them to the `fields.fields` config arra
 The package includes a powerful Rich Editor with custom plugins:
 
 -   **[Jump Anchor Plugin](docs/jump-anchor-plugin.md)** - Add anchor links to selected text for navigation and jumping to specific sections
+
+### Field Configuration
+
+-   **[Visibility Rules](docs/visibility-rules.md)** - Comprehensive guide to controlling field visibility based on conditions and record properties
 
 ## Testing
 

@@ -50,18 +50,34 @@ class VisibilityLogicApplier
         $results = [];
 
         foreach ($conditions as $condition) {
-            $fieldUlid = $condition['field'] ?? '';
+            $source = $condition['source'] ?? 'field';
             $operator = $condition['operator'] ?? 'equals';
             $value = $condition['value'] ?? null;
 
-            $fieldName = FieldOptionsHelper::getFieldNameFromUlid($fieldUlid, $field);
+            if ($source === 'model_attribute') {
+                $modelClass = $condition['model'] ?? '';
+                $attributeName = $condition['property'] ?? '';
 
-            if (! $fieldName) {
-                continue;
+                if (! $modelClass || ! $attributeName) {
+                    continue;
+                }
+
+                // Get model instance from Get closure context
+                // The model attribute should be accessible directly from the form data
+                $modelValue = $get($attributeName);
+                $results[] = self::evaluateCondition($modelValue, $operator, $value);
+            } else {
+                // Field-based logic - use property field for both field and model_attribute sources
+                $fieldUlid = $condition['property'] ?? $condition['field'] ?? '';
+                $fieldName = FieldOptionsHelper::getFieldNameFromUlid($fieldUlid, $field);
+
+                if (! $fieldName) {
+                    continue;
+                }
+
+                $fieldValue = $get($fieldName);
+                $results[] = self::evaluateCondition($fieldValue, $operator, $value);
             }
-
-            $fieldValue = $get($fieldName);
-            $results[] = self::evaluateCondition($fieldValue, $operator, $value);
         }
 
         if (empty($results)) {
