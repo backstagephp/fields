@@ -105,12 +105,19 @@ class FieldsRelationManager extends RelationManager
                                     })
                                     ->searchable()
                                     ->preload()
-                                    ->options(function () {
-                                        return Field::pluck('group')
+                                    ->options(function (Get $get) {
+                                        $existingGroups = Field::pluck('group')
                                             ->filter()
                                             ->unique()
                                             ->mapWithKeys(fn ($group) => [$group => $group])
                                             ->toArray();
+
+                                        $currentValue = $get('group');
+                                        if ($currentValue && ! array_key_exists($currentValue, $existingGroups)) {
+                                            $existingGroups[$currentValue] = $currentValue;
+                                        }
+
+                                        return $existingGroups;
                                     }),
 
                             ]),
