@@ -3,8 +3,6 @@
 namespace Backstage\Fields\Models;
 
 use Backstage\Fields\Shared\HasPackageFactory;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,11 +22,13 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property array<string, mixed>|null $config
  * @property int $position
  * @property string|null $group
- * @property Carbon $created_at
- * @property Carbon $updated_at
- * @property-read Model|null $model
- * @property-read Collection<int, Field> $children
- * @property-read Model|null $tenant
+ * @property string|null $schema_id
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Model|null $model
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Field> $children
+ * @property-read \Backstage\Fields\Models\Schema|null $schema
+ * @property-read \Illuminate\Database\Eloquent\Model|null $tenant
  */
 class Field extends Model
 {
@@ -55,6 +55,11 @@ class Field extends Model
     public function children(): HasMany
     {
         return $this->hasMany(Field::class, 'parent_ulid')->with('children')->orderBy('position');
+    }
+
+    public function schema(): BelongsTo
+    {
+        return $this->belongsTo(Schema::class, 'schema_id', 'ulid');
     }
 
     public function tenant(): ?BelongsTo

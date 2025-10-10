@@ -9,17 +9,20 @@ use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
+use Filament\Forms;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater as Input;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Section as InfoSection;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Support\Enums\Alignment;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
@@ -49,6 +52,8 @@ class Repeater extends Base implements FieldContract
             'cloneable' => false,
             'columns' => 1,
             'form' => [],
+            'tableMode' => false,
+            'tableColumns' => [],
         ];
     }
 
@@ -75,6 +80,14 @@ class Repeater extends Base implements FieldContract
 
         if ($field && $field->children->count() > 0) {
             $input = $input->schema(self::generateSchemaFromChildren($field->children));
+
+            // Apply table mode if enabled
+            if ($field->config['tableMode'] ?? self::getDefaultConfig()['tableMode']) {
+                $tableColumns = self::generateTableColumnsFromChildren($field->children, $field->config['tableColumns'] ?? []);
+                if (! empty($tableColumns)) {
+                    $input = $input->table($tableColumns);
+                }
+            }
         }
 
         return $input;
@@ -91,39 +104,44 @@ class Repeater extends Base implements FieldContract
                     Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Toggle::make('config.addable')
+                            Forms\Components\Toggle::make('config.addable')
                                 ->label(__('Addable'))
                                 ->inline(false),
-                            Toggle::make('config.deletable')
+                            Forms\Components\Toggle::make('config.deletable')
                                 ->label(__('Deletable'))
                                 ->inline(false),
                             Grid::make(2)->schema([
-                                Toggle::make('config.reorderable')
+                                Forms\Components\Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
                                     ->live()
                                     ->inline(false),
-                                Toggle::make('config.reorderableWithButtons')
+                                Forms\Components\Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
                                     ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
                                     ->inline(false),
                             ]),
-                            Toggle::make('config.collapsible')
+                            Forms\Components\Toggle::make('config.collapsible')
                                 ->label(__('Collapsible'))
                                 ->inline(false),
-                            Toggle::make('config.collapsed')
+                            Forms\Components\Toggle::make('config.collapsed')
                                 ->label(__('Collapsed'))
                                 ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
                                 ->inline(false),
-                            Toggle::make('config.cloneable')
+                            Forms\Components\Toggle::make('config.cloneable')
                                 ->label(__('Cloneable'))
+                                ->inline(false),
+                            Forms\Components\Toggle::make('config.tableMode')
+                                ->label(__('Table Mode'))
+                                ->live()
                                 ->inline(false),
                             TextInput::make('config.addActionLabel')
                                 ->label(__('Add action label')),
                             TextInput::make('config.columns')
                                 ->label(__('Columns'))
                                 ->default(1)
-                                ->numeric(),
+                                ->numeric()
+                                ->visible(fn (Get $get): bool => ! ($get('config.tableMode') ?? false)),
                             AdjacencyList::make('config.form')
                                 ->columnSpanFull()
                                 ->label(__('Fields'))
@@ -197,6 +215,11 @@ class Repeater extends Base implements FieldContract
                                         ))
                                         ->visible(fn (Get $get) => filled($get('field_type'))),
                                 ]),
+                            InfoSection::make(__('Table Mode Information'))
+                                ->description(__('When table mode is enabled, the repeater will display its fields in a table format. The table columns will be automatically generated from the child fields.'))
+                                ->visible(fn (Get $get): bool => $get('config.tableMode') === true)
+                                ->columnSpanFull()
+                                ->schema([]),
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
@@ -226,5 +249,52 @@ class Repeater extends Base implements FieldContract
         }
 
         return $schema;
+    }
+
+    private static function generateTableColumnsFromChildren(Collection $children, array $tableColumnsConfig = []): array
+    {
+        $tableColumns = [];
+
+        $children = $children->sortBy('position');
+
+        foreach ($children as $child) {
+            $slug = $child['slug'];
+            $name = $child['name'];
+
+            $columnConfig = $tableColumnsConfig[$slug] ?? [];
+
+            $tableColumn = TableColumn::make($name);
+
+            // Apply custom configuration if provided
+            if (isset($columnConfig['hiddenHeaderLabel']) && $columnConfig['hiddenHeaderLabel']) {
+                $tableColumn = $tableColumn->hiddenHeaderLabel();
+            }
+
+            if (isset($columnConfig['markAsRequired']) && $columnConfig['markAsRequired']) {
+                $tableColumn = $tableColumn->markAsRequired();
+            }
+
+            if (isset($columnConfig['wrapHeader']) && $columnConfig['wrapHeader']) {
+                $tableColumn = $tableColumn->wrapHeader();
+            }
+
+            if (isset($columnConfig['alignment'])) {
+                $alignment = match ($columnConfig['alignment']) {
+                    'start' => Alignment::Start,
+                    'center' => Alignment::Center,
+                    'end' => Alignment::End,
+                    default => Alignment::Start,
+                };
+                $tableColumn = $tableColumn->alignment($alignment);
+            }
+
+            if (isset($columnConfig['width'])) {
+                $tableColumn = $tableColumn->width($columnConfig['width']);
+            }
+
+            $tableColumns[] = $tableColumn;
+        }
+
+        return $tableColumns;
     }
 }
