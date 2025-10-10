@@ -105,7 +105,6 @@ class FieldsRelationManager extends RelationManager
                                     })
                                     ->searchable()
                                     ->preload()
-                                    ->live()
                                     ->options(function (Get $get) {
                                         $existingGroups = Field::pluck('group')
                                             ->filter()
