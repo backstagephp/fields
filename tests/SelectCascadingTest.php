@@ -69,7 +69,7 @@ it('creates a regular select field when no cascading is configured', function ()
     $liveProperty->setAccessible(true);
 
     $isLive = $liveProperty->getValue($input);
-    expect($isLive)->toBeNull(); // Regular select fields don't have isLive set
+    expect($isLive)->toBeTrue(); // All fields have live() applied in Base::applyDefaultSettings()
 });
 
 it('normalizes select values correctly for single selection', function () {
