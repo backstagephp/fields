@@ -3,12 +3,12 @@
 namespace Backstage\Fields\Concerns;
 
 use Backstage\Fields\Contracts\FieldInspector;
-use Backstage\Fields\Enums\Field;
 use Backstage\Fields\Fields;
 use Backstage\Fields\Fields\Checkbox;
 use Backstage\Fields\Fields\CheckboxList;
 use Backstage\Fields\Fields\Color;
 use Backstage\Fields\Fields\DateTime;
+use Backstage\Fields\Fields\FileUpload;
 use Backstage\Fields\Fields\KeyValue;
 use Backstage\Fields\Fields\MarkdownEditor;
 use Backstage\Fields\Fields\Radio;
@@ -47,6 +47,7 @@ trait CanMapDynamicFields
         'select' => Select::class,
         'checkbox' => Checkbox::class,
         'checkbox-list' => CheckboxList::class,
+        'file-upload' => FileUpload::class,
         'key-value' => KeyValue::class,
         'radio' => Radio::class,
         'toggle' => Toggle::class,
@@ -343,6 +344,10 @@ trait CanMapDynamicFields
 
         collect($blocks)->map(function ($block) use (&$processedFields) {
             foreach ($block as $key => $values) {
+                if (! is_array($values) || ! isset($values['data'])) {
+                    continue;
+                }
+
                 $fields = $values['data'];
                 $fields = ModelsField::whereIn('ulid', array_keys($fields))->get();
 

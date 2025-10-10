@@ -157,7 +157,7 @@ class Repeater extends Base implements FieldContract
                                 ->disabled(fn (string $operation) => $operation === 'create')
                                 ->hint(fn (string $operation) => $operation === 'create' ? __('Fields can be added once the field is created.') : '')
                                 ->hintColor('primary')
-                                ->form([
+                                ->schema([
                                     Section::make('Field')
                                         ->columns(3)
                                         ->schema([

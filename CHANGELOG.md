@@ -2,6 +2,31 @@
 
 All notable changes to `fields` will be documented in this file.
 
+## v0.8.0 (Conditional fields) - 2025-09-26
+
+### What's Changed
+
+* fix: handling filament v4 RichEditor data structure by @Baspa in https://github.com/backstagephp/fields/pull/25
+* fix: disable array casting by @arduinomaster22 in https://github.com/backstagephp/fields/pull/26
+* fix: rich editor form fill issues by @Baspa in https://github.com/backstagephp/fields/pull/27
+* feat: auto assign workflow by @Baspa in https://github.com/backstagephp/fields/pull/28
+* feat: remove content cleaning by @Baspa in https://github.com/backstagephp/fields/pull/29
+* feat: remove live and set json to true by @Baspa in https://github.com/backstagephp/fields/pull/30
+* fix: disable indenting and drag n drop by @Baspa in https://github.com/backstagephp/fields/pull/31
+* Bump actions/github-script from 7 to 8 by @dependabot[bot] in https://github.com/backstagephp/fields/pull/32
+* fix: rich editor state by correcting return by @Baspa in https://github.com/backstagephp/fields/pull/33
+* build(deps-dev): bump form-data from 4.0.3 to 4.0.4 by @dependabot[bot] in https://github.com/backstagephp/fields/pull/35
+* build(deps-dev): bump esbuild from 0.19.12 to 0.25.0 by @dependabot[bot] in https://github.com/backstagephp/fields/pull/36
+* feat: rich editor jump anchor plugin by @Baspa in https://github.com/backstagephp/fields/pull/37
+* feat: let user change the relationKey by @Baspa in https://github.com/backstagephp/fields/pull/38
+* feat: validation and conditional fields by @Baspa in https://github.com/backstagephp/fields/pull/19
+
+### New Contributors
+
+* @arduinomaster22 made their first contribution in https://github.com/backstagephp/fields/pull/26
+
+**Full Changelog**: https://github.com/backstagephp/fields/compare/v0.7.0...v0.8.0
+
 ## v0.7.0 (Filament v4) - 2025-08-15
 
 ### What's Changed
