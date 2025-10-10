@@ -121,7 +121,7 @@ class SchemaRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
-            ->defaultGroup('parent.name')
+            ->modifyQueryUsing(fn ($query) => $query->with(['parent']))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
@@ -135,8 +135,7 @@ class SchemaRelationManager extends RelationManager
                 TextColumn::make('parent.name')
                     ->label(__('Parent Schema'))
                     ->placeholder(__('Root level'))
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
             ])
             ->filters([])
             ->headerActions([
@@ -148,7 +147,7 @@ class SchemaRelationManager extends RelationManager
                         $parentUlid = $data['parent_ulid'] ?? null;
 
                         // Calculate position based on parent
-                        $positionQuery = SchemaModel::where('model_key', $key)
+                        $positionQuery = SchemaModel::where('model_key', $this->ownerRecord->{$key})
                             ->where('model_type', get_class($this->ownerRecord));
 
                         if ($parentUlid) {
@@ -173,12 +172,10 @@ class SchemaRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName();
-
                         return [
                             ...$data,
-                            'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->{$key},
+                            'model_type' => get_class($this->ownerRecord),
+                            'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
                     ->after(function (Component $livewire) {

@@ -124,18 +124,10 @@ class FieldsRelationManager extends RelationManager
                                 Select::make('schema_id')
                                     ->label(__('Attach to Schema'))
                                     ->placeholder(__('Select a schema (optional)'))
-                                    ->relationship(
-                                        name: 'schema',
-                                        titleAttribute: 'name',
-                                        modifyQueryUsing: function ($query) {
-                                            $key = $this->ownerRecord->getKeyName();
-
-                                            return $query->where('schemas.model_key', $this->ownerRecord->{$key})
-                                                ->where('schemas.model_type', get_class($this->ownerRecord))
-                                                ->orderBy('schemas.position');
-                                        }
-                                    )
+                                    ->options($this->getSchemaOptions())
                                     ->searchable()
+                                    ->live()
+                                    ->reactive()
                                     ->helperText(__('Attach this field to a specific schema for better organization')),
 
                             ]),
@@ -157,7 +149,7 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
-            ->defaultGroup('schema.slug')
+            ->modifyQueryUsing(fn ($query) => $query->with(['schema']))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
@@ -179,7 +171,6 @@ class FieldsRelationManager extends RelationManager
                     ->label(__('Schema'))
                     ->placeholder(__('No schema'))
                     ->searchable()
-                    ->sortable()
                     ->getStateUsing(fn (Field $record): string => $record->schema->name ?? __('No Schema')),
             ])
             ->filters([
@@ -205,11 +196,12 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName();
-
                         return [
                             ...$data,
-                            'position' => Field::where('model_key', $key)->get()->max('position') + 1,
+                            'position' => Field::where('model_key', $this->ownerRecord->getKey())
+                                ->where('model_type', get_class($this->ownerRecord))
+                                ->get()
+                                ->max('position') + 1,
                             'model_type' => get_class($this->ownerRecord),
                             'model_key' => $this->ownerRecord->getKey(),
                         ];
@@ -223,12 +215,10 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName();
-
                         return [
                             ...$data,
                             'model_type' => get_class($this->ownerRecord),
-                            'model_key' => $this->ownerRecord->{$key},
+                            'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
                     ->after(function (Component $livewire) {
@@ -276,5 +266,28 @@ class FieldsRelationManager extends RelationManager
     public static function getPluralModelLabel(): string
     {
         return __('Fields');
+    }
+
+    protected function getSchemaOptions(): array
+    {
+        if (! $this->ownerRecord) {
+            return [];
+        }
+
+        $options = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
+            ->where('model_type', get_class($this->ownerRecord))
+            ->orderBy('position')
+            ->pluck('name', 'ulid')
+            ->toArray();
+
+        // Debug: Log the options to help troubleshoot
+        \Log::info('Schema options for owner record', [
+            'owner_record_id' => $this->ownerRecord->getKey(),
+            'owner_record_class' => get_class($this->ownerRecord),
+            'options_count' => count($options),
+            'options' => $options,
+        ]);
+
+        return $options;
     }
 }

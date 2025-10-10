@@ -70,4 +70,9 @@ class Schema extends Model
     {
         return $this->hasMany(Schema::class, 'parent_ulid');
     }
+
+    public function getParentNameAttribute(): ?string
+    {
+        return $this->parent?->name;
+    }
 }
