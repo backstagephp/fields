@@ -86,8 +86,7 @@ return [
 
     // Models that can be used for visibility rules
     'visibility_models' => [
-        \App\Models\Content::class,
-        \App\Models\User::class,
+        // \App\Models\Content::class,
         // Add any models you want to use in visibility conditions
     ],
 ];
@@ -199,9 +198,7 @@ return [
 
     // Models that can be used for visibility rules
     'visibility_models' => [
-        \App\Models\Content::class,
-        \App\Models\User::class,
-        \App\Models\Category::class,
+        // \App\Models\Content::class,
     ],
 ];
 ```
