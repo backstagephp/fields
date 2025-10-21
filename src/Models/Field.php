@@ -74,6 +74,6 @@ class Field extends Model
      */
     public function hasRelation(): bool
     {
-        return in_array($this->field_type, ['checkbox-list', 'radio', 'select']) && !empty($this->config['relations']);
+        return in_array($this->field_type, ['checkbox-list', 'radio', 'select']) && ! empty($this->config['relations']);
     }
 }
