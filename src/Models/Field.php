@@ -68,4 +68,12 @@ class Field extends Model
 
         return null;
     }
+
+    /**
+     * Check if the field has a relation
+     */
+    public function hasRelation(): bool
+    {
+        return in_array($this->field_type, ['checkbox-list', 'radio', 'select']) && !empty($this->config['relations']);
+    }
 }
