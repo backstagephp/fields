@@ -168,7 +168,7 @@ class Select extends Base implements FieldContract
                                         ->label(__('Selectable placeholder')),
                                     Toggle::make('config.preload')
                                         ->label(__('Preload'))
-                                        ->live())
+                                        ->live()
                                         ->visible(fn (Get $get): bool => $get('config.searchable')),
                                 ])->columnSpanFull(),
                             self::optionFormFields(),
