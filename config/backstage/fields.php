@@ -21,4 +21,9 @@ return [
     'selectable_resources' => [
         // App\Filament\Resources\ContentResource::class,
     ],
+
+    // Models that can be used for visibility rules
+    'visibility_models' => [
+        // \App\Models\Content::class,
+    ],
 ];

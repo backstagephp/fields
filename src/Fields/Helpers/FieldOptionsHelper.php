@@ -6,7 +6,7 @@ use Backstage\Fields\Models\Field;
 
 class FieldOptionsHelper
 {
-    public static function getFieldOptions($livewire, ?string $excludeUlid = null): array
+    public static function getFieldOptions(mixed $livewire, ?string $excludeUlid = null): array
     {
         // The $livewire parameter is actually the FieldsRelationManager
         if (! $livewire || ! method_exists($livewire, 'getOwnerRecord')) {
@@ -64,5 +64,10 @@ class FieldOptionsHelper
         }
 
         return $fieldNames;
+    }
+
+    public static function getModelAttributeOptions(mixed $livewire): array
+    {
+        return ModelAttributeHelper::getModelAttributes($livewire);
     }
 }
