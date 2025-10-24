@@ -5,12 +5,6 @@ module.exports = {
         './vendor/filament/**/*.blade.php',
         './src/**/*.php',
         './resources/views/**/*.blade.php',
-    ],
-    theme: {
-        extend: {},
-    },
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('@tailwindcss/typography'),
+        './vendor/saade/filament-adjacency-list/resources/views/**/*.blade.php',
     ],
 }
