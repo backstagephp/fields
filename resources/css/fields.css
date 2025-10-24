@@ -1,8 +1,8 @@
 /* Jump Anchor Plugin Styles */
 .jump-anchor {
-    background-color: var(--color-yellow-100);
+    background-color: var(--gray-100);
     border-bottom-width: 2px;
-    border-bottom-color: var(--color-yellow-400);
+    border-bottom-color: var(--gray-400);
     padding-left: var(--spacing);
     padding-right: var(--spacing);
     border-radius: var(--radius-sm);
@@ -10,7 +10,7 @@
 }
 
 .jump-anchor:hover {
-    background-color: var(--color-yellow-200);
+    background-color: var(--gray-200);
 }
 
 .jump-anchor::after {
@@ -22,9 +22,9 @@
 
 /* Jump anchor in editor */
 .ProseMirror .jump-anchor {
-    background-color: var(--color-yellow-100);
+    background-color: var(--gray-100);
     border-bottom-width: 2px;
-    border-bottom-color: var(--color-yellow-400);
+    border-bottom-color: var(--gray-400);
     padding-left: var(--spacing);
     padding-right: var(--spacing);
     border-radius: var(--radius-sm);
@@ -32,7 +32,7 @@
 }
 
 .ProseMirror .jump-anchor:hover {
-    background-color: var(--color-yellow-200);
+    background-color: var(--gray-200);
 }
 
 .ProseMirror .jump-anchor::after {
