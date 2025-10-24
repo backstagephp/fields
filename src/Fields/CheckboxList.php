@@ -80,14 +80,11 @@ class CheckboxList extends Base implements FieldContract
                                 ->schema([
                                     Toggle::make('config.searchable')
                                         ->label(__('Searchable'))
-                                        ->live(debounce: 250)
-                                        ->inline(false),
+                                        ->live(debounce: 250),
                                     Toggle::make('config.allowHtml')
-                                        ->label(__('Allow HTML'))
-                                        ->inline(false),
+                                        ->label(__('Allow HTML')),
                                     Toggle::make('config.bulkToggleable')
-                                        ->label(__('Bulk toggle'))
-                                        ->inline(false),
+                                        ->label(__('Bulk toggle')),
                                 ]),
                             self::optionFormFields(),
                             Grid::make(2)

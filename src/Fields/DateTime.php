@@ -80,14 +80,11 @@ class DateTime extends Base implements FieldContract
                         ->schema([
                             Grid::make(3)->schema([
                                 Toggle::make('config.seconds')
-                                    ->label(__('Seconds'))
-                                    ->inline(false),
+                                    ->label(__('Seconds')),
                                 Toggle::make('config.native')
-                                    ->label(__('Native'))
-                                    ->inline(false),
+                                    ->label(__('Native')),
                                 Toggle::make('config.closeOnDateSelection')
-                                    ->label(__('Close on date selection'))
-                                    ->inline(false),
+                                    ->label(__('Close on date selection')),
                             ]),
                             Grid::make(2)->schema([
 

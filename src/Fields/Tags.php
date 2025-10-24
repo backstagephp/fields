@@ -64,8 +64,7 @@ class Tags extends Base implements FieldContract
                         ->label(__('Field specific'))
                         ->schema([
                             Toggle::make('config.reorderable')
-                                ->label(__('Reorderable'))
-                                ->inline(false),
+                                ->label(__('Reorderable')),
                             Select::make('config.color')
                                 ->label(__('Color'))
                                 ->options([

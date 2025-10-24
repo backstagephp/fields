@@ -16,14 +16,11 @@ class BasicSettingsSchema
             Grid::make(3)
                 ->schema([
                     Toggle::make('config.required')
-                        ->label(__('Required'))
-                        ->inline(false),
+                        ->label(__('Required')),
                     Toggle::make('config.disabled')
-                        ->label(__('Disabled'))
-                        ->inline(false),
+                        ->label(__('Disabled')),
                     Toggle::make('config.hidden')
-                        ->label(__('Hidden'))
-                        ->inline(false),
+                        ->label(__('Hidden')),
                 ]),
             Grid::make(2)
                 ->schema([

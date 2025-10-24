@@ -11,6 +11,7 @@ use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater as Input;
+use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -49,6 +50,8 @@ class Repeater extends Base implements FieldContract
             'cloneable' => false,
             'columns' => 1,
             'form' => [],
+            'table' => false,
+            'compact' => false,
         ];
     }
 
@@ -65,6 +68,10 @@ class Repeater extends Base implements FieldContract
             ->cloneable($field->config['cloneable'] ?? self::getDefaultConfig()['cloneable'])
             ->columns($field->config['columns'] ?? self::getDefaultConfig()['columns']);
 
+        if ($field->config['compact'] ?? self::getDefaultConfig()['compact']) {
+            $input = $input->compact();
+        }
+
         if ($field->config['reorderableWithButtons'] ?? self::getDefaultConfig()['reorderableWithButtons']) {
             $input = $input->reorderableWithButtons();
         }
@@ -74,7 +81,15 @@ class Repeater extends Base implements FieldContract
         }
 
         if ($field && $field->children->count() > 0) {
-            $input = $input->schema(self::generateSchemaFromChildren($field->children));
+            $isTableMode = $field->config['table'] ?? self::getDefaultConfig()['table'];
+
+            if ($isTableMode) {
+                $input = $input
+                    ->table(self::generateTableColumns($field->children))
+                    ->schema(self::generateSchemaFromChildren($field->children, false));
+            } else {
+                $input = $input->schema(self::generateSchemaFromChildren($field->children, false));
+            }
         }
 
         return $input;
@@ -91,39 +106,40 @@ class Repeater extends Base implements FieldContract
                     Tab::make('Field specific')
                         ->label(__('Field specific'))
                         ->schema([
-                            Toggle::make('config.addable')
-                                ->label(__('Addable'))
-                                ->inline(false),
-                            Toggle::make('config.deletable')
-                                ->label(__('Deletable'))
-                                ->inline(false),
-                            Grid::make(2)->schema([
+                            Grid::make(3)->schema([
+                                Toggle::make('config.addable')
+                                    ->label(__('Addable')),
+                                Toggle::make('config.deletable')
+                                    ->label(__('Deletable')),
                                 Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
-                                    ->live()
-                                    ->inline(false),
+                                    ->live(),
                                 Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
-                                    ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
-                                    ->inline(false),
+                                    ->disabled(fn (Get $get): bool => $get('config.reorderable') === false),
+                                Toggle::make('config.collapsible')
+                                    ->label(__('Collapsible')),
+                                Toggle::make('config.collapsed')
+                                    ->label(__('Collapsed'))
+                                    ->visible(fn (Get $get): bool => $get('config.collapsible') === true),
+                                Toggle::make('config.cloneable')
+                                    ->label(__('Cloneable')),
                             ]),
-                            Toggle::make('config.collapsible')
-                                ->label(__('Collapsible'))
-                                ->inline(false),
-                            Toggle::make('config.collapsed')
-                                ->label(__('Collapsed'))
-                                ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
-                                ->inline(false),
-                            Toggle::make('config.cloneable')
-                                ->label(__('Cloneable'))
-                                ->inline(false),
-                            TextInput::make('config.addActionLabel')
-                                ->label(__('Add action label')),
-                            TextInput::make('config.columns')
-                                ->label(__('Columns'))
-                                ->default(1)
-                                ->numeric(),
+                            Grid::make(2)->schema([
+                                TextInput::make('config.addActionLabel')
+                                    ->label(__('Add action label')),
+                                TextInput::make('config.columns')
+                                    ->label(__('Columns'))
+                                    ->default(1)
+                                    ->numeric(),
+                                Toggle::make('config.table')
+                                    ->label(__('Table repeater')),
+                                Toggle::make('config.compact')
+                                    ->label(__('Compact table'))
+                                    ->live()
+                                    ->visible(fn (Get $get): bool => $get('config.table') === true),
+                            ]),
                             AdjacencyList::make('config.form')
                                 ->columnSpanFull()
                                 ->label(__('Fields'))
@@ -197,7 +213,7 @@ class Repeater extends Base implements FieldContract
                                         ))
                                         ->visible(fn (Get $get) => filled($get('field_type'))),
                                 ]),
-                        ])->columns(2),
+                        ]),
                 ])->columnSpanFull(),
         ];
     }
@@ -207,7 +223,20 @@ class Repeater extends Base implements FieldContract
         return ['defaultValue'];
     }
 
-    private static function generateSchemaFromChildren(Collection $children): array
+    private static function generateTableColumns(Collection $children): array
+    {
+        $columns = [];
+
+        $children = $children->sortBy('position');
+
+        foreach ($children as $child) {
+            $columns[] = TableColumn::make($child['slug']);
+        }
+
+        return $columns;
+    }
+
+    private static function generateSchemaFromChildren(Collection $children, bool $isTableMode = false): array
     {
         $schema = [];
 
