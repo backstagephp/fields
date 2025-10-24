@@ -111,30 +111,23 @@ class Repeater extends Base implements FieldContract
                         ->schema([
                             Grid::make(3)->schema([
                                 Toggle::make('config.addable')
-                                    ->label(__('Addable'))
-                                    ->inline(false),
+                                    ->label(__('Addable')),
                                 Toggle::make('config.deletable')
-                                    ->label(__('Deletable'))
-                                    ->inline(false),
+                                    ->label(__('Deletable')),
                                 Toggle::make('config.reorderable')
                                     ->label(__('Reorderable'))
-                                    ->live()
-                                    ->inline(false),
+                                    ->live(),
                                 Toggle::make('config.reorderableWithButtons')
                                     ->label(__('Reorderable with buttons'))
                                     ->dehydrated()
-                                    ->disabled(fn (Get $get): bool => $get('config.reorderable') === false)
-                                    ->inline(false),
+                                    ->disabled(fn (Get $get): bool => $get('config.reorderable') === false),
                                 Toggle::make('config.collapsible')
-                                    ->label(__('Collapsible'))
-                                    ->inline(false),
+                                    ->label(__('Collapsible')),
                                 Toggle::make('config.collapsed')
                                     ->label(__('Collapsed'))
-                                    ->visible(fn (Get $get): bool => $get('config.collapsible') === true)
-                                    ->inline(false),
+                                    ->visible(fn (Get $get): bool => $get('config.collapsible') === true),
                                 Toggle::make('config.cloneable')
-                                    ->label(__('Cloneable'))
-                                    ->inline(false),
+                                    ->label(__('Cloneable')),
                             ]),
                             Grid::make(2)->schema([
                                 TextInput::make('config.addActionLabel')
@@ -144,11 +137,9 @@ class Repeater extends Base implements FieldContract
                                     ->default(1)
                                     ->numeric(),
                                 Toggle::make('config.table')
-                                    ->label(__('Table repeater'))
-                                    ->inline(false),
+                                    ->label(__('Table repeater')),
                                 Toggle::make('config.compact')
                                     ->label(__('Compact table'))
-                                    ->inline(false)
                                     ->live()
                                     ->visible(fn (Get $get): bool => $get('config.table') === true),
                             ]),

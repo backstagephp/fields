@@ -63,8 +63,7 @@ class KeyValue extends Base implements FieldContract
                                 TextInput::make('config.valueLabel')
                                     ->label(__('Value label')),
                                 Toggle::make('config.reorderable')
-                                    ->label(__('Reorderable'))
-                                    ->inline(false),
+                                    ->label(__('Reorderable')),
                             ]),
                         ]),
                 ])->columnSpanFull(),

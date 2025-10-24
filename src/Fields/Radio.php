@@ -58,14 +58,11 @@ class Radio extends Base implements FieldContract
                         ->label(__('Field specific'))
                         ->schema([
                             Toggle::make('config.inline')
-                                ->label(__('Inline'))
-                                ->inline(false),
+                                ->label(__('Inline')),
                             Toggle::make('config.inlineLabel')
-                                ->label(__('Inline label'))
-                                ->inline(false),
+                                ->label(__('Inline label')),
                             Toggle::make('config.boolean')
-                                ->label(__('Boolean'))
-                                ->inline(false),
+                                ->label(__('Boolean')),
                             self::optionFormFields(),
                         ])->columns(3),
                     Tab::make('Rules')

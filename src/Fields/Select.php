@@ -157,23 +157,18 @@ class Select extends Base implements FieldContract
                                 ->schema([
                                     Toggle::make('config.searchable')
                                         ->label(__('Searchable'))
-                                        ->live(debounce: 250)
-                                        ->inline(false),
+                                        ->live(debounce: 250),
                                     Toggle::make('config.multiple')
                                         ->label(__('Multiple'))
                                         ->helperText(__('Only first value is used when switching from multiple to single.'))
-                                        ->columnSpan(2)
-                                        ->inline(false),
+                                        ->columnSpan(2),
                                     Toggle::make('config.allowHtml')
-                                        ->label(__('Allow HTML'))
-                                        ->inline(false),
+                                        ->label(__('Allow HTML')),
                                     Toggle::make('config.selectablePlaceholder')
-                                        ->label(__('Selectable placeholder'))
-                                        ->inline(false),
+                                        ->label(__('Selectable placeholder')),
                                     Toggle::make('config.preload')
                                         ->label(__('Preload'))
-                                        ->live()
-                                        ->inline(false)
+                                        ->live())
                                         ->visible(fn (Get $get): bool => $get('config.searchable')),
                                 ])->columnSpanFull(),
                             self::optionFormFields(),
