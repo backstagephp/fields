@@ -242,8 +242,7 @@ class Repeater extends Base implements FieldContract
         $children = $children->sortBy('position');
 
         foreach ($children as $child) {
-            $columns[] = TableColumn::make($child['slug'])
-                ->label($child['name'] ?? $child['slug']);
+            $columns[] = TableColumn::make($child['slug']);
         }
 
         return $columns;
