@@ -2,30 +2,27 @@
 
 namespace Backstage\Fields\Fields;
 
-use Illuminate\Support\Str;
-use Backstage\Fields\Models\Field;
-use Illuminate\Support\Collection;
-use Backstage\Fields\Facades\Fields;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Tabs;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
+use Backstage\Fields\Concerns\HasConfigurableFields;
+use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Concerns\HasOptions;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Tables\Columns\SelectColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Backstage\Fields\Contracts\FieldContract;
 use Backstage\Fields\Enums\Field as FieldEnum;
+use Backstage\Fields\Facades\Fields;
+use Backstage\Fields\Models\Field;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater as Input;
+use Filament\Forms\Components\Repeater\TableColumn;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Forms\Components\Repeater as Input;
-use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Filament\Forms\Components\Repeater\TableColumn;
-use Backstage\Fields\Concerns\HasConfigurableFields;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
 
 class Repeater extends Base implements FieldContract
@@ -85,7 +82,7 @@ class Repeater extends Base implements FieldContract
 
         if ($field && $field->children->count() > 0) {
             $isTableMode = $field->config['table'] ?? self::getDefaultConfig()['table'];
-            
+
             if ($isTableMode) {
                 $input = $input
                     ->table(self::generateTableColumns($field->children))
