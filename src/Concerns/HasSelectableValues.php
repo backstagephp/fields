@@ -174,7 +174,8 @@ trait HasSelectableValues
             (is_array($field->config[$type]) && in_array('relationship', $field->config[$type]))) {
             $allOptions[__('Custom Options')] = $field->config['options'];
         } else {
-            $allOptions = array_merge($allOptions, $field->config['options']);
+            // Use + operator instead of array_merge to preserve numeric string keys
+            $allOptions = $allOptions + $field->config['options'];
         }
 
         return $allOptions;
