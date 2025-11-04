@@ -290,16 +290,17 @@ trait HasSelectableValues
                                             ->helperText(__('The column to use as the unique identifier/value for each option'))
                                             ->options(function (Get $get) {
                                                 $resource = $get('resource');
-                                                if (!$resource) {
+                                                if (! $resource) {
                                                     return [];
                                                 }
 
                                                 $model = static::resolveResourceModel($resource);
-                                                if (!$model) {
+                                                if (! $model) {
                                                     return [];
                                                 }
 
                                                 $columns = Schema::getColumnListing($model->getTable());
+
                                                 return collect($columns)->mapWithKeys(function ($column) {
                                                     return [$column => Str::title($column)];
                                                 })->toArray();
@@ -315,16 +316,17 @@ trait HasSelectableValues
                                             ->helperText(__('The column to use as the display text/label for each option'))
                                             ->options(function (Get $get) {
                                                 $resource = $get('resource');
-                                                if (!$resource) {
+                                                if (! $resource) {
                                                     return [];
                                                 }
 
                                                 $model = static::resolveResourceModel($resource);
-                                                if (!$model) {
+                                                if (! $model) {
                                                     return [];
                                                 }
 
                                                 $columns = Schema::getColumnListing($model->getTable());
+
                                                 return collect($columns)->mapWithKeys(function ($column) {
                                                     return [$column => Str::title($column)];
                                                 })->toArray();
@@ -348,7 +350,7 @@ trait HasSelectableValues
                                                         Select::make('operator')
                                                             ->options([
                                                                 '=' => __('Equal'),
-                                                                '!='    => __('Not equal'),
+                                                                '!=' => __('Not equal'),
                                                                 '>' => __('Greater than'),
                                                                 '<' => __('Less than'),
                                                                 '>=' => __('Greater than or equal to'),
