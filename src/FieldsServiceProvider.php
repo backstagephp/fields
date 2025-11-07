@@ -5,7 +5,6 @@ namespace Backstage\Fields;
 use Backstage\Fields\Contracts\FieldInspector;
 use Backstage\Fields\Services\FieldInspectionService;
 use Backstage\Fields\Testing\TestsFields;
-use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
