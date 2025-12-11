@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 trait HasSelectableValues
 {
-    protected static function resolveResourceModel(string $tableName): ?object
+    public static function resolveResourceModel(string $tableName): ?object
     {
         $resources = config('backstage.fields.selectable_resources');
 
@@ -158,10 +158,16 @@ trait HasSelectableValues
         // If both types are selected, group relationship options by resource
         if (isset($field->config[$type]) &&
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
-            return array_merge($allOptions, $relationshipOptions);
+            return $allOptions + $relationshipOptions;
         } else {
             // For single relationship type, merge all options without grouping
-            return array_merge($allOptions, ...array_values($relationshipOptions));
+            $flatOptions = [];
+            foreach ($relationshipOptions as $resourceOptions) {
+                foreach ($resourceOptions as $id => $label) {
+                    $flatOptions[$id] = $label;
+                }
+            }
+            return $allOptions + $flatOptions;
         }
     }
 
