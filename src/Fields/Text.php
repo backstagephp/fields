@@ -95,55 +95,73 @@ class Text extends Base implements FieldContract
     public static function calculateDynamicValue(Field $field, $sourceValue, ?Get $get = null)
     {
         $mode = $field->config['dynamic_mode'] ?? 'none';
-        
+
         if ($mode === 'relation') {
-            if (empty($sourceValue)) return null;
-            
+            if (empty($sourceValue)) {
+                return null;
+            }
+
             $sourceUlid = $field->config['dynamic_source_field'] ?? null;
-            if (! $sourceUlid) return null;
+            if (! $sourceUlid) {
+                return null;
+            }
 
             $sourceField = \Backstage\Fields\Models\Field::find($sourceUlid);
-            if (! $sourceField) return null;
+            if (! $sourceField) {
+                return null;
+            }
 
             $relations = $sourceField->config['relations'] ?? [];
             $relationConfig = reset($relations);
-            if (! $relationConfig || empty($relationConfig['resource'])) return null;
+            if (! $relationConfig || empty($relationConfig['resource'])) {
+                return null;
+            }
 
             $modelInstance = \Backstage\Fields\Fields\Select::resolveResourceModel($relationConfig['resource']);
-            if (! $modelInstance) return null;
+            if (! $modelInstance) {
+                return null;
+            }
 
             $relatedRecord = $modelInstance::find($sourceValue);
-            if (! $relatedRecord) return null;
+            if (! $relatedRecord) {
+                return null;
+            }
 
             $targetColumn = $field->config['dynamic_relation_column'] ?? null;
             if ($targetColumn && isset($relatedRecord->$targetColumn)) {
                 return $relatedRecord->$targetColumn;
             }
         }
-        
+
         if ($mode === 'calculation') {
-             if (! $get) return null;
-             
-             $formula = $field->config['dynamic_formula'] ?? null;
-             if (! $formula) return null;
+            if (! $get) {
+                return null;
+            }
 
-             // Regex to find {ulid} patterns
-             $parsedFormula = preg_replace_callback('/\{([a-zA-Z0-9-]+)\}/', function ($matches) use ($get) {
-                 $ulid = $matches[1];
-                 $val = $get("values.{$ulid}");
-                 // Ensure value is numeric for safety
-                 return is_numeric($val) ? $val : 0;
-             }, $formula);
+            $formula = $field->config['dynamic_formula'] ?? null;
+            if (! $formula) {
+                return null;
+            }
 
-             // Safety: Only allow numbers and basic math operators
-             if (preg_match('/^[0-9\.\+\-\*\/\(\)\s]+$/', $parsedFormula)) {
-                 try {
-                     $result = @eval("return {$parsedFormula};");
-                     return $result;
-                 } catch (\Throwable $e) {
-                     return null;
-                 }
-             }
+            // Regex to find {ulid} patterns
+            $parsedFormula = preg_replace_callback('/\{([a-zA-Z0-9-]+)\}/', function ($matches) use ($get) {
+                $ulid = $matches[1];
+                $val = $get("values.{$ulid}");
+
+                // Ensure value is numeric for safety
+                return is_numeric($val) ? $val : 0;
+            }, $formula);
+
+            // Safety: Only allow numbers and basic math operators
+            if (preg_match('/^[0-9\.\+\-\*\/\(\)\s]+$/', $parsedFormula)) {
+                try {
+                    $result = @eval("return {$parsedFormula};");
+
+                    return $result;
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            }
         }
 
         return null;
@@ -156,22 +174,22 @@ class Text extends Base implements FieldContract
         }
 
         return $input
-            // We keep afterStateHydrated for initial load, 
+            // We keep afterStateHydrated for initial load,
             // but we remove the `key` hack as we use "Push" model for updates.
             ->afterStateHydrated(function (Input $component, Get $get, Set $set) use ($field) {
                 $mode = $field->config['dynamic_mode'] ?? 'none';
-                
+
                 // Use the shared calculation logic
                 // But we need to resolve sourceValue from $get
                 $sourceUlid = $field->config['dynamic_source_field'] ?? null;
                 if ($sourceUlid) {
-                     $sourceValue = $get("values.{$sourceUlid}");
-                     $newValue = self::calculateDynamicValue($field, $sourceValue); // We need to update this sig for calc?
-                     
-                     if ($newValue !== null && $component->getState() !== $newValue) {
-                         $component->state($newValue);
-                         $set($component->getStatePath(), $newValue);
-                     }
+                    $sourceValue = $get("values.{$sourceUlid}");
+                    $newValue = self::calculateDynamicValue($field, $sourceValue); // We need to update this sig for calc?
+
+                    if ($newValue !== null && $component->getState() !== $newValue) {
+                        $component->state($newValue);
+                        $set($component->getStatePath(), $newValue);
+                    }
                 }
             });
     }
@@ -327,7 +345,7 @@ class Text extends Base implements FieldContract
 
                                             $relations = $sourceField->config['relations'] ?? [];
                                             $relationConfig = reset($relations);
-                                            
+
                                             if (! $relationConfig || empty($relationConfig['resource'])) {
                                                 return [];
                                             }
@@ -338,7 +356,7 @@ class Text extends Base implements FieldContract
                                             }
 
                                             $columns = \Illuminate\Support\Facades\Schema::getColumnListing($modelInstance->getTable());
-                                            
+
                                             return collect($columns)->mapWithKeys(function ($column) {
                                                 return [$column => $column];
                                             })->toArray();
