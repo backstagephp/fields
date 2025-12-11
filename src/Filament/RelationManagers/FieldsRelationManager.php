@@ -271,7 +271,6 @@ class FieldsRelationManager extends RelationManager
     protected function getSchemaOptions(): array
     {
 
-
         $options = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
             ->where('model_type', get_class($this->ownerRecord))
             ->orderBy('position')
