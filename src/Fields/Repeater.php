@@ -17,7 +17,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Section as InfoSection;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
@@ -77,7 +76,6 @@ class Repeater extends Base implements FieldContract
         if ($field->config['compact'] ?? self::getDefaultConfig()['compact']) {
             $input = $input->compact();
         }
-
 
         if ($isReorderableWithButtons) {
             $input = $input->reorderableWithButtons();
@@ -256,8 +254,6 @@ class Repeater extends Base implements FieldContract
     {
         return ['defaultValue'];
     }
-
-
 
     private static function generateSchemaFromChildren(Collection $children, bool $isTableMode = false): array
     {
