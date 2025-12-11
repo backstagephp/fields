@@ -156,10 +156,11 @@ class Repeater extends Base implements FieldContract
                                     ->visible(fn (Get $get): bool => $get('config.collapsible') === true),
                                 Forms\Components\Toggle::make('config.cloneable')
                                     ->label(__('Cloneable')),
-                            ]),
+                            ])->columnSpanFull(),
                             Grid::make(2)->schema([
                                 TextInput::make('config.addActionLabel')
-                                    ->label(__('Add action label')),
+                                    ->label(__('Add action label'))
+                                    ->columnSpan(fn (Get $get) => ($get('config.tableMode') ?? false) ? 'full' : 1),
                                 TextInput::make('config.columns')
                                     ->label(__('Columns'))
                                     ->default(1)
@@ -172,7 +173,7 @@ class Repeater extends Base implements FieldContract
                                     ->label(__('Compact table'))
                                     ->live()
                                     ->visible(fn (Get $get): bool => ($get('config.tableMode') ?? false)),
-                            ]),
+                            ])->columnSpanFull(),
                             AdjacencyList::make('config.form')
                                 ->columnSpanFull()
                                 ->label(__('Fields'))
@@ -246,11 +247,6 @@ class Repeater extends Base implements FieldContract
                                         ))
                                         ->visible(fn (Get $get) => filled($get('field_type'))),
                                 ]),
-                            InfoSection::make(__('Table Mode Information'))
-                                ->description(__('When table mode is enabled, the repeater will display its fields in a table format. The table columns will be automatically generated from the child fields.'))
-                                ->visible(fn (Get $get): bool => $get('config.tableMode') === true)
-                                ->columnSpanFull()
-                                ->schema([]),
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
