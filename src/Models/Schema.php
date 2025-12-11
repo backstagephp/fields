@@ -28,7 +28,7 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  * @property \Carbon\Carbon $updated_at
  * @property-read \Illuminate\Database\Eloquent\Model|null $model
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Backstage\Fields\Models\Field> $fields
- * @property-read \Illuminate\Database\Eloquent\Model|null $parent
+ * @property-read Schema|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Schema> $children
  */
 class Schema extends Model
