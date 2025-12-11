@@ -20,6 +20,7 @@ class NormalizedRepeater extends Repeater
             foreach ($state as $item) {
                 if (! is_array($item)) {
                     $hasNonArrayItems = true;
+
                     break;
                 }
             }
@@ -36,7 +37,7 @@ class NormalizedRepeater extends Repeater
                     $keyedState[\Illuminate\Support\Str::uuid()->toString()] = $item;
                 }
                 $state = $keyedState;
-                
+
                 // Persist the normalized state so keys don't rotate on every call
                 $this->rawState($state);
             }

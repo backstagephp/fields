@@ -2,6 +2,7 @@
 
 namespace Backstage\Fields\Fields;
 
+use Backstage\Fields\Components\NormalizedRepeater;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Concerns\HasOptions;
@@ -10,7 +11,6 @@ use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
-use Backstage\Fields\Components\NormalizedRepeater;
 use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater as Input;
@@ -254,7 +254,7 @@ class Repeater extends Base implements FieldContract
                                         ))
                                         ->visible(fn (Get $get) => filled($get('field_type'))),
                                 ]),
-                             Forms\Components\CodeEditor::make('config.defaultValue')
+                            Forms\Components\CodeEditor::make('config.defaultValue')
                                 ->label(__('Default Items (JSON)'))
                                 ->language(Language::Json)
                                 ->formatStateUsing(function ($state) {
@@ -315,36 +315,36 @@ class Repeater extends Base implements FieldContract
             }
 
             $component = $fieldClass::make($child['slug'], $child);
-            
+
             // Check if this field is a source for others
             if (isset($dependencyMap[$child['ulid']])) {
                 $dependents = $dependencyMap[$child['ulid']];
-                
+
                 $component->live(onBlur: true)
-                    ->afterStateUpdated(function (Get $get, Set $set, $state) use ($dependents, $ulidToSlug) {
+                    ->afterStateUpdated(function (Get $get, Set $set, $state) use ($dependents) {
                         foreach ($dependents as $dependent) {
-                             $targetSlug = $dependent['slug'];
-                             
-                             // We need to pass the dependent Field model to calculateDynamicValue
-                             // Since $dependent is likely the model instance itself (from $children collection)
-                             // we can pass it directly.
-                             
-                             // Determine source value. 
-                             // For 'relation', the $state of the current field IS the source value.
-                             
-                             // Note: Text::calculateDynamicValue is static and stateless, 
-                             // it just needs the config from the field.
-                             
-                             $newValue = \Backstage\Fields\Fields\Text::calculateDynamicValue($dependent, $state, $get);
-                             
-                             if ($newValue !== null) {
-                                  // Relative path set
-                                  // Since we are inside a Repeater row, $set('slug', val) works for sibling fields
-                                  // BUT check if $get/set context is correct.
-                                  // In a Repeater item, Get/Set operate relative to the item.
-                                  // So $set($targetSlug, $newValue) should work.
-                                  $set($targetSlug, $newValue);
-                             }
+                            $targetSlug = $dependent['slug'];
+
+                            // We need to pass the dependent Field model to calculateDynamicValue
+                            // Since $dependent is likely the model instance itself (from $children collection)
+                            // we can pass it directly.
+
+                            // Determine source value.
+                            // For 'relation', the $state of the current field IS the source value.
+
+                            // Note: Text::calculateDynamicValue is static and stateless,
+                            // it just needs the config from the field.
+
+                            $newValue = \Backstage\Fields\Fields\Text::calculateDynamicValue($dependent, $state, $get);
+
+                            if ($newValue !== null) {
+                                // Relative path set
+                                // Since we are inside a Repeater row, $set('slug', val) works for sibling fields
+                                // BUT check if $get/set context is correct.
+                                // In a Repeater item, Get/Set operate relative to the item.
+                                // So $set($targetSlug, $newValue) should work.
+                                $set($targetSlug, $newValue);
+                            }
                         }
                     });
             }
@@ -401,6 +401,4 @@ class Repeater extends Base implements FieldContract
 
         return $tableColumns;
     }
-
-
 }
