@@ -5,7 +5,6 @@ namespace Backstage\Fields\Filament\RelationManagers;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Schema as SchemaEnum;
-use Backstage\Fields\Models\Field;
 use Backstage\Fields\Models\Schema as SchemaModel;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -47,7 +46,7 @@ class SchemaRelationManager extends RelationManager
                             ->autocomplete(false)
                             ->required()
                             ->live(onBlur: true)
-                            ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?Field $record) {
+                            ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?SchemaModel $record) {
                                 if (! $record || blank($get('slug'))) {
                                     $set('slug', Str::slug($state));
                                 }
