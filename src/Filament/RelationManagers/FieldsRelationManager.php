@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -192,6 +193,61 @@ class FieldsRelationManager extends RelationManager
                     ->placeholder(__('All Schemas')),
             ])
             ->headerActions([
+                Action::make('copy_fields')
+                    ->label(__('Copy Fields'))
+                    ->icon('heroicon-o-document-duplicate')
+                    ->slideOver()
+                    ->schema([
+                        Select::make('source_record_id')
+                            ->label(__('Source Record'))
+                            ->options(function () {
+                                return $this->ownerRecord::query()
+                                    ->whereKeyNot($this->ownerRecord->getKey())
+                                    ->get()
+                                    ->pluck('name', $this->ownerRecord->getKeyName())
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set) {
+                                $set('fields_to_copy', []);
+                            }),
+                        \Filament\Forms\Components\CheckboxList::make('fields_to_copy')
+                            ->label(__('Fields to Copy'))
+                            ->options(function (Get $get) {
+                                $sourceRecordId = $get('source_record_id');
+                                if (! $sourceRecordId) {
+                                    return [];
+                                }
+
+                                return Field::where('model_type', get_class($this->ownerRecord))
+                                    ->where('model_key', $sourceRecordId)
+                                    ->pluck('name', 'ulid')
+                                    ->toArray();
+                            })
+                            ->required()
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->visible(fn (Get $get) => filled($get('source_record_id'))),
+                    ])
+                    ->action(function (array $data, Component $livewire) {
+                        $fields = Field::whereIn('ulid', $data['fields_to_copy'])->get();
+
+                        foreach ($fields as $field) {
+                            $newField = $field->replicate();
+                            $newField->model_key = $this->ownerRecord->getKey();
+                            $newField->schema_id = null;
+                            $newField->save();
+                        }
+
+                        $livewire->dispatch('refreshFields');
+
+                        \Filament\Notifications\Notification::make()
+                            ->title(__('Fields copied successfully'))
+                            ->success()
+                            ->send();
+                    }),
                 CreateAction::make()
                     ->slideOver()
                     ->mutateDataUsing(function (array $data) {
