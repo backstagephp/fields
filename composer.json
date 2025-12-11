@@ -20,7 +20,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "baspa/laravel-timezones": "^1.2",
         "filament/filament": "^4.0",
         "saade/filament-adjacency-list": "^4.0",
@@ -32,9 +32,9 @@
         "nunomaduro/collision": "^8.1.1||^7.10.0",
         "nunomaduro/larastan": "^3.0",
         "orchestra/testbench": "^9.0.0",
-        "pestphp/pest": "^2.34",
-        "pestphp/pest-plugin-arch": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
+        "pestphp/pest": "^4.1",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0"
@@ -73,8 +73,6 @@
                 "Fields": "Backstage\\Fields\\Facades\\Fields"
             }
         }
-    },
-    "repositories": {
     },
     "minimum-stability": "beta",
     "prefer-stable": true

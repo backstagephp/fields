@@ -1,2 +1,3 @@
-@import '../../vendor/filament/filament/resources/css/theme.css';
+@import "tailwindcss";
 @import './fields.css';
+@source '../../vendor/saade/filament-adjacency-list/resources/views/**/*.blade.php';

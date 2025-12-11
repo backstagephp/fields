@@ -61,16 +61,13 @@ class Checkbox extends Base implements FieldContract
                             Grid::make(2)->schema([
 
                                 Toggle::make('config.inline')
-                                    ->label(__('Inline'))
-                                    ->inline(false),
+                                    ->label(__('Inline')),
                                 Toggle::make('config.accepted')
                                     ->label(__('Accepted'))
-                                    ->helperText(__('Requires the checkbox to be checked'))
-                                    ->inline(false),
+                                    ->helperText(__('Requires the checkbox to be checked')),
                                 Toggle::make('config.declined')
                                     ->label(__('Declined'))
-                                    ->helperText(__('Requires the checkbox to be unchecked'))
-                                    ->inline(false),
+                                    ->helperText(__('Requires the checkbox to be unchecked')),
                             ]),
                         ]),
                     Tab::make('Rules')

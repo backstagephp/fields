@@ -59,8 +59,7 @@ class Textarea extends Base implements FieldContract
                         ->label(__('Field specific'))
                         ->schema([
                             Toggle::make('config.readOnly')
-                                ->label(__('Read only'))
-                                ->inline(false),
+                                ->label(__('Read only')),
                             Grid::make(2)
                                 ->schema([
                                     TextInput::make('config.autosize')

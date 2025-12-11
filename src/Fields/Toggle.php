@@ -78,16 +78,13 @@ class Toggle extends Base implements FieldContract
                             Grid::make(2)->schema([
                                 Input::make('config.inline')
                                     ->label(__('Inline'))
-                                    ->inline(false)
                                     ->columnSpanFull(),
                                 Input::make('config.accepted')
                                     ->label(__('Accepted'))
-                                    ->helperText(__('Requires the checkbox to be checked'))
-                                    ->inline(false),
+                                    ->helperText(__('Requires the checkbox to be checked')),
                                 Input::make('config.declined')
                                     ->label(__('Declined'))
-                                    ->helperText(__('Requires the checkbox to be unchecked'))
-                                    ->inline(false),
+                                    ->helperText(__('Requires the checkbox to be unchecked')),
                                 Select::make('config.onColor')
                                     ->label(__('On color'))
                                     ->options(
