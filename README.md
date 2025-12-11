@@ -278,6 +278,29 @@ Combine multiple conditions with logical operators:
 
 The visibility system works seamlessly with validation rules to create intelligent, user-friendly forms that adapt to your data and user interactions.
 
+#### Dynamic Values (Text Fields)
+
+Text fields support dynamic value calculation, allowing them to automatically populate based on other fields in the form.
+
+##### Relation Prefill Mode
+
+Automatically prefill a text field based on a selection in another field (typically a Select field).
+
+-   **Source Field**: The field to watch (e.g., a `building` select field).
+-   **Relation Column**: The column from the related model to fetch (e.g., `city`).
+
+*Example*: When a user selects a "Building", the "City" text field automatically updates to show the city associated with that building record.
+
+##### Calculation Mode
+
+Calculate the field's value using a mathematical formula based on other fields.
+
+-   **Formula**: Enter a formula using field values.
+-   **Syntax**: Use field IDs or keys in curly braces, e.g., `{price} * {quantity}`.
+-   **Supported Operations**: Standard math operators (`+`, `-`, `*`, `/`, `(`, `)`).
+
+*Example*: A "Total" field can automatically calculate `{price} * {tax_rate}`.
+
 ### Making a resource page configurable
 
 To make a resource page configurable, you need to add the `CanMapDynamicFields` trait to your page. For this example, we'll make a `EditContent` page configurable.
