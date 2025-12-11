@@ -146,14 +146,38 @@ class Text extends Base implements FieldContract
             // Regex to find {ulid} patterns
             $parsedFormula = preg_replace_callback('/\{([a-zA-Z0-9-]+)\}/', function ($matches) use ($get) {
                 $ulid = $matches[1];
-                $val = $get("values.{$ulid}");
+                
+                // Try to find the field to get its slug for relative lookup
+                // This allows calculations to work inside Repeaters where fields are named by slug
+                $referencedField = \Backstage\Fields\Models\Field::find($ulid);
+                $val = null;
+                
+                if ($referencedField) {
+                    // Try relative path first (e.g. inside Repeater) using slug
+                    $val = $get($referencedField->slug);
+                }
+                
+                // Try direct slug/key access (simplifies Repeater usage)
+                if ($val === null) {
+                     $val = $get($ulid);
+                }
 
-                // Ensure value is numeric for safety
-                return is_numeric($val) ? $val : 0;
+                // Fallback to absolute path (e.g. top level)
+                if ($val === null) {
+                     $val = $get("values.{$ulid}");
+                }
+
+                if (is_numeric($val)) {
+                    return $val;
+                }
+
+                // If not numeric, encode as JSON to allow string comparisons in formula
+                // e.g. "My Value"
+                return json_encode($val);
             }, $formula);
 
-            // Safety: Only allow numbers and basic math operators
-            if (preg_match('/^[0-9\.\+\-\*\/\(\)\s]+$/', $parsedFormula)) {
+            // Safety: Allow numbers, math operators, comparisons, logic, and ternary
+            if (preg_match('/^[0-9\.\+\-\*\/\(\)\s\!\=\<\>\&\|\?\:\'\"\,]+$/', $parsedFormula)) {
                 try {
                     $result = @eval("return {$parsedFormula};");
 
@@ -361,9 +385,10 @@ class Text extends Base implements FieldContract
                                                 return [$column => $column];
                                             })->toArray();
                                         }),
-                                    Input::make('config.dynamic_formula')
+                                    \Filament\Forms\Components\Textarea::make('config.dynamic_formula')
                                         ->label(__('Formula'))
-                                        ->helperText(__('Use field names as variables. Example: "price * quantity". Use {field_ulid} for specific fields if needed.'))
+                                        ->rows(3)
+                                        ->helperText(__('Use field names as variables. Example: "price * quantity". Use {field_slug} or {field_ulid} for specific fields.'))
                                         ->visible(fn (Get $get): bool => $get('config.dynamic_mode') === 'calculation'),
                                 ]),
                         ]),

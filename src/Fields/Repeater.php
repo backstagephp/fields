@@ -10,6 +10,8 @@ use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
 use Filament\Forms;
+use Backstage\Fields\Components\NormalizedRepeater;
+use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater as Input;
 use Filament\Forms\Components\Repeater\TableColumn;
@@ -59,7 +61,14 @@ class Repeater extends Base implements FieldContract
 
     public static function make(string $name, ?Field $field = null): Input
     {
-        $input = self::applyDefaultSettings(Input::make($name), $field);
+        // Create an anonymous class extending the Filament Repeater to intercept the state
+        // This is necessary because standard Filament hooks (like formatStateUsing)
+        // are bypassed by the Repeater's internal rendering logic.
+        // We use NormalizedRepeater (separate class) because standard anonymous classes
+        // cannot be serialized by Livewire.
+        $input = self::applyDefaultSettings(NormalizedRepeater::make($name), $field);
+
+        $input->configure();
 
         $isReorderable = $field->config['reorderable'] ?? self::getDefaultConfig()['reorderable'];
         $isReorderableWithButtons = $field->config['reorderableWithButtons'] ?? self::getDefaultConfig()['reorderableWithButtons'];
@@ -245,6 +254,19 @@ class Repeater extends Base implements FieldContract
                                         ))
                                         ->visible(fn (Get $get) => filled($get('field_type'))),
                                 ]),
+                             Forms\Components\CodeEditor::make('config.defaultValue')
+                                ->label(__('Default Items (JSON)'))
+                                ->language(Language::Json)
+                                ->formatStateUsing(function ($state) {
+                                    if (is_array($state)) {
+                                        return json_encode($state, JSON_PRETTY_PRINT);
+                                    }
+
+                                    return $state;
+                                })
+                                ->rules('json')
+                                ->helperText(__('Array of objects for default rows. Example: [{"slug": "value"}]'))
+                                ->columnSpanFull(),
                         ])->columns(2),
                 ])->columnSpanFull(),
         ];
@@ -258,19 +280,76 @@ class Repeater extends Base implements FieldContract
     private static function generateSchemaFromChildren(Collection $children, bool $isTableMode = false): array
     {
         $schema = [];
+        $dependencyMap = []; // source_slug => [dependent_child_1, ... ]
+        $ulidToSlug = [];
 
         $children = $children->sortBy('position');
 
+        // First pass: Build dependency map
+        foreach ($children as $child) {
+            $ulidToSlug[$child['ulid']] = $child['slug'];
+
+            $config = $child['config'] ?? [];
+            $mode = $config['dynamic_mode'] ?? 'none';
+
+            if ($mode === 'relation') {
+                $sourceUlid = $config['dynamic_source_field'] ?? null;
+                if ($sourceUlid) {
+                    $dependencyMap[$sourceUlid][] = $child;
+                }
+            } elseif ($mode === 'calculation') {
+                $formula = $config['dynamic_formula'] ?? '';
+                preg_match_all('/\{([a-zA-Z0-9-]+)\}/', $formula, $matches);
+                foreach ($matches[1] as $sourceUlid) {
+                    $dependencyMap[$sourceUlid][] = $child;
+                }
+            }
+        }
+
         foreach ($children as $child) {
             $fieldType = $child['field_type'];
+            $fieldClass = self::resolveFieldTypeClassName($fieldType);
 
-            $field = self::resolveFieldTypeClassName($fieldType);
-
-            if ($field === null) {
+            if ($fieldClass === null) {
                 continue;
             }
 
-            $schema[] = $field::make($child['slug'], $child);
+            $component = $fieldClass::make($child['slug'], $child);
+            
+            // Check if this field is a source for others
+            if (isset($dependencyMap[$child['ulid']])) {
+                $dependents = $dependencyMap[$child['ulid']];
+                
+                $component->live(onBlur: true)
+                    ->afterStateUpdated(function (Get $get, Set $set, $state) use ($dependents, $ulidToSlug) {
+                        foreach ($dependents as $dependent) {
+                             $targetSlug = $dependent['slug'];
+                             
+                             // We need to pass the dependent Field model to calculateDynamicValue
+                             // Since $dependent is likely the model instance itself (from $children collection)
+                             // we can pass it directly.
+                             
+                             // Determine source value. 
+                             // For 'relation', the $state of the current field IS the source value.
+                             
+                             // Note: Text::calculateDynamicValue is static and stateless, 
+                             // it just needs the config from the field.
+                             
+                             $newValue = \Backstage\Fields\Fields\Text::calculateDynamicValue($dependent, $state, $get);
+                             
+                             if ($newValue !== null) {
+                                  // Relative path set
+                                  // Since we are inside a Repeater row, $set('slug', val) works for sibling fields
+                                  // BUT check if $get/set context is correct.
+                                  // In a Repeater item, Get/Set operate relative to the item.
+                                  // So $set($targetSlug, $newValue) should work.
+                                  $set($targetSlug, $newValue);
+                             }
+                        }
+                    });
+            }
+
+            $schema[] = $component;
         }
 
         return $schema;
@@ -322,4 +401,6 @@ class Repeater extends Base implements FieldContract
 
         return $tableColumns;
     }
+
+
 }
