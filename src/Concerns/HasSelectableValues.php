@@ -167,6 +167,7 @@ trait HasSelectableValues
                     $flatOptions[$id] = $label;
                 }
             }
+
             return $allOptions + $flatOptions;
         }
     }

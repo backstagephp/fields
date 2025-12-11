@@ -171,7 +171,7 @@ abstract class Base implements FieldContract
                     ->where('model_key', $field->model_key)
                     ->where(function ($query) use ($field) {
                         $query->where('config->dynamic_source_field', $field->ulid)
-                              ->orWhere('config->dynamic_formula', 'LIKE', "%{{$field->ulid}}%");
+                            ->orWhere('config->dynamic_formula', 'LIKE', "%{{$field->ulid}}%");
                     })
                     ->get();
 
