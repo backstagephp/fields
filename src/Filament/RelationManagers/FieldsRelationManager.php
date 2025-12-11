@@ -283,7 +283,7 @@ class FieldsRelationManager extends RelationManager
                     }),
                 Action::make('replicate')
                     ->tooltip(__('Duplicate'))
-                    ->hiddenLabel() 
+                    ->hiddenLabel()
                     ->icon('heroicon-o-document-duplicate')
                     ->action(function (Field $record, Component $livewire) {
                         $replica = $record->replicate();
