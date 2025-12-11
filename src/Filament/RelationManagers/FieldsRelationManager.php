@@ -269,6 +269,7 @@ class FieldsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make()
                     ->slideOver()
+                    ->hiddenLabel()
                     ->mutateRecordDataUsing(function (array $data) {
 
                         return [
@@ -280,7 +281,25 @@ class FieldsRelationManager extends RelationManager
                     ->after(function (Component $livewire) {
                         $livewire->dispatch('refreshFields');
                     }),
+                Action::make('replicate')
+                    ->tooltip(__('Duplicate'))
+                    ->hiddenLabel() 
+                    ->icon('heroicon-o-document-duplicate')
+                    ->action(function (Field $record, Component $livewire) {
+                        $replica = $record->replicate();
+                        $replica->ulid = (string) Str::ulid();
+                        $replica->name = $record->name . ' (' . __('Copy') . ')';
+                        $replica->slug = Str::slug($replica->name);
+                        $replica->position = Field::where('model_key', $this->ownerRecord->getKey())
+                            ->where('model_type', get_class($this->ownerRecord))
+                            ->max('position') + 1;
+                        $replica->save();
+
+                        $livewire->dispatch('refreshFields');
+                    }),
                 DeleteAction::make()
+                    ->hiddenLabel()
+                    ->tooltip(__('Delete'))
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
                         if (
                             isset($record->valueColumn) && $this->ownerRecord->getConnection()
