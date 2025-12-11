@@ -270,20 +270,11 @@ class FieldsRelationManager extends RelationManager
 
     protected function getSchemaOptions(): array
     {
-
         $options = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
             ->where('model_type', get_class($this->ownerRecord))
             ->orderBy('position')
             ->pluck('name', 'ulid')
             ->toArray();
-
-        // Debug: Log the options to help troubleshoot
-        \Log::info('Schema options for owner record', [
-            'owner_record_id' => $this->ownerRecord->getKey(),
-            'owner_record_class' => get_class($this->ownerRecord),
-            'options_count' => count($options),
-            'options' => $options,
-        ]);
 
         return $options;
     }
