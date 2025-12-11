@@ -64,18 +64,20 @@ class SchemaRelationManager extends RelationManager
                         Select::make('parent_ulid')
                             ->label(__('Parent Schema'))
                             ->placeholder(__('Select a parent schema (optional)'))
-                            ->relationship(
-                                name: 'parent',
-                                titleAttribute: 'name',
-                                modifyQueryUsing: function ($query) {
-                                    $key = $this->ownerRecord->getKeyName();
+                            ->options(function (?SchemaModel $record) {
+                                $query = SchemaModel::query()
+                                    ->where('model_key', $this->ownerRecord->getKey())
+                                    ->where('model_type', get_class($this->ownerRecord))
+                                    ->orderBy('position');
 
-                                    return $query->where('model_key', $this->ownerRecord->{$key})
-                                        ->where('model_type', get_class($this->ownerRecord))
-                                        ->orderBy('position');
+                                if ($record) {
+                                    $query->where('ulid', '!=', $record->ulid);
                                 }
-                            )
+
+                                return $query->pluck('name', 'ulid')->toArray();
+                            })
                             ->searchable()
+                            ->preload()
                             ->helperText(__('Attach this schema to a parent schema for nested layouts')),
 
                         Select::make('field_type')
