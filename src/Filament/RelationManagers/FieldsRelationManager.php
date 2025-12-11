@@ -326,11 +326,23 @@ class FieldsRelationManager extends RelationManager
 
     protected function getSchemaOptions(): array
     {
-        $options = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
+        $schemas = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
             ->where('model_type', get_class($this->ownerRecord))
             ->orderBy('position')
-            ->pluck('name', 'ulid')
-            ->toArray();
+            ->get();
+
+        return $this->buildSchemaTree($schemas);
+    }
+
+    protected function buildSchemaTree($schemas, $parentId = null, $depth = 0): array
+    {
+        $options = [];
+        $children = $schemas->where('parent_ulid', $parentId);
+
+        foreach ($children as $schema) {
+            $options[$schema->ulid] = str_repeat('— ', $depth) . $schema->name;
+            $options = $options + $this->buildSchemaTree($schemas, $schema->ulid, $depth + 1);
+        }
 
         return $options;
     }
