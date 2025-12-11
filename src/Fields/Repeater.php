@@ -54,7 +54,6 @@ class Repeater extends Base implements FieldContract
             'form' => [],
             'tableMode' => false,
             'tableColumns' => [],
-            'table' => false,
             'compact' => false,
         ];
     }
@@ -78,6 +77,7 @@ class Repeater extends Base implements FieldContract
         if ($field->config['compact'] ?? self::getDefaultConfig()['compact']) {
             $input = $input->compact();
         }
+
 
         if ($isReorderableWithButtons) {
             $input = $input->reorderableWithButtons();
@@ -114,18 +114,12 @@ class Repeater extends Base implements FieldContract
         if ($field && $field->children->count() > 0) {
             $input = $input->schema(self::generateSchemaFromChildren($field->children));
 
-            // Apply table mode if enabled (HEAD strategy)
+            // Apply table mode if enabled
             if ($field->config['tableMode'] ?? self::getDefaultConfig()['tableMode']) {
                 $tableColumns = self::generateTableColumnsFromChildren($field->children, $field->config['tableColumns'] ?? []);
                 if (! empty($tableColumns)) {
                     $input = $input->table($tableColumns);
                 }
-            }
-            // Apply table if enabled (MAIN strategy)
-            elseif ($field->config['table'] ?? self::getDefaultConfig()['table']) {
-                $input = $input
-                    ->table(self::generateTableColumns($field->children))
-                    ->schema(self::generateSchemaFromChildren($field->children, false));
             }
         }
 
@@ -171,15 +165,13 @@ class Repeater extends Base implements FieldContract
                                     ->default(1)
                                     ->numeric()
                                     ->visible(fn (Get $get): bool => ! ($get('config.tableMode') ?? false)),
-                                Forms\Components\Toggle::make('config.table')
-                                    ->label(__('Table repeater')),
-                                Forms\Components\Toggle::make('config.compact')
-                                    ->label(__('Compact table'))
-                                    ->live()
-                                    ->visible(fn (Get $get): bool => $get('config.table') === true),
                                 Forms\Components\Toggle::make('config.tableMode')
                                     ->label(__('Table Mode'))
                                     ->live(),
+                                Forms\Components\Toggle::make('config.compact')
+                                    ->label(__('Compact table'))
+                                    ->live()
+                                    ->visible(fn (Get $get): bool => ($get('config.tableMode') ?? false)),
                             ]),
                             AdjacencyList::make('config.form')
                                 ->columnSpanFull()
@@ -269,18 +261,7 @@ class Repeater extends Base implements FieldContract
         return ['defaultValue'];
     }
 
-    private static function generateTableColumns(Collection $children): array
-    {
-        $columns = [];
 
-        $children = $children->sortBy('position');
-
-        foreach ($children as $child) {
-            $columns[] = TableColumn::make($child['slug']);
-        }
-
-        return $columns;
-    }
 
     private static function generateSchemaFromChildren(Collection $children, bool $isTableMode = false): array
     {
