@@ -33,6 +33,7 @@ class Select extends Base implements FieldContract
             ...self::getOptionsConfig(),
             'searchable' => false,
             'multiple' => false,
+            'reorderable' => false,
             'preload' => false,
             'allowHtml' => false,
             'selectablePlaceholder' => true,
@@ -80,6 +81,10 @@ class Select extends Base implements FieldContract
 
         if (isset($field->config['maxItemsForSearch'])) {
             $input->maxItemsForSearch($field->config['maxItemsForSearch']);
+        }
+
+        if (($field->config['multiple'] ?? false) && ($field->config['reorderable'] ?? false)) {
+            $input->reorderable();
         }
 
         return $input;
@@ -160,8 +165,14 @@ class Select extends Base implements FieldContract
                                         ->live(debounce: 250),
                                     Toggle::make('config.multiple')
                                         ->label(__('Multiple'))
-                                        ->helperText(__('Only first value is used when switching from multiple to single.'))
-                                        ->columnSpan(2),
+                                        ->helperText(__('Only first value is kept when switching.'))
+                                        ->live()
+                                        ->columnSpan(1),
+                                    Toggle::make('config.reorderable')
+                                        ->label(__('Reorderable'))
+                                        ->helperText(__('Allow users to reorder selected items.'))
+                                        ->visible(fn (Get $get): bool => $get('config.multiple'))
+                                        ->columnSpan(1),
                                     Toggle::make('config.allowHtml')
                                         ->label(__('Allow HTML')),
                                     Toggle::make('config.selectablePlaceholder')
