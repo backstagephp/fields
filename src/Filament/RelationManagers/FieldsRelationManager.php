@@ -7,6 +7,7 @@ use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Facades\Fields;
 use Backstage\Fields\Models\Field;
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -48,6 +49,7 @@ class FieldsRelationManager extends RelationManager
                                 TextInput::make('name')
                                     ->label(__('Name'))
                                     ->required()
+                                    ->autocomplete(false)
                                     ->placeholder(__('Name'))
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?Field $record) {
@@ -120,6 +122,15 @@ class FieldsRelationManager extends RelationManager
                                         return $existingGroups;
                                     }),
 
+                                Select::make('schema_id')
+                                    ->label(__('Attach to Schema'))
+                                    ->placeholder(__('Select a schema (optional)'))
+                                    ->options($this->getSchemaOptions())
+                                    ->searchable()
+                                    ->live()
+                                    ->reactive()
+                                    ->helperText(__('Attach this field to a specific schema for better organization')),
+
                             ]),
                         Section::make('Configuration')
                             ->columnSpanFull()
@@ -139,28 +150,115 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
+            ->modifyQueryUsing(fn ($query) => $query->with(['schema']))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable()
                     ->limit(),
 
+                TextColumn::make('group')
+                    ->label(__('Group'))
+                    ->placeholder(__('No Group'))
+                    ->searchable()
+                    ->sortable()
+                    ->getStateUsing(fn (Field $record): string => $record->group ?? __('No Group')),
+
                 TextColumn::make('field_type')
                     ->label(__('Type'))
                     ->searchable(),
+
+                TextColumn::make('schema.name')
+                    ->label(__('Schema'))
+                    ->placeholder(__('No schema'))
+                    ->searchable()
+                    ->getStateUsing(fn (Field $record): string => $record->schema->name ?? __('No Schema')),
             ])
-            ->filters([])
+            ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('group')
+                    ->label(__('Group'))
+                    ->options(function () {
+                        return Field::where('model_type', get_class($this->ownerRecord))
+                            ->where('model_key', $this->ownerRecord->getKey())
+                            ->pluck('group')
+                            ->filter()
+                            ->unique()
+                            ->mapWithKeys(fn ($group) => [$group => $group])
+                            ->prepend(__('No Group'), '')
+                            ->toArray();
+                    }),
+                \Filament\Tables\Filters\SelectFilter::make('schema_id')
+                    ->label(__('Schema'))
+                    ->relationship('schema', 'name')
+                    ->placeholder(__('All Schemas')),
+            ])
             ->headerActions([
+                Action::make('copy_fields')
+                    ->label(__('Copy Fields'))
+                    ->icon('heroicon-o-document-duplicate')
+                    ->slideOver()
+                    ->schema([
+                        Select::make('source_record_id')
+                            ->label(__('Source Record'))
+                            ->options(function () {
+                                return $this->ownerRecord::query()
+                                    ->whereKeyNot($this->ownerRecord->getKey())
+                                    ->get()
+                                    ->pluck('name', $this->ownerRecord->getKeyName())
+                                    ->toArray();
+                            })
+                            ->searchable()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set) {
+                                $set('fields_to_copy', []);
+                            }),
+                        \Filament\Forms\Components\CheckboxList::make('fields_to_copy')
+                            ->label(__('Fields to Copy'))
+                            ->options(function (Get $get) {
+                                $sourceRecordId = $get('source_record_id');
+                                if (! $sourceRecordId) {
+                                    return [];
+                                }
+
+                                return Field::where('model_type', get_class($this->ownerRecord))
+                                    ->where('model_key', $sourceRecordId)
+                                    ->pluck('name', 'ulid')
+                                    ->toArray();
+                            })
+                            ->required()
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->visible(fn (Get $get) => filled($get('source_record_id'))),
+                    ])
+                    ->action(function (array $data, Component $livewire) {
+                        $fields = Field::whereIn('ulid', $data['fields_to_copy'])->get();
+
+                        foreach ($fields as $field) {
+                            $newField = $field->replicate();
+                            $newField->model_key = $this->ownerRecord->getKey();
+                            $newField->schema_id = null;
+                            $newField->save();
+                        }
+
+                        $livewire->dispatch('refreshFields');
+
+                        \Filament\Notifications\Notification::make()
+                            ->title(__('Fields copied successfully'))
+                            ->success()
+                            ->send();
+                    }),
                 CreateAction::make()
                     ->slideOver()
                     ->mutateDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName();
-
                         return [
                             ...$data,
-                            'position' => Field::where('model_key', $key)->get()->max('position') + 1,
-                            'model_type' => 'setting',
+                            'position' => Field::where('model_key', $this->ownerRecord->getKey())
+                                ->where('model_type', get_class($this->ownerRecord))
+                                ->get()
+                                ->max('position') + 1,
+                            'model_type' => get_class($this->ownerRecord),
                             'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
@@ -171,20 +269,37 @@ class FieldsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make()
                     ->slideOver()
+                    ->hiddenLabel()
                     ->mutateRecordDataUsing(function (array $data) {
-
-                        $key = $this->ownerRecord->getKeyName();
 
                         return [
                             ...$data,
-                            'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->{$key},
+                            'model_type' => get_class($this->ownerRecord),
+                            'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
                     ->after(function (Component $livewire) {
                         $livewire->dispatch('refreshFields');
                     }),
+                Action::make('replicate')
+                    ->tooltip(__('Duplicate'))
+                    ->hiddenLabel()
+                    ->icon('heroicon-o-document-duplicate')
+                    ->action(function (Field $record, Component $livewire) {
+                        $replica = $record->replicate();
+                        $replica->ulid = (string) Str::ulid();
+                        $replica->name = $record->name . ' (' . __('Copy') . ')';
+                        $replica->slug = Str::slug($replica->name);
+                        $replica->position = Field::where('model_key', $this->ownerRecord->getKey())
+                            ->where('model_type', get_class($this->ownerRecord))
+                            ->max('position') + 1;
+                        $replica->save();
+
+                        $livewire->dispatch('refreshFields');
+                    }),
                 DeleteAction::make()
+                    ->hiddenLabel()
+                    ->tooltip(__('Delete'))
                     ->after(function (Component $livewire, array $data, Model $record, array $arguments) {
                         if (
                             isset($record->valueColumn) && $this->ownerRecord->getConnection()
@@ -226,5 +341,28 @@ class FieldsRelationManager extends RelationManager
     public static function getPluralModelLabel(): string
     {
         return __('Fields');
+    }
+
+    protected function getSchemaOptions(): array
+    {
+        $schemas = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
+            ->where('model_type', get_class($this->ownerRecord))
+            ->orderBy('position')
+            ->get();
+
+        return $this->buildSchemaTree($schemas);
+    }
+
+    protected function buildSchemaTree($schemas, $parentId = null, $depth = 0): array
+    {
+        $options = [];
+        $children = $schemas->where('parent_ulid', $parentId);
+
+        foreach ($children as $schema) {
+            $options[$schema->ulid] = str_repeat('— ', $depth) . $schema->name;
+            $options = $options + $this->buildSchemaTree($schemas, $schema->ulid, $depth + 1);
+        }
+
+        return $options;
     }
 }

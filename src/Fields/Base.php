@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Colors\Color;
 use ReflectionObject;
 
@@ -157,7 +158,32 @@ abstract class Base implements FieldContract
             ->helperText($field->config['helperText'] ?? self::getDefaultConfig()['helperText'])
             ->hint($field->config['hint'] ?? self::getDefaultConfig()['hint'])
             ->hintIcon($field->config['hintIcon'] ?? self::getDefaultConfig()['hintIcon'])
-            ->live();
+            ->live()
+            ->afterStateUpdated(function ($state, Set $set, Get $get) use ($field) {
+                if (! $field) {
+                    return;
+                }
+
+                // Find fields that depend on this field
+                // We match fields where either the direct source matches this field ULID (relation mode)
+                // OR the formula contains this field ULID (calculation mode)
+                $dependents = \Backstage\Fields\Models\Field::where('model_type', $field->model_type)
+                    ->where('model_key', $field->model_key)
+                    ->where(function ($query) use ($field) {
+                        $query->where('config->dynamic_source_field', $field->ulid)
+                            ->orWhere('config->dynamic_formula', 'LIKE', "%{{$field->ulid}}%");
+                    })
+                    ->get();
+
+                foreach ($dependents as $dependent) {
+                    if ($dependent->field_type === 'text') {
+                        $newValue = \Backstage\Fields\Fields\Text::calculateDynamicValue($dependent, $state, $get);
+                        if ($newValue !== null) {
+                            $set("values.{$dependent->ulid}", $newValue);
+                        }
+                    }
+                }
+            });
 
         if (isset($field->config['hintColor']) && $field->config['hintColor']) {
             $input->hintColor(Color::generateV3Palette($field->config['hintColor']));

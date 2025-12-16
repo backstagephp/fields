@@ -15,9 +15,10 @@ use Illuminate\Support\Str;
 
 trait HasSelectableValues
 {
-    protected static function resolveResourceModel(string $tableName): ?object
+    public static function resolveResourceModel(string $tableName): ?object
     {
         $resources = config('backstage.fields.selectable_resources');
+
         $resourceClass = collect($resources)->first(function ($resource) use ($tableName) {
             $res = new $resource;
             $model = $res->getModel();
@@ -115,7 +116,8 @@ trait HasSelectableValues
             // Apply filters if they exist
             if (isset($relation['relationValue_filters'])) {
                 foreach ($relation['relationValue_filters'] as $filter) {
-                    if (isset($filter['column'], $filter['operator'], $filter['value'])) {
+                    if (isset($filter['column'], $filter['operator'], $filter['value']) &&
+                        ! empty($filter['column']) && ! empty($filter['operator']) && $filter['value'] !== '') {
                         if (preg_match('/{session\.([^\}]+)}/', $filter['value'], $matches)) {
                             $sessionValue = session($matches[1]);
                             $filter['value'] = str_replace($matches[0], $sessionValue, $filter['value']);
@@ -156,10 +158,17 @@ trait HasSelectableValues
         // If both types are selected, group relationship options by resource
         if (isset($field->config[$type]) &&
             (is_array($field->config[$type]) && in_array('array', $field->config[$type]))) {
-            return array_merge($allOptions, $relationshipOptions);
+            return $allOptions + $relationshipOptions;
         } else {
             // For single relationship type, merge all options without grouping
-            return array_merge($allOptions, ...array_values($relationshipOptions));
+            $flatOptions = [];
+            foreach ($relationshipOptions as $resourceOptions) {
+                foreach ($resourceOptions as $id => $label) {
+                    $flatOptions[$id] = $label;
+                }
+            }
+
+            return $allOptions + $flatOptions;
         }
     }
 
