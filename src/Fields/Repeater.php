@@ -25,7 +25,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Saade\FilamentAdjacencyList\Forms\Components\AdjacencyList;
 
-class Repeater extends Base implements FieldContract
+use Backstage\Fields\Contracts\HydratesValues;
+use Illuminate\Database\Eloquent\Model;
+
+class Repeater extends Base implements FieldContract, HydratesValues
 {
     use HasConfigurableFields;
     use HasFieldTypeResolver;
@@ -34,6 +37,58 @@ class Repeater extends Base implements FieldContract
     public function getFieldType(): ?string
     {
         return 'repeater';
+    }
+
+    public function hydrate(mixed $value, ?Model $model = null): mixed
+    {
+        if (! is_array($value)) {
+            return $value;
+        }
+
+        if (empty($this->field_model)) {
+            file_put_contents('/tmp/repeater_debug.log', "Field model missing for repeater.\n", FILE_APPEND);
+            return $value;
+        }
+
+        $children = $this->field_model->children->keyBy('ulid');
+        $slugMap = $this->field_model->children->pluck('ulid', 'slug');
+
+        file_put_contents('/tmp/repeater_debug.log', "Hydrating Repeater " . $this->field_model->ulid . " with children slugs: " . implode(', ', $slugMap->keys()->toArray()) . "\n", FILE_APPEND);
+
+        $hydrated = [];
+
+        foreach ($value as $key => $row) {
+            $hydratedRow = $row;
+
+            if (is_array($row)) {
+                foreach ($row as $fieldSlug => $fieldValue) {
+                    $fieldUlid = $slugMap[$fieldSlug] ?? null;
+                    if ($fieldUlid && isset($children[$fieldUlid])) {
+                        $fieldModel = $children[$fieldUlid];
+                        $fieldClass = self::resolveFieldTypeClassName($fieldModel->field_type);
+                        
+                        file_put_contents('/tmp/repeater_debug.log', "  > Hydrating field $fieldSlug ($fieldModel->field_type) using $fieldClass\n", FILE_APPEND);
+
+                        if ($fieldClass && in_array(HydratesValues::class, class_implements($fieldClass))) {
+                            // Instantiate the field class to access its hydrate method
+                            // We need to set the field model on the instance if possible, 
+                            // or at least pass context if needed.
+                            // Assuming simpler 'make' or instantiation works for hydration context.
+                            $fieldInstance = new $fieldClass();
+                            if (property_exists($fieldInstance, 'field_model')) {
+                                $fieldInstance->field_model = $fieldModel;
+                            }
+                            
+                            $hydratedRow[$fieldSlug] = $fieldInstance->hydrate($fieldValue, $model);
+                        }
+                    }
+                }
+            }
+
+            $hydrated[$key] = $hydratedRow;
+        }
+
+        return $hydrated;
     }
 
     public static function getDefaultConfig(): array

@@ -202,7 +202,19 @@ abstract class Base implements FieldContract
 
             // Handle relationship-based values (like Content model)
             if (self::isRelationship($values)) {
-                $fieldValue = $values->where('field_ulid', $field->ulid)->first();
+                $fieldValue = $values->where(function ($query) use ($field) {
+                    $query->where('field_ulid', $field->ulid)
+                          ->orWhere('ulid', $field->ulid);
+                })->first();
+
+                if ($field->slug === 'banner-image') {
+                     \Illuminate\Support\Facades\Log::info("[BASE DEBUG] getFieldValueFromRecord relation check", [
+                         'field_ulid' => $field->ulid,
+                         'record_key' => $record->getKey(),
+                         'found' => (bool) $fieldValue,
+                         'sql' => $values->where('field_ulid', $field->ulid)->toSql(), 
+                     ]);
+                }
                 $result = $fieldValue ? self::resolveHydratedValue($fieldValue) : null;
             }
         }
