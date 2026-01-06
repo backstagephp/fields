@@ -207,14 +207,6 @@ abstract class Base implements FieldContract
                         ->orWhere('ulid', $field->ulid);
                 })->first();
 
-                if ($field->slug === 'banner-image') {
-                    \Illuminate\Support\Facades\Log::info('[BASE DEBUG] getFieldValueFromRecord relation check', [
-                        'field_ulid' => $field->ulid,
-                        'record_key' => $record->getKey(),
-                        'found' => (bool) $fieldValue,
-                        'sql' => $values->where('field_ulid', $field->ulid)->toSql(),
-                    ]);
-                }
                 $result = $fieldValue ? self::resolveHydratedValue($fieldValue) : null;
             }
         }
