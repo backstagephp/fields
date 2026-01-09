@@ -3,6 +3,7 @@
 namespace Backstage\Fields\Concerns;
 
 use Backstage\Fields\Enums\Field;
+use Backstage\Fields\Enums\Schema as SchemaEnum;
 use Backstage\Fields\Facades\Fields;
 use Exception;
 use Illuminate\Support\Str;
@@ -25,6 +26,8 @@ trait HasFieldTypeResolver
 
             return app($className)->getForm();
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error("FieldTypeResolver failed for {$fieldType}: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             throw new Exception(message: "Failed to resolve field type class for '{$fieldType}'", code: 0, previous: $e);
         }
     }
@@ -35,8 +38,14 @@ trait HasFieldTypeResolver
             return Fields::getFields()[$fieldType];
         }
 
+        // Check if it's a field type
         if (Field::tryFrom($fieldType)) {
             return sprintf('Backstage\\Fields\\Fields\\%s', Str::studly($fieldType));
+        }
+
+        // Check if it's a schema type
+        if (SchemaEnum::tryFrom($fieldType)) {
+            return sprintf('Backstage\\Fields\\Schemas\\%s', Str::studly($fieldType));
         }
 
         return null;

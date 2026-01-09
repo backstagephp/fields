@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class Text extends Base implements FieldContract
 {
@@ -37,6 +38,10 @@ class Text extends Base implements FieldContract
             'inputMode' => null,
             'telRegex' => null,
             'revealable' => false,
+            'dynamic_mode' => 'none',
+            'dynamic_source_field' => null,
+            'dynamic_relation_column' => null,
+            'dynamic_formula' => null,
         ];
     }
 
@@ -80,10 +85,137 @@ class Text extends Base implements FieldContract
             $input->integer();
         }
 
+        $input = self::applyDynamicSettings($input, $field);
         $input = self::addAffixesToInput($input, $field);
         $input = self::addDatalistToInput($input, $field);
 
         return $input;
+    }
+
+    public static function calculateDynamicValue(Field $field, $sourceValue, ?Get $get = null)
+    {
+        $mode = $field->config['dynamic_mode'] ?? 'none';
+
+        if ($mode === 'relation') {
+            if (empty($sourceValue)) {
+                return null;
+            }
+
+            $sourceUlid = $field->config['dynamic_source_field'] ?? null;
+            if (! $sourceUlid) {
+                return null;
+            }
+
+            $sourceField = \Backstage\Fields\Models\Field::find($sourceUlid);
+            if (! $sourceField) {
+                return null;
+            }
+
+            $relations = $sourceField->config['relations'] ?? [];
+            $relationConfig = reset($relations);
+            if (! $relationConfig || empty($relationConfig['resource'])) {
+                return null;
+            }
+
+            $modelInstance = \Backstage\Fields\Fields\Select::resolveResourceModel($relationConfig['resource']);
+            if (! $modelInstance) {
+                return null;
+            }
+
+            $relatedRecord = $modelInstance::find($sourceValue);
+            if (! $relatedRecord) {
+                return null;
+            }
+
+            $targetColumn = $field->config['dynamic_relation_column'] ?? null;
+            if ($targetColumn && isset($relatedRecord->$targetColumn)) {
+                return $relatedRecord->$targetColumn;
+            }
+        }
+
+        if ($mode === 'calculation') {
+            if (! $get) {
+                return null;
+            }
+
+            $formula = $field->config['dynamic_formula'] ?? null;
+            if (! $formula) {
+                return null;
+            }
+
+            // Regex to find {ulid} patterns
+            $parsedFormula = preg_replace_callback('/\{([a-zA-Z0-9-]+)\}/', function ($matches) use ($get) {
+                $ulid = $matches[1];
+
+                // Try to find the field to get its slug for relative lookup
+                // This allows calculations to work inside Repeaters where fields are named by slug
+                $referencedField = \Backstage\Fields\Models\Field::find($ulid);
+                $val = null;
+
+                if ($referencedField) {
+                    // Try relative path first (e.g. inside Repeater) using slug
+                    $val = $get($referencedField->slug);
+                }
+
+                // Try direct slug/key access (simplifies Repeater usage)
+                if ($val === null) {
+                    $val = $get($ulid);
+                }
+
+                // Fallback to absolute path (e.g. top level)
+                if ($val === null) {
+                    $val = $get("values.{$ulid}");
+                }
+
+                if (is_numeric($val)) {
+                    return $val;
+                }
+
+                // If not numeric, encode as JSON to allow string comparisons in formula
+                // e.g. "My Value"
+                return json_encode($val);
+            }, $formula);
+
+            // Safety: Allow numbers, math operators, comparisons, logic, and ternary
+            if (preg_match('/^[0-9\.\+\-\*\/\(\)\s\!\=\<\>\&\|\?\:\'\"\,]+$/', $parsedFormula)) {
+                try {
+                    $result = @eval("return {$parsedFormula};");
+
+                    return $result;
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected static function applyDynamicSettings(Input $input, ?Field $field = null): Input
+    {
+        if (! $field || empty($field->config['dynamic_mode']) || $field->config['dynamic_mode'] === 'none') {
+            return $input;
+        }
+
+        return $input
+            // We keep afterStateHydrated for initial load,
+            // but we remove the `key` hack as we use "Push" model for updates.
+            ->afterStateHydrated(function (Input $component, Get $get, Set $set) use ($field) {
+                $mode = $field->config['dynamic_mode'] ?? 'none';
+
+                // Use the shared calculation logic
+                // But we need to resolve sourceValue from $get
+                $sourceUlid = $field->config['dynamic_source_field'] ?? null;
+                if ($sourceUlid) {
+                    $sourceValue = $get("values.{$sourceUlid}");
+                    $newValue = self::calculateDynamicValue($field, $sourceValue); // We need to update this sig for calc?
+
+                    if ($newValue !== null && $component->getState() !== $newValue) {
+                        $component->state($newValue);
+                        $set($component->getStatePath(), $newValue);
+                    }
+                }
+            });
     }
 
     public function getForm(): array
@@ -165,6 +297,99 @@ class Text extends Base implements FieldContract
                                     Input::make('config.telRegex')
                                         ->label(__('Telephone regex'))
                                         ->visible(fn (Get $get): bool => $get('config.type') === 'tel'),
+                                ]),
+                        ]),
+                    Tab::make('Dynamic Values')
+                        ->label(__('Dynamic Values'))
+                        ->schema([
+                            Grid::make(1)
+                                ->schema([
+                                    Select::make('config.dynamic_mode')
+                                        ->label(__('Mode'))
+                                        ->options([
+                                            'none' => __('None'),
+                                            'relation' => __('Relation Prefill'),
+                                            'calculation' => __('Calculation'),
+                                        ])
+                                        ->live(),
+                                    Select::make('config.dynamic_source_field')
+                                        ->label(__('Source Field'))
+                                        ->helperText(__('Select the field to use as source.'))
+                                        ->options(function ($record, $component) {
+                                            $formSlug = null;
+
+                                            if ($record && isset($record->model_key)) {
+                                                $formSlug = $record->model_key;
+                                            }
+
+                                            if (! $formSlug) {
+                                                $routeParams = request()->route()?->parameters() ?? [];
+                                                $formSlug = $routeParams['record'] ?? $routeParams['form'] ?? $routeParams['id'] ?? null;
+                                            }
+
+                                            if (! $formSlug && method_exists($component, 'getOwnerRecord')) {
+                                                $ownerRecord = $component->getOwnerRecord();
+                                                if ($ownerRecord) {
+                                                    $formSlug = $ownerRecord->getKey();
+                                                }
+                                            }
+
+                                            if (! $formSlug) {
+                                                return [];
+                                            }
+
+                                            $fields = \Backstage\Fields\Models\Field::where('model_type', 'App\Models\Form')
+                                                ->where('model_key', $formSlug)
+                                                ->when($record && isset($record->ulid), function ($query) use ($record) {
+                                                    return $query->where('ulid', '!=', $record->ulid);
+                                                })
+                                                ->orderBy('name')
+                                                ->pluck('name', 'ulid')
+                                                ->toArray();
+
+                                            return $fields;
+                                        })
+                                        ->searchable()
+                                        ->visible(fn (Get $get): bool => $get('config.dynamic_mode') === 'relation'),
+                                    \Filament\Forms\Components\Select::make('config.dynamic_relation_column')
+                                        ->label(__('Relation Column'))
+                                        ->helperText(__('The column to pluck from the related model.'))
+                                        ->visible(fn (Get $get): bool => $get('config.dynamic_mode') === 'relation')
+                                        ->searchable()
+                                        ->options(function (Get $get) {
+                                            $sourceUlid = $get('config.dynamic_source_field');
+                                            if (! $sourceUlid) {
+                                                return [];
+                                            }
+
+                                            $sourceField = \Backstage\Fields\Models\Field::find($sourceUlid);
+                                            if (! $sourceField) {
+                                                return [];
+                                            }
+
+                                            $relations = $sourceField->config['relations'] ?? [];
+                                            $relationConfig = reset($relations);
+
+                                            if (! $relationConfig || empty($relationConfig['resource'])) {
+                                                return [];
+                                            }
+
+                                            $modelInstance = \Backstage\Fields\Fields\Select::resolveResourceModel($relationConfig['resource']);
+                                            if (! $modelInstance) {
+                                                return [];
+                                            }
+
+                                            $columns = \Illuminate\Support\Facades\Schema::getColumnListing($modelInstance->getTable());
+
+                                            return collect($columns)->mapWithKeys(function ($column) {
+                                                return [$column => $column];
+                                            })->toArray();
+                                        }),
+                                    \Filament\Forms\Components\Textarea::make('config.dynamic_formula')
+                                        ->label(__('Formula'))
+                                        ->rows(3)
+                                        ->helperText(__('Use field names as variables. Example: "price * quantity". Use {field_slug} or {field_ulid} for specific fields.'))
+                                        ->visible(fn (Get $get): bool => $get('config.dynamic_mode') === 'calculation'),
                                 ]),
                         ]),
                     Tab::make('Rules')

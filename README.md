@@ -278,6 +278,48 @@ Combine multiple conditions with logical operators:
 
 The visibility system works seamlessly with validation rules to create intelligent, user-friendly forms that adapt to your data and user interactions.
 
+#### Dynamic Values (Text Fields)
+
+Text fields support dynamic value calculation, allowing them to automatically populate based on other fields in the form.
+
+##### Relation Prefill Mode
+
+Automatically prefill a text field based on a selection in another field (typically a Select field).
+
+-   **Source Field**: The field to watch (e.g., a `building` select field).
+-   **Relation Column**: The column from the related model to fetch (e.g., `city`).
+
+*Example*: When a user selects a "Building", the "City" text field automatically updates to show the city associated with that building record.
+
+##### Calculation Mode
+
+Calculate the field's value using a mathematical formula based on other fields.
+
+-   **Formula**: Enter a formula using field values.
+-   **Syntax**: Use field IDs or keys in curly braces, e.g., `{price} * {quantity}`.
+-   **Supported Operations**: Standard math operators (`+`, `-`, `*`, `/`, `(`, `)`).
+
+*Example*: A "Total" field can automatically calculate `{price} * {tax_rate}`.
+
+##### Advanced Use Cases
+
+**Using Slugs**: You can use the field slug instead of the ULID for better readability: `"{price} * {quantity}"`.
+
+**Conditional Logic**: The formula engine supports conditional operations similar to Excel or PHP ternary operators. This is useful for Repeater rows where you want calculations to apply only when specific criteria are met.
+
+*Syntax*: `condition ? value_if_true : value_if_false`
+
+*Example*:
+```
+"{type}" == "Premium" ? {price} * 1.2 : {price}
+```
+
+*Nested Example* (Excel-like IF/ELSE):
+```
+"{status}" == "Paid" ? 0 : ("{status}" == "Pending" ? {total} : null)
+```
+**Note**: Returning `null` effectively skips the calculation, allowing the field to be manually edited or remain empty.
+
 ### Making a resource page configurable
 
 To make a resource page configurable, you need to add the `CanMapDynamicFields` trait to your page. For this example, we'll make a `EditContent` page configurable.
@@ -491,6 +533,20 @@ The package includes a powerful Rich Editor with custom plugins:
 ### Field Configuration
 
 -   **[Visibility Rules](docs/visibility-rules.md)** - Comprehensive guide to controlling field visibility based on conditions and record properties
+
+
+## Fields
+
+### Repeater
+
+### Repeater
+
+The Repeater field includes a robust implementation to handle default value hydration. It uses a custom `NormalizedRepeater` component (extending `Filament\Forms\Components\Repeater`) to ensure that data hydration from JSON strings (common in database storage) is correctly decoded and normalized into a UUID-keyed array before the component renders.
+
+This prevents common "string given" errors in loops and ensures that fields are correctly populated even when the initial state is a flat list or single object.
+
+- **Default Values**: Can be entered as JSON in the field configuration.
+- **JSON Editor**: Use the JSON editor to enter default values.
 
 ## Testing
 
