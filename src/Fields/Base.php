@@ -16,7 +16,6 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Colors\Color;
-use Illuminate\Database\Eloquent\Model;
 use ReflectionObject;
 
 abstract class Base implements FieldContract
@@ -190,50 +189,5 @@ abstract class Base implements FieldContract
         }
 
         return $input;
-    }
-
-    public static function getFieldValueFromRecord(Model $record, Field $field): mixed
-    {
-        $result = null;
-
-        // Check if record has values method
-        if (method_exists($record, 'values')) {
-            $values = $record->values();
-
-            // Handle relationship-based values (like Content model)
-            if (self::isRelationship($values)) {
-                $fieldValue = $values->where(function ($query) use ($field) {
-                    $query->where('field_ulid', $field->ulid)
-                        ->orWhere('ulid', $field->ulid);
-                })->first();
-
-                $result = $fieldValue ? self::resolveHydratedValue($fieldValue) : null;
-            }
-        }
-
-        if ($result === null) {
-            $values = $record->values ?? [];
-
-            // Handle array/collection-based values (like Settings model)
-            if (is_array($values) || $values instanceof \Illuminate\Support\Collection) {
-                $result = $values[$field->ulid] ?? $values[$field->slug] ?? null;
-            }
-        }
-
-        return $result;
-    }
-
-    protected static function isRelationship(mixed $values): bool
-    {
-        return $values instanceof \Illuminate\Database\Eloquent\Relations\Relation;
-    }
-
-    protected static function resolveHydratedValue(Model $fieldValue): mixed
-    {
-        if (method_exists($fieldValue, 'getHydratedValue')) {
-            return $fieldValue->getHydratedValue();
-        }
-
-        return $fieldValue->value ?? null;
     }
 }
