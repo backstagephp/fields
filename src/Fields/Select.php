@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class Select extends Base implements FieldContract
@@ -92,11 +93,16 @@ class Select extends Base implements FieldContract
 
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
-        if (! property_exists($record, 'valueColumn') || ! isset($record->values[$field->ulid])) {
+        if (! property_exists($record, 'valueColumn')) {
             return $data;
         }
 
-        $value = $record->values[$field->ulid];
+        $value = self::getFieldValueFromRecord($record, $field);
+
+        if ($value === null) {
+            return $data;
+        }
+
         $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
 
         return $data;
@@ -104,11 +110,16 @@ class Select extends Base implements FieldContract
 
     public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
     {
-        if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][$field->ulid])) {
+        if (! property_exists($record, 'valueColumn')) {
             return $data;
         }
 
-        $value = $data[$record->valueColumn][$field->ulid];
+        $value = $data[$record->valueColumn][$field->ulid] ?? $data[$record->valueColumn][$field->slug] ?? null;
+
+        if ($value === null && ! isset($data[$record->valueColumn][$field->ulid]) && ! isset($data[$record->valueColumn][$field->slug])) {
+            return $data;
+        }
+
         $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
 
         return $data;
@@ -120,6 +131,10 @@ class Select extends Base implements FieldContract
      */
     protected static function normalizeSelectValue($value, Field $field): mixed
     {
+        if ($value instanceof Collection) {
+            $value = $value->toArray();
+        }
+
         $isMultiple = $field->config['multiple'] ?? false;
 
         // Handle JSON string values
