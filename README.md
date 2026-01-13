@@ -478,33 +478,6 @@ To register your own fields, you can add them to the `fields.fields` config arra
 'custom_fields' => [
     App\Fields\CustomField::class,
 ],
-
-### Value Hydration
-
-The `hydrate` method allows you to transform the raw value stored in the database into a runtime representation. This is useful when you want to convert stored IDs into models, format dates, or process JSON data into specific objects.
-
-To use this feature, your field class must implement the `Backstage\Fields\Contracts\HydratesValues` interface.
-
-```php
-use Backstage\Fields\Fields\Base;
-use Backstage\Fields\Contracts\HydratesValues;
-use Illuminate\Database\Eloquent\Model;
-
-class MyCustomField extends Base implements HydratesValues
-{
-    /**
-     * Hydrate the raw field value into its runtime representation.
-     */
-    public function hydrate(mixed $value, ?Model $model = null): mixed
-    {
-        // Transform the raw value
-        // For example, convert a stored ID to a model instance
-        return MyModel::find($value);
-    }
-}
-```
-
-The `hydrate` method is automatically called when accessing the value of the field.
 ```
 
 ## Documentation

@@ -3,7 +3,6 @@
 namespace Backstage\Fields;
 
 use Backstage\Fields\Contracts\FieldInspector;
-use Backstage\Fields\Fields\Text;
 use Backstage\Fields\Services\FieldInspectionService;
 use Backstage\Fields\Testing\TestsFields;
 use Filament\Support\Assets\Asset;
@@ -94,8 +93,6 @@ class FieldsServiceProvider extends PackageServiceProvider
         Testable::mixin(new TestsFields);
 
         $this->app->bind(FieldInspector::class, FieldInspectionService::class);
-
-        Fields::registerField(Text::class);
 
         collect($this->app['config']['backstage.fields.custom_fields'] ?? [])
             ->each(function ($field) {

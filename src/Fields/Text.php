@@ -5,7 +5,6 @@ namespace Backstage\Fields\Fields;
 use Backstage\Fields\Concerns\HasAffixes;
 use Backstage\Fields\Concerns\HasDatalist;
 use Backstage\Fields\Contracts\FieldContract;
-use Backstage\Fields\Contracts\HydratesValues;
 use Backstage\Fields\Models\Field;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput as Input;
@@ -14,17 +13,11 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
-use Illuminate\Support\HtmlString;
 
-class Text extends Base implements FieldContract, HydratesValues
+class Text extends Base implements FieldContract
 {
     use HasAffixes;
     use HasDatalist;
-
-    public function hydrate(mixed $value, ?\Illuminate\Database\Eloquent\Model $model = null): mixed
-    {
-        return new HtmlString($value);
-    }
 
     public static function getDefaultConfig(): array
     {

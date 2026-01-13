@@ -158,14 +158,44 @@ class RichEditor extends Base implements FieldContract
 
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
-        $valueColumn = $record->valueColumn ?? 'values';
         $rawValue = self::getFieldValueFromRecord($record, $field);
 
         if ($rawValue !== null) {
+            $valueColumn = $record->valueColumn ?? 'values';
             $data[$valueColumn][$field->ulid] = $rawValue;
         }
 
         return $data;
+    }
+
+    private static function getFieldValueFromRecord(Model $record, Field $field): mixed
+    {
+        // Check if record has values method
+        if (! method_exists($record, 'values')) {
+            return null;
+        }
+
+        $values = $record->values();
+
+        // Handle relationship-based values (like Content model)
+        if (self::isRelationship($values)) {
+            return $values->where('field_ulid', $field->ulid)->first()?->value;
+        }
+
+        // Handle array/collection-based values (like Settings model)
+        if (is_array($values) || $values instanceof \Illuminate\Support\Collection) {
+            return $values[$field->ulid] ?? null;
+        }
+
+        return $record->values[$field->ulid] ?? null;
+    }
+
+    private static function isRelationship(mixed $values): bool
+    {
+        return is_object($values)
+            && method_exists($values, 'where')
+            && method_exists($values, 'get')
+            && ! ($values instanceof \Illuminate\Support\Collection);
     }
 
     public function getForm(): array
