@@ -9,8 +9,6 @@ use Filament\Forms\Components\Radio as Input;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 
 class Radio extends Base implements FieldContract
 {
@@ -44,59 +42,6 @@ class Radio extends Base implements FieldContract
         $input = self::addOptionsToInput($input, $field);
 
         return $input;
-    }
-
-    public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
-    {
-        if (! property_exists($record, 'valueColumn')) {
-            return $data;
-        }
-
-        $value = self::getFieldValueFromRecord($record, $field);
-
-        if ($value === null) {
-            return $data;
-        }
-
-        $data[$record->valueColumn][$field->ulid] = self::normalizeValue($value, $field);
-
-        return $data;
-    }
-
-    public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
-    {
-        if (! property_exists($record, 'valueColumn')) {
-            return $data;
-        }
-
-        $value = $data[$record->valueColumn][$field->ulid] ?? $data[$record->valueColumn][$field->slug] ?? null;
-
-        if ($value === null && ! isset($data[$record->valueColumn][$field->ulid]) && ! isset($data[$record->valueColumn][$field->slug])) {
-            return $data;
-        }
-
-        $data[$record->valueColumn][$field->ulid] = self::normalizeValue($value, $field);
-
-        return $data;
-    }
-
-    protected static function normalizeValue($value, Field $field): mixed
-    {
-        if ($value instanceof Collection) {
-            $value = $value->toArray();
-        }
-
-        // Handle JSON string values
-        if (is_string($value) && json_validate($value)) {
-            $value = json_decode($value, true);
-        }
-
-        // Convert array to single value for Radio
-        if (is_array($value)) {
-            $value = empty($value) ? null : reset($value);
-        }
-
-        return $value;
     }
 
     public function getForm(): array
