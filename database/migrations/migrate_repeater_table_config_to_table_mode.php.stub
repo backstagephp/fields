@@ -1,0 +1,67 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Migrate repeater fields from 'table' config to 'tableMode'
+        // This ensures backward compatibility
+        
+        $repeaterFields = DB::table('fields')
+            ->where('field_type', 'repeater')
+            ->whereNotNull('config')
+            ->get();
+
+        foreach ($repeaterFields as $field) {
+            $config = json_decode($field->config, true);
+            
+            if (! is_array($config)) {
+                continue;
+            }
+
+            // If 'table' config exists and 'tableMode' doesn't, migrate it
+            if (isset($config['table']) && ! isset($config['tableMode'])) {
+                $config['tableMode'] = $config['table'];
+                
+                // Optionally remove the old 'table' key to clean up
+                // Uncomment the next line if you want to remove the old key
+                // unset($config['table']);
+                
+                DB::table('fields')
+                    ->where('ulid', $field->ulid)
+                    ->update(['config' => json_encode($config)]);
+            }
+        }
+    }
+
+    public function down(): void
+    {
+        // Revert 'tableMode' back to 'table' for backward compatibility
+        
+        $repeaterFields = DB::table('fields')
+            ->where('field_type', 'repeater')
+            ->whereNotNull('config')
+            ->get();
+
+        foreach ($repeaterFields as $field) {
+            $config = json_decode($field->config, true);
+            
+            if (! is_array($config)) {
+                continue;
+            }
+
+            // If 'tableMode' exists, migrate it back to 'table'
+            if (isset($config['tableMode'])) {
+                $config['table'] = $config['tableMode'];
+                unset($config['tableMode']);
+                
+                DB::table('fields')
+                    ->where('ulid', $field->ulid)
+                    ->update(['config' => json_encode($config)]);
+            }
+        }
+    }
+};

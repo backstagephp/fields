@@ -48,6 +48,7 @@ class FieldsRelationManager extends RelationManager
                                 TextInput::make('name')
                                     ->label(__('Name'))
                                     ->required()
+                                    ->autocomplete(false)
                                     ->placeholder(__('Name'))
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state, ?string $old, ?Field $record) {
@@ -120,6 +121,15 @@ class FieldsRelationManager extends RelationManager
                                         return $existingGroups;
                                     }),
 
+                                Select::make('schema_id')
+                                    ->label(__('Attach to Schema'))
+                                    ->placeholder(__('Select a schema (optional)'))
+                                    ->options($this->getSchemaOptions())
+                                    ->searchable()
+                                    ->live()
+                                    ->reactive()
+                                    ->helperText(__('Attach this field to a specific schema for better organization')),
+
                             ]),
                         Section::make('Configuration')
                             ->columnSpanFull()
@@ -139,28 +149,60 @@ class FieldsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->reorderable('position')
             ->defaultSort('position', 'asc')
+            ->modifyQueryUsing(fn ($query) => $query->with(['schema']))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
                     ->searchable()
                     ->limit(),
 
+                TextColumn::make('group')
+                    ->label(__('Group'))
+                    ->placeholder(__('No Group'))
+                    ->searchable()
+                    ->sortable()
+                    ->getStateUsing(fn (Field $record): string => $record->group ?? __('No Group')),
+
                 TextColumn::make('field_type')
                     ->label(__('Type'))
                     ->searchable(),
+
+                TextColumn::make('schema.name')
+                    ->label(__('Schema'))
+                    ->placeholder(__('No schema'))
+                    ->searchable()
+                    ->getStateUsing(fn (Field $record): string => $record->schema->name ?? __('No Schema')),
             ])
-            ->filters([])
+            ->filters([
+                \Filament\Tables\Filters\SelectFilter::make('group')
+                    ->label(__('Group'))
+                    ->options(function () {
+                        return Field::where('model_type', get_class($this->ownerRecord))
+                            ->where('model_key', $this->ownerRecord->getKey())
+                            ->pluck('group')
+                            ->filter()
+                            ->unique()
+                            ->mapWithKeys(fn ($group) => [$group => $group])
+                            ->prepend(__('No Group'), '')
+                            ->toArray();
+                    }),
+                \Filament\Tables\Filters\SelectFilter::make('schema_id')
+                    ->label(__('Schema'))
+                    ->relationship('schema', 'name')
+                    ->placeholder(__('All Schemas')),
+            ])
             ->headerActions([
                 CreateAction::make()
                     ->slideOver()
                     ->mutateDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName();
-
                         return [
                             ...$data,
-                            'position' => Field::where('model_key', $key)->get()->max('position') + 1,
-                            'model_type' => 'setting',
+                            'position' => Field::where('model_key', $this->ownerRecord->getKey())
+                                ->where('model_type', get_class($this->ownerRecord))
+                                ->get()
+                                ->max('position') + 1,
+                            'model_type' => get_class($this->ownerRecord),
                             'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
@@ -173,12 +215,10 @@ class FieldsRelationManager extends RelationManager
                     ->slideOver()
                     ->mutateRecordDataUsing(function (array $data) {
 
-                        $key = $this->ownerRecord->getKeyName();
-
                         return [
                             ...$data,
-                            'model_type' => 'setting',
-                            'model_key' => $this->ownerRecord->{$key},
+                            'model_type' => get_class($this->ownerRecord),
+                            'model_key' => $this->ownerRecord->getKey(),
                         ];
                     })
                     ->after(function (Component $livewire) {
@@ -226,5 +266,16 @@ class FieldsRelationManager extends RelationManager
     public static function getPluralModelLabel(): string
     {
         return __('Fields');
+    }
+
+    protected function getSchemaOptions(): array
+    {
+        $options = \Backstage\Fields\Models\Schema::where('model_key', $this->ownerRecord->getKey())
+            ->where('model_type', get_class($this->ownerRecord))
+            ->orderBy('position')
+            ->pluck('name', 'ulid')
+            ->toArray();
+
+        return $options;
     }
 }

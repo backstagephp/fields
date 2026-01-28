@@ -46,6 +46,7 @@ class Select extends Base implements FieldContract
             'optionsLimit' => null,
             'minItemsForSearch' => null,
             'maxItemsForSearch' => null,
+            'dependsOnField' => null, // Simple field dependency
         ];
     }
 
@@ -54,7 +55,6 @@ class Select extends Base implements FieldContract
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? null)
-            ->options($field->config['options'] ?? self::getDefaultConfig()['options'])
             ->searchable($field->config['searchable'] ?? self::getDefaultConfig()['searchable'])
             ->multiple($field->config['multiple'] ?? self::getDefaultConfig()['multiple'])
             ->preload($field->config['preload'] ?? self::getDefaultConfig()['preload'])
@@ -65,8 +65,21 @@ class Select extends Base implements FieldContract
             ->searchPrompt($field->config['searchPrompt'] ?? self::getDefaultConfig()['searchPrompt'])
             ->searchingMessage($field->config['searchingMessage'] ?? self::getDefaultConfig()['searchingMessage']);
 
-        $input = self::addAffixesToInput($input, $field);
+        // Handle field dependencies - only add live/reactive when needed
+        if (isset($field->config['dependsOnField']) && $field->config['dependsOnField']) {
+            $input = $input->live()->dehydrated()->reactive();
+            $input = self::addFieldDependency($input, $field);
+        }
+
+        // Add dynamic options first (from relationships, etc.)
         $input = self::addOptionsToInput($input, $field);
+
+        // Set static options as fallback if no dynamic options were added
+        if (empty($field->config['optionType']) || ! is_array($field->config['optionType']) || ! in_array('relationship', $field->config['optionType'])) {
+            $input = $input->options($field->config['options'] ?? self::getDefaultConfig()['options']);
+        }
+
+        $input = self::addAffixesToInput($input, $field);
 
         if (isset($field->config['searchDebounce'])) {
             $input->searchDebounce($field->config['searchDebounce']);
@@ -91,6 +104,20 @@ class Select extends Base implements FieldContract
         return $input;
     }
 
+    protected static function addFieldDependency(Input $input, Field $field): Input
+    {
+        $dependsOnField = $field->config['dependsOnField'];
+
+        return $input->visible(function (Get $get) use ($dependsOnField) {
+            // The field name in the form is {valueColumn}.{field_ulid}
+            $dependentFieldName = "values.{$dependsOnField}";
+            $dependentValue = $get($dependentFieldName);
+
+            // Show this field only when the dependent field has a value
+            return ! empty($dependentValue);
+        });
+    }
+
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array
     {
         if (! property_exists($record, 'valueColumn')) {
@@ -98,10 +125,6 @@ class Select extends Base implements FieldContract
         }
 
         $value = self::getFieldValueFromRecord($record, $field);
-
-        if ($value === null) {
-            return $data;
-        }
 
         $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
 
@@ -234,6 +257,62 @@ class Select extends Base implements FieldContract
                                         ->minValue(0)
                                         ->label(__('Max items for search'))
                                         ->visible(fn (Get $get): bool => $get('config.searchable')),
+                                ]),
+                        ]),
+                    Tab::make('Field Dependencies')
+                        ->label(__('Field Dependencies'))
+                        ->schema([
+                            Grid::make(1)
+                                ->schema([
+                                    \Filament\Forms\Components\Select::make('config.dependsOnField')
+                                        ->label(__('Depends on Field'))
+                                        ->helperText(__('Select another field in this form that this select should depend on. When the dependent field changes, this field will show its options.'))
+                                        ->options(function ($record, $component) {
+                                            // Try to get the form slug from various sources
+                                            $formSlug = null;
+
+                                            // Method 1: From the record's model_key (most reliable)
+                                            if ($record && isset($record->model_key)) {
+                                                $formSlug = $record->model_key;
+                                            }
+
+                                            // Method 2: From route parameters as fallback
+                                            if (! $formSlug) {
+                                                $routeParams = request()->route()?->parameters() ?? [];
+                                                $formSlug = $routeParams['record'] ?? $routeParams['form'] ?? $routeParams['id'] ?? null;
+                                            }
+
+                                            // Method 3: Try to get from the component's owner record if available
+                                            if (! $formSlug && method_exists($component, 'getOwnerRecord')) {
+                                                $ownerRecord = $component->getOwnerRecord();
+                                                if ($ownerRecord) {
+                                                    $formSlug = $ownerRecord->getKey();
+                                                }
+                                            }
+
+                                            if (! $formSlug) {
+                                                return ['debug' => 'No form slug found. Record: ' . ($record ? json_encode($record->toArray()) : 'null')];
+                                            }
+
+                                            // Get all select fields in the same form
+                                            $fields = \Backstage\Fields\Models\Field::where('model_type', 'App\Models\Form')
+                                                ->where('model_key', $formSlug)
+                                                ->where('field_type', 'select')
+                                                ->when($record && isset($record->ulid), function ($query) use ($record) {
+                                                    return $query->where('ulid', '!=', $record->ulid);
+                                                })
+                                                ->orderBy('name')
+                                                ->pluck('name', 'ulid')
+                                                ->toArray();
+
+                                            if (empty($fields)) {
+                                                return ['debug' => 'No select fields found for form: ' . $formSlug . '. Total fields: ' . \Backstage\Fields\Models\Field::where('model_type', 'App\Models\Form')->where('model_key', $formSlug)->count()];
+                                            }
+
+                                            return $fields;
+                                        })
+                                        ->searchable()
+                                        ->live(),
                                 ]),
                         ]),
                     Tab::make('Rules')

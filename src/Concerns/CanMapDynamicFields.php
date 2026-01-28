@@ -29,7 +29,7 @@ use Livewire\Attributes\On;
  */
 trait CanMapDynamicFields
 {
-    private FieldInspector $fieldInspector;
+    private ?FieldInspector $fieldInspector = null;
 
     private const FIELD_TYPE_MAP = [
         'text' => Text::class,
@@ -49,15 +49,11 @@ trait CanMapDynamicFields
         'tags' => Tags::class,
     ];
 
-    public function boot(): void
-    {
-        $this->fieldInspector = app(FieldInspector::class);
-    }
-
     #[On('refreshFields')]
-    public function refresh(): void
+    #[On('refreshSchemas')]
+    public function refreshFields(): void
     {
-        //
+        // Custom refresh logic for fields
     }
 
     protected function mutateBeforeFill(array $data): array
@@ -72,8 +68,6 @@ trait CanMapDynamicFields
         return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($containerData) {
             return $this->applyFieldFillMutation($field, $fieldConfig, $fieldInstance, $data, $containerData);
         });
-
-        return $mutatedData;
     }
 
     protected function mutateBeforeSave(array $data): array
@@ -93,23 +87,25 @@ trait CanMapDynamicFields
         return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) {
             return $this->applyFieldSaveMutation($field, $fieldConfig, $fieldInstance, $data);
         });
-
-        return $mutatedData;
     }
 
     private function hasValidRecordWithFields(): bool
     {
-        return isset($this->record) && ! $this->record->fields->isEmpty();
+        return property_exists($this, 'record') && isset($this->record) && ! $this->record->fields->isEmpty();
     }
 
     private function hasValidRecord(): bool
     {
-        return isset($this->record);
+        return property_exists($this, 'record') && isset($this->record);
     }
 
     private function extractFormValues(array $data): array
     {
-        return isset($data[$this->record?->valueColumn]) ? $data[$this->record?->valueColumn] : [];
+        if (! property_exists($this, 'record') || ! $this->record) {
+            return [];
+        }
+
+        return isset($data[$this->record->valueColumn]) ? $data[$this->record->valueColumn] : [];
     }
 
     private function extractContainerData(array $values): array
@@ -126,6 +122,10 @@ trait CanMapDynamicFields
 
     private function getAllFieldsIncludingNested(array $containerData): Collection
     {
+        if (! property_exists($this, 'record') || ! $this->record) {
+            return collect();
+        }
+
         return $this->record->fields->merge(
             $this->getNestedFieldsFromContainerData($containerData)
         )->unique('ulid');
@@ -140,7 +140,11 @@ trait CanMapDynamicFields
                 return $this->processContainerFieldFillMutation($field, $fieldInstance, $data, $fieldLocation);
             }
 
-            return $fieldInstance->mutateFormDataCallback($this->record, $field, $data);
+            if (property_exists($this, 'record') && $this->record) {
+                return $fieldInstance->mutateFormDataCallback($this->record, $field, $data);
+            }
+
+            return $data;
         }
 
         $data[$this->record->valueColumn][$field->ulid] = $fieldInstance->getFieldValueFromRecord($this->record, $field);
@@ -150,7 +154,7 @@ trait CanMapDynamicFields
 
     private function extractContainerDataFromRecord(): array
     {
-        if (! isset($this->record->values) || ! is_array($this->record->values)) {
+        if (! property_exists($this, 'record') || ! $this->record || ! isset($this->record->values) || ! is_array($this->record->values)) {
             return [];
         }
 
@@ -182,17 +186,31 @@ trait CanMapDynamicFields
 
     private function createMockRecordForBuilder(array $builderData): object
     {
+        if (! property_exists($this, 'record') || ! $this->record) {
+            throw new \RuntimeException('Record property is not available');
+        }
         $mockRecord = clone $this->record;
         $mockRecord->values = $builderData;
 
         return $mockRecord;
     }
 
+    private function getFieldInspector(): FieldInspector
+    {
+        if ($this->fieldInspector === null) {
+            $this->fieldInspector = app(FieldInspector::class);
+        }
+
+        return $this->fieldInspector;
+    }
+
     private function resolveFieldConfigAndInstance(Model $field): array
     {
+        $inspector = $this->getFieldInspector();
+
         $fieldConfig = Fields::resolveField($field->field_type) ?
-            $this->fieldInspector->initializeCustomField($field->field_type) :
-            $this->fieldInspector->initializeDefaultField($field->field_type);
+            $inspector->initializeCustomField($field->field_type) :
+            $inspector->initializeDefaultField($field->field_type);
 
         return [
             'config' => $fieldConfig,
@@ -255,9 +273,9 @@ trait CanMapDynamicFields
 
     private function resolveFormFields(mixed $record = null, bool $isNested = false): array
     {
-        $record = $record ?? $this->record;
+        $record = $record ?? (property_exists($this, 'record') ? $this->record : null);
 
-        if (! isset($record->fields) || $record->fields->isEmpty()) {
+        if (! $record || ! isset($record->fields) || $record->fields->isEmpty()) {
             return [];
         }
 
@@ -273,7 +291,7 @@ trait CanMapDynamicFields
     private function resolveCustomFields(): Collection
     {
         return collect(Fields::getFields())
-            ->map(fn ($fieldClass) => new $fieldClass);
+            ->mapWithKeys(fn ($fieldClass, $key) => [$key => $fieldClass]);
     }
 
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
@@ -286,7 +304,9 @@ trait CanMapDynamicFields
         }
 
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
-            return $fieldClass::make(name: $inputName, field: $field);
+            $input = $fieldClass::make(name: $inputName, field: $field);
+
+            return $input;
         }
 
         return null;
@@ -294,7 +314,9 @@ trait CanMapDynamicFields
 
     private function generateInputName(Model $field, mixed $record, bool $isNested): string
     {
-        return $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
+        $name = $isNested ? "{$field->ulid}" : "{$record->valueColumn}.{$field->ulid}";
+
+        return $name;
     }
 
     private function applyFieldSaveMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data): array
