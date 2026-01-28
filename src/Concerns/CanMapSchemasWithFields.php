@@ -81,14 +81,14 @@ trait CanMapSchemasWithFields
             return $data;
         }
 
-        $builderBlocks = $this->extractBuilderBlocksFromRecord();
-        $allFields = $this->getAllFieldsIncludingBuilderFields($builderBlocks);
+        $containerData = $this->extractContainerDataFromRecord();
+        $allFields = $this->getAllFieldsIncludingNested($containerData);
 
         if (! isset($data[$this->record->valueColumn])) {
             $data[$this->record->valueColumn] = [];
         }
 
-        return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($builderBlocks) {
+        return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($containerData) {
             if ($field->field_type === 'select') {
                 if (isset($this->record->values[$field->ulid])) {
                     $data[$this->record->valueColumn][$field->ulid] = $this->record->values[$field->ulid];
@@ -97,7 +97,7 @@ trait CanMapSchemasWithFields
                 return $data;
             }
 
-            return $this->applyFieldFillMutation($field, $fieldConfig, $fieldInstance, $data, $builderBlocks);
+            return $this->applyFieldFillMutation($field, $fieldConfig, $fieldInstance, $data, $containerData);
         });
     }
 }
