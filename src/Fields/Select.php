@@ -130,10 +130,6 @@ class Select extends Base implements FieldContract
 
         $value = self::getFieldValueFromRecord($record, $field);
 
-        if ($value === null) {
-            return $data;
-        }
-
         $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
 
         return $data;
