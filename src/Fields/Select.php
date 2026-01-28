@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 class Select extends Base implements FieldContract
@@ -33,6 +34,7 @@ class Select extends Base implements FieldContract
             ...self::getOptionsConfig(),
             'searchable' => false,
             'multiple' => false,
+            'reorderable' => false,
             'preload' => false,
             'allowHtml' => false,
             'selectablePlaceholder' => true,
@@ -97,6 +99,10 @@ class Select extends Base implements FieldContract
             $input->maxItemsForSearch($field->config['maxItemsForSearch']);
         }
 
+        if (($field->config['multiple'] ?? false) && ($field->config['reorderable'] ?? false)) {
+            $input->reorderable();
+        }
+
         return $input;
     }
 
@@ -122,7 +128,12 @@ class Select extends Base implements FieldContract
             return $data;
         }
 
-        $value = $record->values[$field->ulid] ?? null;
+        $value = self::getFieldValueFromRecord($record, $field);
+
+        if ($value === null) {
+            return $data;
+        }
+
         $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
 
         return $data;
@@ -130,12 +141,17 @@ class Select extends Base implements FieldContract
 
     public static function mutateBeforeSaveCallback(Model $record, Field $field, array $data): array
     {
-        if (! property_exists($record, 'valueColumn') || ! isset($data[$record->valueColumn][(string) $field->ulid])) {
+        if (! property_exists($record, 'valueColumn')) {
             return $data;
         }
 
-        $value = $data[$record->valueColumn][(string) $field->ulid];
-        $data[$record->valueColumn][(string) $field->ulid] = self::normalizeSelectValue($value, $field);
+        $value = $data[$record->valueColumn][$field->ulid] ?? $data[$record->valueColumn][$field->slug] ?? null;
+
+        if ($value === null && ! isset($data[$record->valueColumn][$field->ulid]) && ! isset($data[$record->valueColumn][$field->slug])) {
+            return $data;
+        }
+
+        $data[$record->valueColumn][$field->ulid] = self::normalizeSelectValue($value, $field);
 
         return $data;
     }
@@ -146,6 +162,10 @@ class Select extends Base implements FieldContract
      */
     protected static function normalizeSelectValue($value, Field $field): mixed
     {
+        if ($value instanceof Collection) {
+            $value = $value->toArray();
+        }
+
         $isMultiple = $field->config['multiple'] ?? false;
 
         // Handle JSON string values
@@ -191,8 +211,14 @@ class Select extends Base implements FieldContract
                                         ->live(debounce: 250),
                                     Toggle::make('config.multiple')
                                         ->label(__('Multiple'))
-                                        ->helperText(__('Only first value is used when switching from multiple to single.'))
-                                        ->columnSpan(2),
+                                        ->helperText(__('Only first value is kept when switching.'))
+                                        ->live()
+                                        ->columnSpan(1),
+                                    Toggle::make('config.reorderable')
+                                        ->label(__('Reorderable'))
+                                        ->helperText(__('Allow users to reorder selected items.'))
+                                        ->visible(fn (Get $get): bool => $get('config.multiple'))
+                                        ->columnSpan(1),
                                     Toggle::make('config.allowHtml')
                                         ->label(__('Allow HTML')),
                                     Toggle::make('config.selectablePlaceholder')

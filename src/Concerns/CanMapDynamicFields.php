@@ -26,13 +26,6 @@ use Livewire\Attributes\On;
 
 /**
  * Trait for handling dynamic field mapping and data mutation in forms.
- *
- * This trait provides functionality to:
- * - Map database field configurations to form input components
- * - Mutate form data before filling (loading from database)
- * - Mutate form data before saving (processing user input)
- * - Handle nested fields and builder blocks
- * - Resolve custom field types and configurations
  */
 trait CanMapDynamicFields
 {
@@ -63,40 +56,22 @@ trait CanMapDynamicFields
         // Custom refresh logic for fields
     }
 
-    /**
-     * Mutate form data before filling the form with existing values.
-     *
-     * This method processes the record's field values and applies any custom
-     * transformation logic defined in field classes before populating the form.
-     *
-     * @param  array  $data  The form data array
-     * @return array The mutated form data
-     */
     protected function mutateBeforeFill(array $data): array
     {
         if (! $this->hasValidRecordWithFields()) {
             return $data;
         }
 
-        // Extract builder blocks from record values
-        $builderBlocks = $this->extractBuilderBlocksFromRecord();
-        $allFields = $this->getAllFieldsIncludingBuilderFields($builderBlocks);
+        $containerData = $this->extractContainerDataFromRecord();
+        $allFields = $this->getAllFieldsIncludingNested($containerData);
 
-        return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($builderBlocks) {
-            return $this->applyFieldFillMutation($field, $fieldConfig, $fieldInstance, $data, $builderBlocks);
+        return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($containerData) {
+            return $this->applyFieldFillMutation($field, $fieldConfig, $fieldInstance, $data, $containerData);
         });
+
+        return $mutatedData;
     }
 
-    /**
-     * Mutate form data before saving to the database.
-     *
-     * This method processes user input and applies any custom transformation logic
-     * defined in field classes. It also handles special cases for builder blocks
-     * and nested fields.
-     *
-     * @param  array  $data  The form data array
-     * @return array The mutated form data ready for saving
-     */
     protected function mutateBeforeSave(array $data): array
     {
         if (! $this->hasValidRecord()) {
@@ -108,13 +83,14 @@ trait CanMapDynamicFields
             return $data;
         }
 
-        $builderBlocks = $this->extractBuilderBlocks($values);
+        $containerData = $this->extractContainerData($values);
+        $allFields = $this->getAllFieldsIncludingNested($containerData);
 
-        $allFields = $this->getAllFieldsIncludingBuilderFields($builderBlocks);
-
-        return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($builderBlocks) {
-            return $this->applyFieldSaveMutation($field, $fieldConfig, $fieldInstance, $data, $builderBlocks);
+        return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) {
+            return $this->applyFieldSaveMutation($field, $fieldConfig, $fieldInstance, $data);
         });
+
+        return $mutatedData;
     }
 
     private function hasValidRecordWithFields(): bool
@@ -136,61 +112,36 @@ trait CanMapDynamicFields
         return isset($data[$this->record->valueColumn]) ? $data[$this->record->valueColumn] : [];
     }
 
-    /**
-     * Extract builder blocks from form values.
-     *
-     * Builder blocks are special field types that contain nested fields.
-     * This method identifies and extracts them for special processing.
-     *
-     * @param  array  $values  The form values
-     * @return array The builder blocks
-     */
-    private function extractBuilderBlocks(array $values): array
+    private function extractContainerData(array $values): array
     {
-        $builderFieldUlids = ModelsField::whereIn('ulid', array_keys($values))
-            ->where('field_type', 'builder')
+        $containerFieldUlids = ModelsField::whereIn('ulid', array_keys($values))
+            ->whereIn('field_type', ['builder', 'repeater'])
             ->pluck('ulid')
             ->toArray();
 
         return collect($values)
-            ->filter(fn ($value, $key) => in_array($key, $builderFieldUlids))
+            ->filter(fn ($value, $key) => in_array($key, $containerFieldUlids))
             ->toArray();
     }
 
-    /**
-     * Get all fields including those from builder blocks.
-     *
-     * @param  array  $builderBlocks  The builder blocks
-     * @return Collection All fields to process
-     */
-    private function getAllFieldsIncludingBuilderFields(array $builderBlocks): Collection
+    private function getAllFieldsIncludingNested(array $containerData): Collection
     {
         if (! property_exists($this, 'record') || ! $this->record) {
             return collect();
         }
 
         return $this->record->fields->merge(
-            $this->getFieldsFromBlocks($builderBlocks)
-        );
+            $this->getNestedFieldsFromContainerData($containerData)
+        )->unique('ulid');
     }
 
-    /**
-     * Apply field-specific mutation logic for form filling.
-     *
-     * @param  Model  $field  The field model
-     * @param  array  $fieldConfig  The field configuration
-     * @param  object  $fieldInstance  The field instance
-     * @param  array  $data  The form data
-     * @param  array  $builderBlocks  The builder blocks
-     * @return array The mutated data
-     */
-    private function applyFieldFillMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data, array $builderBlocks): array
+    private function applyFieldFillMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data, array $containerData): array
     {
         if (! empty($fieldConfig['methods']['mutateFormDataCallback'])) {
-            $fieldLocation = $this->determineFieldLocation($field, $builderBlocks);
+            $fieldLocation = $this->determineFieldLocation($field, $containerData);
 
-            if ($fieldLocation['isInBuilder']) {
-                return $this->processBuilderFieldFillMutation($field, $fieldInstance, $data, $fieldLocation['builderData'], $builderBlocks);
+            if ($fieldLocation['isInContainer']) {
+                return $this->processContainerFieldFillMutation($field, $fieldInstance, $data, $fieldLocation);
             }
 
             if (property_exists($this, 'record') && $this->record) {
@@ -200,75 +151,43 @@ trait CanMapDynamicFields
             return $data;
         }
 
-        // Default behavior: copy value from record to form data
-        if (property_exists($this, 'record') && $this->record) {
-            $data[$this->record->valueColumn][$field->ulid] = $this->record->values[$field->ulid] ?? null;
-        }
+        $data[$this->record->valueColumn][$field->ulid] = $fieldInstance->getFieldValueFromRecord($this->record, $field);
 
         return $data;
     }
 
-    /**
-     * Extract builder blocks from record values.
-     *
-     * @return array The builder blocks
-     */
-    private function extractBuilderBlocksFromRecord(): array
+    private function extractContainerDataFromRecord(): array
     {
         if (! property_exists($this, 'record') || ! $this->record || ! isset($this->record->values) || ! is_array($this->record->values)) {
             return [];
         }
 
-        $builderFieldUlids = ModelsField::whereIn('ulid', array_keys($this->record->values))
-            ->where('field_type', 'builder')
+        $containerFieldUlids = ModelsField::whereIn('ulid', array_keys($this->record->values))
+            ->whereIn('field_type', ['builder', 'repeater'])
             ->pluck('ulid')
             ->toArray();
 
         return collect($this->record->values)
-            ->filter(fn ($value, $key) => in_array($key, $builderFieldUlids))
+            ->filter(fn ($value, $key) => in_array($key, $containerFieldUlids))
             ->toArray();
     }
 
-    /**
-     * Process fill mutation for fields inside builder blocks.
-     *
-     * @param  Model  $field  The field model
-     * @param  object  $fieldInstance  The field instance
-     * @param  array  $data  The form data
-     * @param  array  $builderData  The builder block data
-     * @param  array  $builderBlocks  All builder blocks
-     * @return array The updated form data
-     */
-    private function processBuilderFieldFillMutation(Model $field, object $fieldInstance, array $data, array $builderData, array $builderBlocks): array
+    private function processContainerFieldFillMutation(Model $field, object $fieldInstance, array $data, array $fieldLocation): array
     {
-        // Create a mock record with the builder data for the callback
-        $mockRecord = $this->createMockRecordForBuilder($builderData);
+        $mockRecord = $this->createMockRecordForBuilder($fieldLocation['containerData']);
+        $tempData = [$this->record->valueColumn => $fieldLocation['containerData']];
+        $tempData = $fieldInstance->mutateFormDataCallback($mockRecord, $field, $tempData);
 
-        // Create a temporary data structure for the callback
-        if (property_exists($this, 'record') && $this->record) {
-            $tempData = [$this->record->valueColumn => $builderData];
-            $tempData = $fieldInstance->mutateFormDataCallback($mockRecord, $field, $tempData);
-        } else {
-            $tempData = [];
-        }
+        // Check for both ULID and slug keys (nested fields use slug)
+        $mutatedValue = $tempData[$this->record->valueColumn][$field->ulid] ?? $tempData[$this->record->valueColumn][$field->slug] ?? null;
 
-        // Update the original data structure with the mutated values
-        $this->updateBuilderBlocksWithMutatedData($builderBlocks, $field, $tempData);
-
-        // Update the main data structure
-        if (property_exists($this, 'record') && $this->record) {
-            $data[$this->record->valueColumn] = array_merge($data[$this->record->valueColumn], $builderBlocks);
+        if ($mutatedValue !== null || isset($tempData[$this->record->valueColumn][$field->ulid]) || isset($tempData[$this->record->valueColumn][$field->slug])) {
+            $this->updateDataAtPath($data[$this->record->valueColumn], $fieldLocation['fullPath'], $fieldLocation['fieldKey'], $mutatedValue);
         }
 
         return $data;
     }
 
-    /**
-     * Create a mock record for builder field processing.
-     *
-     * @param  array  $builderData  The builder block data
-     * @return object The mock record
-     */
     private function createMockRecordForBuilder(array $builderData): object
     {
         if (! property_exists($this, 'record') || ! $this->record) {
@@ -280,45 +199,8 @@ trait CanMapDynamicFields
         return $mockRecord;
     }
 
-    /**
-     * Update builder blocks with mutated field data.
-     *
-     * @param  array  $builderBlocks  The builder blocks to update
-     * @param  Model  $field  The field being processed
-     * @param  array  $tempData  The temporary data containing mutated values
-     */
-    private function updateBuilderBlocksWithMutatedData(array &$builderBlocks, Model $field, array $tempData): void
-    {
-        foreach ($builderBlocks as $builderUlid => &$builderBlocks) {
-            if (is_array($builderBlocks)) {
-                foreach ($builderBlocks as &$block) {
-                    if (isset($block['data']) && is_array($block['data']) && isset($block['data'][$field->ulid])) {
-                        if (property_exists($this, 'record') && $this->record) {
-                            $block['data'][$field->ulid] = $tempData[$this->record->valueColumn][$field->ulid] ?? $block['data'][$field->ulid];
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Resolve field configuration and create an instance.
-     *
-     * This method determines whether to use a custom field implementation
-     * or fall back to the default field type mapping.
-     *
-     * @param  Model  $field  The field model
-     * @return array Array containing 'config' and 'instance' keys
-     */
     private function resolveFieldConfigAndInstance(Model $field): array
     {
-        // Initialize field inspector if not already done
-        if (! isset($this->fieldInspector)) {
-            $this->fieldInspector = app(FieldInspector::class);
-        }
-
-        // Try to resolve from custom fields first
         $fieldConfig = Fields::resolveField($field->field_type) ?
             $this->fieldInspector->initializeCustomField($field->field_type) :
             $this->fieldInspector->initializeDefaultField($field->field_type);
@@ -329,92 +211,59 @@ trait CanMapDynamicFields
         ];
     }
 
-    /**
-     * Extract field models from builder blocks.
-     *
-     * Builder blocks contain nested fields that need to be processed.
-     * This method extracts those field models for processing.
-     *
-     * @param  array  $blocks  The builder blocks
-     * @return Collection The field models from blocks
-     */
-    protected function getFieldsFromBlocks(array $blocks): Collection
+    protected function getNestedFieldsFromContainerData(array $containerData): Collection
     {
         $processedFields = collect();
 
-        collect($blocks)->map(function ($block) use (&$processedFields) {
-            foreach ($block as $key => $values) {
-                if (! is_array($values) || ! isset($values['data'])) {
-                    continue;
-                }
-
-                $fields = $values['data'];
-                $fields = ModelsField::whereIn('ulid', array_keys($fields))->get();
-
-                $processedFields = $processedFields->merge($fields);
+        foreach ($containerData as $rows) {
+            if (! is_array($rows)) {
+                continue;
             }
-        });
+            foreach ($rows as $item) {
+                $itemData = isset($item['data']) ? $item['data'] : $item;
 
-        return $processedFields;
+                if (is_array($itemData)) {
+                    $fields = ModelsField::whereIn('ulid', array_keys($itemData))
+                        ->orWhereIn('slug', array_keys($itemData))
+                        ->get();
+
+                    $processedFields = $processedFields->merge($fields);
+
+                    // Recursive search
+                    $nestedContainers = $this->extractContainerData($itemData);
+                    if (! empty($nestedContainers)) {
+                        $processedFields = $processedFields->merge($this->getNestedFieldsFromContainerData($nestedContainers));
+                    }
+                }
+            }
+        }
+
+        return $processedFields->unique('ulid');
     }
 
-    /**
-     * Apply mutation strategy to all fields recursively.
-     *
-     * This method processes each field and its nested children using the provided
-     * mutation strategy. It handles the hierarchical nature of fields.
-     *
-     * @param  array  $data  The form data
-     * @param  Collection  $fields  The fields to process
-     * @param  callable  $mutationStrategy  The strategy to apply to each field
-     * @return array The mutated form data
-     */
     protected function mutateFormData(array $data, Collection $fields, callable $mutationStrategy): array
     {
         foreach ($fields as $field) {
-            $field->load('children');
-
             ['config' => $fieldConfig, 'instance' => $fieldInstance] = $this->resolveFieldConfigAndInstance($field);
+
+            $valueColumn = $this->record->valueColumn ?? 'values';
+            $oldValue = $data[$valueColumn][$field->ulid] ?? $data[$valueColumn][$field->slug] ?? 'NOT_SET';
+
             $data = $mutationStrategy($field, $fieldConfig, $fieldInstance, $data);
 
-            $data = $this->processNestedFields($field, $data, $mutationStrategy);
+            $newValue = $data[$valueColumn][$field->ulid] ?? $data[$valueColumn][$field->slug] ?? 'NOT_SET';
+
+            if ($newValue === true) {
+                \Log::warning("Field {$field->ulid} (slug: {$field->slug}, type: {$field->field_type}) mutated to TRUE", [
+                    'old_value' => $oldValue,
+                    'instance_class' => get_class($fieldInstance),
+                ]);
+            }
         }
 
         return $data;
     }
 
-    /**
-     * Process nested fields (children) of a parent field.
-     *
-     * @param  Model  $field  The parent field
-     * @param  array  $data  The form data
-     * @param  callable  $mutationStrategy  The mutation strategy
-     * @return array The updated form data
-     */
-    private function processNestedFields(Model $field, array $data, callable $mutationStrategy): array
-    {
-        if (empty($field->children)) {
-            return $data;
-        }
-
-        foreach ($field->children as $nestedField) {
-            ['config' => $nestedFieldConfig, 'instance' => $nestedFieldInstance] = $this->resolveFieldConfigAndInstance($nestedField);
-            $data = $mutationStrategy($nestedField, $nestedFieldConfig, $nestedFieldInstance, $data);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Resolve form field inputs for rendering.
-     *
-     * This method converts field models into form input components
-     * that can be rendered in the UI.
-     *
-     * @param  mixed  $record  The record containing fields
-     * @param  bool  $isNested  Whether this is a nested field
-     * @return array Array of form input components
-     */
     private function resolveFormFields(mixed $record = null, bool $isNested = false): array
     {
         $record = $record ?? (property_exists($this, 'record') ? $this->record : null);
@@ -438,36 +287,15 @@ trait CanMapDynamicFields
             ->mapWithKeys(fn ($fieldClass, $key) => [$key => $fieldClass]);
     }
 
-    /**
-     * Resolve a single field input component.
-     *
-     * This method creates the appropriate form input component for a field,
-     * prioritizing custom field implementations over default ones.
-     *
-     * @param  Model  $field  The field model
-     * @param  Collection  $customFields  Available custom fields
-     * @param  mixed  $record  The record
-     * @param  bool  $isNested  Whether this is a nested field
-     * @return object|null The form input component or null if not found
-     */
     private function resolveFieldInput(Model $field, Collection $customFields, mixed $record = null, bool $isNested = false): ?object
     {
-        $record = $record ?? (property_exists($this, 'record') ? $this->record : null);
-
-        if (! $record) {
-            return null;
-        }
-
+        $record = $record ?? $this->record;
         $inputName = $this->generateInputName($field, $record, $isNested);
 
-        // Try to resolve from custom fields first (giving them priority)
-        if ($customFieldClass = $customFields->get($field->field_type)) {
-            $input = $customFieldClass::make($inputName, $field);
-
-            return $input;
+        if ($customField = $customFields->get($field->field_type)) {
+            return $customField::make($inputName, $field);
         }
 
-        // Fall back to standard field type map if no custom field found
         if ($fieldClass = self::FIELD_TYPE_MAP[$field->field_type] ?? null) {
             $input = $fieldClass::make(name: $inputName, field: $field);
 
@@ -484,100 +312,47 @@ trait CanMapDynamicFields
         return $name;
     }
 
-    /**
-     * Apply field-specific mutation logic for form saving.
-     *
-     * This method handles both regular fields and fields within builder blocks.
-     * Builder blocks require special processing because they contain nested data structures.
-     *
-     * @param  Model  $field  The field model
-     * @param  array  $fieldConfig  The field configuration
-     * @param  object  $fieldInstance  The field instance
-     * @param  array  $data  The form data
-     * @param  array  $builderBlocks  The builder blocks
-     * @return array The mutated data
-     */
-    private function applyFieldSaveMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data, array $builderBlocks): array
+    private function applyFieldSaveMutation(Model $field, array $fieldConfig, object $fieldInstance, array $data): array
     {
         if (empty($fieldConfig['methods']['mutateBeforeSaveCallback'])) {
             return $data;
         }
 
-        $fieldLocation = $this->determineFieldLocation($field, $builderBlocks);
+        $values = $this->extractFormValues($data);
+        $containerData = $this->extractContainerData($values);
+        $fieldLocation = $this->determineFieldLocation($field, $containerData);
 
-        if ($fieldLocation['isInBuilder']) {
-            return $this->processBuilderFieldMutation($field, $fieldInstance, $data, $fieldLocation['builderData'], $builderBlocks);
+        if ($fieldLocation['isInContainer']) {
+            return $this->processContainerFieldMutation($field, $fieldInstance, $data, $fieldLocation);
         }
 
-        // Regular field processing
-        if (property_exists($this, 'record') && $this->record) {
-            return $fieldInstance->mutateBeforeSaveCallback($this->record, $field, $data);
-        }
-
-        return $data;
+        return $fieldInstance->mutateBeforeSaveCallback($this->record, $field, $data);
     }
 
-    /**
-     * Determine if a field is inside a builder block and extract its data.
-     *
-     * @param  Model  $field  The field to check
-     * @param  array  $builderBlocks  The builder blocks
-     * @return array Location information with 'isInBuilder' and 'builderData' keys
-     */
-    private function determineFieldLocation(Model $field, array $builderBlocks): array
+    private function determineFieldLocation(Model $field, array $containers, array $path = []): array
     {
-        foreach ($builderBlocks as $builderUlid => $builderBlocks) {
-            if (is_array($builderBlocks)) {
-                foreach ($builderBlocks as $block) {
-                    if (isset($block['data']) && is_array($block['data']) && isset($block['data'][$field->ulid])) {
-                        return [
-                            'isInBuilder' => true,
-                            'builderData' => $block['data'],
-                            'builderUlid' => $builderUlid,
-                            'blockIndex' => array_search($block, $builderBlocks),
-                        ];
-                    }
-                }
-            }
-        }
+        foreach ($containers as $containerUlid => $rows) {
+            if (is_array($rows)) {
+                foreach ($rows as $index => $item) {
+                    $itemData = isset($item['data']) ? $item['data'] : $item;
 
-        return [
-            'isInBuilder' => false,
-            'builderData' => null,
-            'builderUlid' => null,
-            'blockIndex' => null,
-        ];
-    }
+                    if (is_array($itemData)) {
+                        if (isset($itemData[$field->ulid]) || isset($itemData[$field->slug])) {
+                            return [
+                                'isInContainer' => true,
+                                'containerData' => $itemData,
+                                'fieldKey' => isset($itemData[$field->ulid]) ? $field->ulid : $field->slug,
+                                'containerUlid' => $containerUlid,
+                                'rowIndex' => $index,
+                                'fullPath' => array_merge($path, [$containerUlid, $index]),
+                            ];
+                        }
 
-    /**
-     * Process mutation for fields inside builder blocks.
-     *
-     * Builder fields require special handling because they're nested within
-     * a complex data structure that needs to be updated in place.
-     *
-     * @param  Model  $field  The field model
-     * @param  object  $fieldInstance  The field instance
-     * @param  array  $data  The form data
-     * @param  array  $builderData  The builder block data
-     * @param  array  $builderBlocks  All builder blocks
-     * @return array The updated form data
-     */
-    private function processBuilderFieldMutation(Model $field, object $fieldInstance, array $data, array $builderData, array $builderBlocks): array
-    {
-        foreach ($builderBlocks as $builderUlid => &$blocks) {
-            if (is_array($blocks)) {
-                foreach ($blocks as &$block) {
-                    if (isset($block['data']) && is_array($block['data']) && isset($block['data'][$field->ulid])) {
-                        // Create a mock record with the block data for the callback
-                        $mockRecord = $this->createMockRecordForBuilder($block['data']);
-
-                        // Create a temporary data structure for the callback
-                        if (property_exists($this, 'record') && $this->record) {
-                            $tempData = [$this->record->valueColumn => $block['data']];
-                            $tempData = $fieldInstance->mutateBeforeSaveCallback($mockRecord, $field, $tempData);
-
-                            if (isset($tempData[$this->record->valueColumn][$field->ulid])) {
-                                $block['data'][$field->ulid] = $tempData[$this->record->valueColumn][$field->ulid];
+                        $nestedContainers = $this->extractContainerData($itemData);
+                        if (! empty($nestedContainers)) {
+                            $result = $this->determineFieldLocation($field, $nestedContainers, array_merge($path, [$containerUlid, $index]));
+                            if ($result['isInContainer']) {
+                                return $result;
                             }
                         }
                     }
@@ -585,10 +360,45 @@ trait CanMapDynamicFields
             }
         }
 
-        if (property_exists($this, 'record') && $this->record) {
-            $data[$this->record->valueColumn] = array_merge($data[$this->record->valueColumn], $builderBlocks);
+        return [
+            'isInContainer' => false,
+            'containerData' => null,
+            'containerUlid' => null,
+            'rowIndex' => null,
+            'fullPath' => [],
+        ];
+    }
+
+    private function processContainerFieldMutation(Model $field, object $fieldInstance, array $data, array $fieldLocation): array
+    {
+        $mockRecord = $this->createMockRecordForBuilder($fieldLocation['containerData']);
+        $tempData = [$this->record->valueColumn => $fieldLocation['containerData']];
+        $tempData = $fieldInstance->mutateBeforeSaveCallback($mockRecord, $field, $tempData);
+
+        if (isset($tempData[$this->record->valueColumn][$field->ulid])) {
+            $mutatedValue = $tempData[$this->record->valueColumn][$field->ulid];
+            $this->updateDataAtPath($data[$this->record->valueColumn], $fieldLocation['fullPath'], $fieldLocation['fieldKey'], $mutatedValue);
         }
 
         return $data;
+    }
+
+    private function updateDataAtPath(array &$data, array $path, string $fieldKey, mixed $value): void
+    {
+        $current = &$data;
+        foreach ($path as $key) {
+            if (is_array($current) && isset($current[$key])) {
+                $current = &$current[$key];
+            } else {
+                return;
+            }
+        }
+
+        // If 'data' key exists, it's a builder block row
+        if (is_array($current) && isset($current['data'])) {
+            $current['data'][$fieldKey] = $value;
+        } elseif (is_array($current)) {
+            $current[$fieldKey] = $value;
+        }
     }
 }
