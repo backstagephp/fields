@@ -2,7 +2,6 @@
 
 namespace Backstage\Fields\Models;
 
-use Backstage\Fields\Concerns\CanMapDynamicFields;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
 use Backstage\Fields\Shared\HasPackageFactory;
@@ -32,7 +31,6 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasRecursiveRelationships;
  */
 class Schema extends Model
 {
-    use CanMapDynamicFields;
     use HasConfigurableFields;
     use HasFieldTypeResolver;
     use HasPackageFactory;

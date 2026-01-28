@@ -68,8 +68,6 @@ trait CanMapDynamicFields
         return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) use ($containerData) {
             return $this->applyFieldFillMutation($field, $fieldConfig, $fieldInstance, $data, $containerData);
         });
-
-        return $mutatedData;
     }
 
     protected function mutateBeforeSave(array $data): array
@@ -89,8 +87,6 @@ trait CanMapDynamicFields
         return $this->mutateFormData($data, $allFields, function ($field, $fieldConfig, $fieldInstance, $data) {
             return $this->applyFieldSaveMutation($field, $fieldConfig, $fieldInstance, $data);
         });
-
-        return $mutatedData;
     }
 
     private function hasValidRecordWithFields(): bool
