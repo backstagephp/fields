@@ -167,8 +167,9 @@ class Repeater extends Base implements FieldContract, HydratesValues
         if ($field && $field->children->count() > 0) {
             $input = $input->schema(self::generateSchemaFromChildren($field->children));
 
-            // Apply table mode if enabled
-            if ($field->config['tableMode'] ?? self::getDefaultConfig()['tableMode']) {
+            // Apply table mode if enabled (backward compatible with 'table' config key)
+            $tableMode = $field->config['tableMode'] ?? $field->config['table'] ?? self::getDefaultConfig()['tableMode'];
+            if ($tableMode) {
                 $tableColumns = self::generateTableColumnsFromChildren($field->children, $field->config['tableColumns'] ?? []);
                 if (! empty($tableColumns)) {
                     $input = $input->table($tableColumns);

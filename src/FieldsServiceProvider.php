@@ -174,6 +174,8 @@ class FieldsServiceProvider extends PackageServiceProvider
             'add_group_column_to_fields_table',
             'create_schemas_table',
             'add_schema_id_to_fields_table',
+            'migrate_model_type_to_class_names',
+            'migrate_repeater_table_config_to_table_mode',
             'fix_option_type_string_values_in_fields_table',
         ];
     }

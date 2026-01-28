@@ -63,13 +63,11 @@ class Select extends Base implements FieldContract
             ->loadingMessage($field->config['loadingMessage'] ?? self::getDefaultConfig()['loadingMessage'])
             ->noSearchResultsMessage($field->config['noSearchResultsMessage'] ?? self::getDefaultConfig()['noSearchResultsMessage'])
             ->searchPrompt($field->config['searchPrompt'] ?? self::getDefaultConfig()['searchPrompt'])
-            ->searchingMessage($field->config['searchingMessage'] ?? self::getDefaultConfig()['searchingMessage'])
-            ->live() // Add live binding for real-time updates
-            ->dehydrated() // Ensure the field is included in form submission
-            ->reactive(); // Ensure the field reacts to state changes
+            ->searchingMessage($field->config['searchingMessage'] ?? self::getDefaultConfig()['searchingMessage']);
 
-        // Handle field dependencies
+        // Handle field dependencies - only add live/reactive when needed
         if (isset($field->config['dependsOnField']) && $field->config['dependsOnField']) {
+            $input = $input->live()->dehydrated()->reactive();
             $input = self::addFieldDependency($input, $field);
         }
 
@@ -110,16 +108,14 @@ class Select extends Base implements FieldContract
     {
         $dependsOnField = $field->config['dependsOnField'];
 
-        return $input
-            ->live()
-            ->visible(function (Get $get) use ($dependsOnField) {
-                // The field name in the form is {valueColumn}.{field_ulid}
-                $dependentFieldName = "values.{$dependsOnField}";
-                $dependentValue = $get($dependentFieldName);
+        return $input->visible(function (Get $get) use ($dependsOnField) {
+            // The field name in the form is {valueColumn}.{field_ulid}
+            $dependentFieldName = "values.{$dependsOnField}";
+            $dependentValue = $get($dependentFieldName);
 
-                // Show this field only when the dependent field has a value
-                return ! empty($dependentValue);
-            });
+            // Show this field only when the dependent field has a value
+            return ! empty($dependentValue);
+        });
     }
 
     public static function mutateFormDataCallback(Model $record, Field $field, array $data): array

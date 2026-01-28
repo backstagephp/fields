@@ -1,0 +1,90 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Migrate old 'setting' model_type to actual class names
+        // This ensures backward compatibility for fields created before the PR
+        
+        $fields = DB::table('fields')
+            ->where('model_type', 'setting')
+            ->get();
+
+        foreach ($fields as $field) {
+            // Try to determine the actual model class
+            // You may need to customize this logic based on your application
+            $modelClass = $this->resolveModelClass($field);
+            
+            if ($modelClass) {
+                DB::table('fields')
+                    ->where('ulid', $field->ulid)
+                    ->update(['model_type' => $modelClass]);
+            }
+        }
+
+        // Do the same for schemas table if it exists
+        if (DB::getSchemaBuilder()->hasTable('schemas')) {
+            $schemas = DB::table('schemas')
+                ->where('model_type', 'setting')
+                ->get();
+
+            foreach ($schemas as $schema) {
+                $modelClass = $this->resolveModelClass($schema);
+                
+                if ($modelClass) {
+                    DB::table('schemas')
+                        ->where('ulid', $schema->ulid)
+                        ->update(['model_type' => $modelClass]);
+                }
+            }
+        }
+    }
+
+    public function down(): void
+    {
+        // Revert to 'setting' for fields that were migrated
+        // This is a simple revert - you may want to customize based on your needs
+        
+        DB::table('fields')
+            ->where('model_type', 'like', '%\\\\%') // Contains namespace separator
+            ->update(['model_type' => 'setting']);
+
+        if (DB::getSchemaBuilder()->hasTable('schemas')) {
+            DB::table('schemas')
+                ->where('model_type', 'like', '%\\\\%')
+                ->update(['model_type' => 'setting']);
+        }
+    }
+
+    /**
+     * Resolve the actual model class from the field/schema record
+     * 
+     * Customize this method based on your application's model structure
+     */
+    private function resolveModelClass(object $record): ?string
+    {
+        // Check if model_key matches common patterns
+        // This is a basic example - adjust to your app's structure
+        
+        // If you have a specific model that fields/schemas attach to, use it
+        // For example, if all fields belong to forms:
+        if (class_exists('App\\Models\\Form')) {
+            return 'App\\Models\\Form';
+        }
+        
+        // If you have a settings model:
+        if (class_exists('App\\Models\\Setting')) {
+            return 'App\\Models\\Setting';
+        }
+
+        // Try to infer from model_key if it contains model information
+        // You may need to add custom logic here based on your app
+
+        // Return null if we can't determine - will skip this record
+        return null;
+    }
+};
