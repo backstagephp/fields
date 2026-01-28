@@ -5,7 +5,7 @@ namespace Backstage\Fields\Models;
 use Backstage\Fields\Concerns\CanMapDynamicFields;
 use Backstage\Fields\Concerns\HasConfigurableFields;
 use Backstage\Fields\Concerns\HasFieldTypeResolver;
-use Backstage\Fields\Enums\Field;
+use Backstage\Fields\Enums\Field as FieldEnum;
 use Backstage\Fields\Shared\HasPackageFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
