@@ -29,7 +29,7 @@ use Livewire\Attributes\On;
  */
 trait CanMapDynamicFields
 {
-    private FieldInspector $fieldInspector;
+    private ?FieldInspector $fieldInspector = null;
 
     private const FIELD_TYPE_MAP = [
         'text' => Text::class,
@@ -195,11 +195,22 @@ trait CanMapDynamicFields
         return $mockRecord;
     }
 
+    private function getFieldInspector(): FieldInspector
+    {
+        if ($this->fieldInspector === null) {
+            $this->fieldInspector = app(FieldInspector::class);
+        }
+
+        return $this->fieldInspector;
+    }
+
     private function resolveFieldConfigAndInstance(Model $field): array
     {
+        $inspector = $this->getFieldInspector();
+        
         $fieldConfig = Fields::resolveField($field->field_type) ?
-            $this->fieldInspector->initializeCustomField($field->field_type) :
-            $this->fieldInspector->initializeDefaultField($field->field_type);
+            $inspector->initializeCustomField($field->field_type) :
+            $inspector->initializeDefaultField($field->field_type);
 
         return [
             'config' => $fieldConfig,
