@@ -207,7 +207,7 @@ trait CanMapDynamicFields
     private function resolveFieldConfigAndInstance(Model $field): array
     {
         $inspector = $this->getFieldInspector();
-        
+
         $fieldConfig = Fields::resolveField($field->field_type) ?
             $inspector->initializeCustomField($field->field_type) :
             $inspector->initializeDefaultField($field->field_type);
