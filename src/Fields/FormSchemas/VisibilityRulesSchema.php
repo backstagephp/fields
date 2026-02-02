@@ -5,6 +5,7 @@ namespace Backstage\Fields\Fields\FormSchemas;
 use Backstage\Fields\Fields\Helpers\FieldOptionsHelper;
 use Backstage\Fields\Fields\Helpers\ModelAttributeHelper;
 use Backstage\Fields\Models\Field;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -58,12 +59,18 @@ class VisibilityRulesSchema
                                                 ->searchable()
                                                 ->live()
                                                 ->visible(fn (Get $get): bool => $get('source') === 'field')
-                                                ->options(function ($livewire) {
+                                                ->options(function ($livewire, $record) {
                                                     $excludeUlid = null;
-                                                    if (method_exists($livewire, 'getMountedTableActionRecord')) {
-                                                        $record = $livewire->getMountedTableActionRecord();
-                                                        if ($record && isset($record->ulid)) {
-                                                            $excludeUlid = $record->ulid;
+
+                                                    // Try to get from current record (works in nested forms)
+                                                    if ($record && isset($record->ulid)) {
+                                                        $excludeUlid = $record->ulid;
+                                                    }
+                                                    // Fallback to table action record
+                                                    elseif (method_exists($livewire, 'getMountedTableActionRecord')) {
+                                                        $actionRecord = $livewire->getMountedTableActionRecord();
+                                                        if ($actionRecord && isset($actionRecord->ulid)) {
+                                                            $excludeUlid = $actionRecord->ulid;
                                                         }
                                                     }
 
@@ -83,6 +90,22 @@ class VisibilityRulesSchema
                                                 ->live()
                                                 ->required(fn (Get $get): bool => $get('source') === 'model_attribute')
                                                 ->columnSpan(1),
+
+                                            Placeholder::make('no_models_warning')
+                                                ->label('')
+                                                ->content(__('⚠️ No record types configured. Add models to the visibility_models array in config/backstage/fields.php to use this feature.'))
+                                                ->extraAttributes([
+                                                    'class' => 'text-warning-600 dark:text-warning-400 text-sm',
+                                                ])
+                                                ->visible(function (Get $get): bool {
+                                                    if ($get('source') !== 'model_attribute') {
+                                                        return false;
+                                                    }
+
+                                                    $models = ModelAttributeHelper::getAvailableModels();
+                                                    return empty($models);
+                                                })
+                                                ->columnSpanFull(),
                                         ]),
 
                                     Grid::make(3)
@@ -92,25 +115,49 @@ class VisibilityRulesSchema
                                                 ->label(__('Property'))
                                                 ->placeholder(function (Get $get): string {
                                                     return $get('source') === 'field'
-                                                        ? __('Choose a field')
+                                                        ? __('Choose a field property')
                                                         : __('Choose a property');
                                                 })
                                                 ->searchable()
-                                                ->visible(
-                                                    fn (Get $get): bool => ($get('source') === 'field') ||
-                                                    ($get('source') === 'model_attribute')
-                                                )
-                                                ->options(function (Get $get, $livewire) {
+                                                ->visible(function (Get $get, $record): bool {
+                                                    if ($get('source') === 'model_attribute') {
+                                                        return true;
+                                                    }
+
                                                     if ($get('source') === 'field') {
-                                                        $excludeUlid = null;
-                                                        if (method_exists($livewire, 'getMountedTableActionRecord')) {
-                                                            $record = $livewire->getMountedTableActionRecord();
-                                                            if ($record && isset($record->ulid)) {
-                                                                $excludeUlid = $record->ulid;
-                                                            }
+                                                        $fieldUlid = $get('field');
+                                                        if (! $fieldUlid) {
+                                                            return false;
                                                         }
 
-                                                        return FieldOptionsHelper::getFieldOptions($livewire, $excludeUlid);
+                                                        // Get current field context
+                                                        $currentField = null;
+                                                        if ($record && isset($record->ulid)) {
+                                                            $currentField = $record;
+                                                        }
+
+                                                        // Check if the field has accessible children/properties
+                                                        $properties = FieldOptionsHelper::getFieldProperties($fieldUlid, $currentField);
+                                                        return ! empty($properties);
+                                                    }
+
+                                                    return false;
+                                                })
+                                                ->options(function (Get $get, $livewire, $record) {
+                                                    if ($get('source') === 'field') {
+                                                        $fieldUlid = $get('field');
+
+                                                        if (! $fieldUlid) {
+                                                            return [];
+                                                        }
+
+                                                        // Get current field context
+                                                        $currentField = null;
+                                                        if ($record && isset($record->ulid)) {
+                                                            $currentField = $record;
+                                                        }
+
+                                                        return FieldOptionsHelper::getFieldProperties($fieldUlid, $currentField);
                                                     }
 
                                                     if ($get('source') === 'model_attribute') {
@@ -125,8 +172,7 @@ class VisibilityRulesSchema
                                                     return [];
                                                 })
                                                 ->required(
-                                                    fn (Get $get): bool => ($get('source') === 'field') ||
-                                                    ($get('source') === 'model_attribute' && $get('model'))
+                                                    fn (Get $get): bool => $get('source') === 'model_attribute' && $get('model')
                                                 )
                                                 ->columnSpan(1),
 
@@ -172,10 +218,13 @@ class VisibilityRulesSchema
                                         return 'Record property';
                                     }
 
-                                    if (isset($state['source']) && $state['source'] === 'field' && isset($state['property'])) {
-                                        $field = Field::find($state['property']);
-
-                                        return $field->name ?? null;
+                                    if (isset($state['source']) && $state['source'] === 'field') {
+                                        // Try property first (for fields with children), then fallback to field
+                                        $fieldUlid = $state['property'] ?? $state['field'] ?? null;
+                                        if ($fieldUlid) {
+                                            $field = Field::find($fieldUlid);
+                                            return $field->name ?? null;
+                                        }
                                     }
 
                                     return null;

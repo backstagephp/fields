@@ -136,6 +136,12 @@ class Repeater extends Base implements FieldContract, HydratesValues
             $input = $input->reorderableWithButtons();
         }
 
+        // Only add default item if repeater is required
+        $isRequired = $field->config['required'] ?? self::getDefaultConfig()['required'];
+        if (!$isRequired) {
+            $input = $input->defaultItems(0);
+        }
+
         // Fix for Filament Forms v4.2.0 reorder bug
         // The default reorder action has a bug where array_flip() creates integer values
         // that get merged with the state array, causing type errors
@@ -234,6 +240,7 @@ class Repeater extends Base implements FieldContract, HydratesValues
                                 ->orderColumn('position')
                                 ->relationship('children')
                                 ->live(debounce: 250)
+                                ->dehydrated()
                                 ->labelKey('name')
                                 ->indentable(false)
                                 ->moveable(true)
@@ -311,7 +318,7 @@ class Repeater extends Base implements FieldContract, HydratesValues
         return ['defaultValue'];
     }
 
-    private static function generateSchemaFromChildren(Collection $children, bool $isTableMode = false): array
+    private static function generateSchemaFromChildren(Collection $children): array
     {
         $schema = [];
 
