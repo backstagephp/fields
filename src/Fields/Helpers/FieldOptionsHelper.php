@@ -92,7 +92,7 @@ class FieldOptionsHelper
                         });
                 })
                 // OR siblings (same parent_ulid)
-                ->orWhere('parent_ulid', $currentField->parent_ulid);
+                    ->orWhere('parent_ulid', $currentField->parent_ulid);
             });
         }
 

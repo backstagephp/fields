@@ -103,6 +103,7 @@ class VisibilityRulesSchema
                                                     }
 
                                                     $models = ModelAttributeHelper::getAvailableModels();
+
                                                     return empty($models);
                                                 })
                                                 ->columnSpanFull(),
@@ -138,6 +139,7 @@ class VisibilityRulesSchema
 
                                                         // Check if the field has accessible children/properties
                                                         $properties = FieldOptionsHelper::getFieldProperties($fieldUlid, $currentField);
+
                                                         return ! empty($properties);
                                                     }
 
@@ -223,6 +225,7 @@ class VisibilityRulesSchema
                                         $fieldUlid = $state['property'] ?? $state['field'] ?? null;
                                         if ($fieldUlid) {
                                             $field = Field::find($fieldUlid);
+
                                             return $field->name ?? null;
                                         }
                                     }

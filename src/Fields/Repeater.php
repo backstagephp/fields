@@ -138,7 +138,7 @@ class Repeater extends Base implements FieldContract, HydratesValues
 
         // Only add default item if repeater is required
         $isRequired = $field->config['required'] ?? self::getDefaultConfig()['required'];
-        if (!$isRequired) {
+        if (! $isRequired) {
             $input = $input->defaultItems(0);
         }
 
