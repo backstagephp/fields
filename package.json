@@ -4,7 +4,7 @@
     "scripts": {
         "dev:styles": "npx @tailwindcss/cli -i resources/css/index.css -o resources/dist/fields.css --watch",
         "dev:scripts": "node bin/build.js --dev",
-        "build:styles": "npx @tailwindcss/cli -i resources/css/index.css -o resources/dist/fields.css --minify && npm run purge",
+        "build:styles": "npx @tailwindcss/cli -i resources/css/index.css -o resources/dist/fields.css --minify",
         "build:scripts": "node bin/build.js",
         "purge": "filament-purge -i resources/dist/fields.css -o resources/dist/fields.css -v 3.x",
         "dev": "npm-run-all --parallel dev:*",
