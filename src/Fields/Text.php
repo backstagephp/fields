@@ -49,6 +49,7 @@ class Text extends Base implements FieldContract, HydratesValues
 
     public static function make(string $name, ?Field $field = null): Input
     {
+        /** @var Input $input */
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? self::getDefaultConfig()['label'] ?? null)
@@ -57,7 +58,7 @@ class Text extends Base implements FieldContract, HydratesValues
             ->mask($field->config['mask'] ?? self::getDefaultConfig()['mask'])
             ->minLength($field->config['minLength'] ?? self::getDefaultConfig()['minLength'])
             ->maxLength($field->config['maxLength'] ?? self::getDefaultConfig()['maxLength'])
-            ->type($field->config['type'] ?? self::getDefaultConfig()['type'])
+            ->type(in_array($field->config['type'] ?? null, ['numeric', 'integer']) ? 'text' : ($field->config['type'] ?? self::getDefaultConfig()['type']))
             ->step($field->config['step'] ?? self::getDefaultConfig()['step'])
             ->inputMode($field->config['inputMode'] ?? self::getDefaultConfig()['inputMode'])
             ->telRegex($field->config['telRegex'] ?? self::getDefaultConfig()['telRegex'])
@@ -80,11 +81,11 @@ class Text extends Base implements FieldContract, HydratesValues
         }
 
         if ($field->config && $field->config['type'] === 'numeric') {
-            $input->numeric();
+            $input->numeric()->type('number');
         }
 
         if ($field->config && $field->config['type'] === 'integer') {
-            $input->integer();
+            $input->integer()->type('number');
         }
 
         $input = self::addAffixesToInput($input, $field);

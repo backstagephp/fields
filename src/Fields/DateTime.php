@@ -48,11 +48,10 @@ class DateTime extends Base implements FieldContract
         $input = self::applyDefaultSettings(Input::make($name), $field);
 
         $input = $input->label($field->name ?? self::getDefaultConfig()['label'] ?? null)
-            ->format($field->config['format'] ?? self::getDefaultConfig()['format'])
             ->seconds($field->config['seconds'] ?? self::getDefaultConfig()['seconds'])
             ->timezone($field->config['timezone'] ?? self::getDefaultConfig()['timezone'])
             ->native($field->config['native'] ?? self::getDefaultConfig()['native'])
-            ->displayFormat($field->config['displayFormat'] ?? self::getDefaultConfig()['displayFormat'])
+            ->displayFormat($field->config['format'] ?? self::getDefaultConfig()['format'])
             ->locale($field->config['locale'] ?? self::getDefaultConfig()['locale'])
             ->firstDayOfWeek($field->config['firstDayOfWeek'] ?? self::getDefaultConfig()['firstDayOfWeek'])
             ->hoursStep($field->config['hoursStep'] ?? self::getDefaultConfig()['hoursStep'])
