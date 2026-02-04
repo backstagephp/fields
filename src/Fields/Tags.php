@@ -81,16 +81,10 @@ class Tags extends Base implements FieldContract
                                 ->label(__('Tag suffix')),
                             Input::make('config.nestedRecursiveRules')
                                 ->label(__('Nested recursive rules'))
-                                ->formatStateUsing(function ($state) {
-                                    return explode(',', $state);
-                                })
                                 ->separator(','),
                             Input::make('config.splitKeys')
                                 ->label(__('Split keys'))
                                 ->suggestions(['Tab', 'Enter'])
-                                ->formatStateUsing(function ($state) {
-                                    return explode(',', $state);
-                                })
                                 ->separator(','),
                         ])->columns(2),
                 ])->columnSpanFull(),
