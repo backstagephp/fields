@@ -1,43 +1,49 @@
 /* Jump Anchor Plugin Styles */
 .jump-anchor {
-    background-color: var(--gray-100);
-    border-bottom-width: 2px;
-    border-bottom-color: var(--gray-400);
-    padding-left: var(--spacing);
-    padding-right: var(--spacing);
-    border-radius: var(--radius-sm);
+    color: var(--prose-link-color);
+    background-color: transparent;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--prose-link-underline-color);
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
     position: relative;
 }
 
 .jump-anchor:hover {
-    background-color: var(--gray-200);
+    background-color: transparent;
+    border-bottom-width: 2px;
 }
 
 .jump-anchor::after {
-    content: "🔗";
-    font-size: var(--text-xs);
+    color: var(--prose-link-underline-color);
+    content: "#";
     margin-left: var(--spacing);
     opacity: 0.6;
+    pointer-events: none;
 }
 
 /* Jump anchor in editor */
 .ProseMirror .jump-anchor {
-    background-color: var(--gray-100);
-    border-bottom-width: 2px;
-    border-bottom-color: var(--gray-400);
-    padding-left: var(--spacing);
-    padding-right: var(--spacing);
-    border-radius: var(--radius-sm);
+    color: var(--prose-link-color);
+    background-color: transparent;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--prose-link-underline-color);
+    padding-left: 0;
+    padding-right: 0;
+    border-radius: 0;
     cursor: pointer;
 }
 
 .ProseMirror .jump-anchor:hover {
-    background-color: var(--gray-200);
+    background-color: transparent;
+    border-bottom-width: 2px;
 }
 
 .ProseMirror .jump-anchor::after {
-    content: "🔗";
-    font-size: var(--text-xs);
+    color: var(--prose-link-underline-color);
+    content: "#";
     margin-left: var(--spacing);
     opacity: 0.6;
+    pointer-events: none;
 }

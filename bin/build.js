@@ -1,4 +1,5 @@
-import esbuild from 'esbuild'
+import esbuild, { build } from 'esbuild'
+import buildRichEditorPlugins from './build-rich-editor-plugins.js';
 
 const isDev = process.argv.includes('--dev')
 
@@ -48,3 +49,5 @@ compile({
     entryPoints: ['./resources/js/index.js'],
     outfile: './resources/dist/fields.js',
 })
+
+await buildRichEditorPlugins();
