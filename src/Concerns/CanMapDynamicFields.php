@@ -283,6 +283,12 @@ trait CanMapDynamicFields
             return [];
         }
 
+        // Apply grouping for non-nested fields
+        if (! $isNested) {
+            return $this->resolveFormFieldsWithGrouping($record);
+        }
+
+        // For nested fields, just resolve them without grouping
         $customFields = $this->resolveCustomFields();
 
         return $record->fields
@@ -290,6 +296,67 @@ trait CanMapDynamicFields
             ->filter()
             ->values()
             ->all();
+    }
+
+    /**
+     * Resolve form fields with grouping applied.
+     * Fields with the same group are wrapped in a Section component.
+     * Fields without a group are placed in a default Grid.
+     */
+    private function resolveFormFieldsWithGrouping(mixed $record): array
+    {
+        $customFields = $this->resolveCustomFields();
+
+        // Group field models by their group property
+        $groups = [];
+        foreach ($record->fields as $field) {
+            $groups[$field->group ?? null][] = $field;
+        }
+
+        // Transform groups into Grid or Section components with resolved fields
+        return $this->wrapFieldGroupsInComponents($groups, function ($fieldModels) use ($customFields, $record) {
+            return collect($fieldModels)
+                ->map(fn ($field) => $this->resolveFieldInput($field, $customFields, $record, false))
+                ->filter()
+                ->values()
+                ->all();
+        });
+    }
+
+    /**
+     * Wrap grouped field models in Grid or Section components.
+     *
+     * @param  array  $groups  Array of field models grouped by group name
+     * @param  callable  $fieldResolver  Callback to resolve field models into field components
+     * @param  int|null  $version  Optional form version for generating unique keys
+     * @return array Array of Grid/Section components containing resolved fields
+     */
+    protected function wrapFieldGroupsInComponents(array $groups, callable $fieldResolver, ?int $version = null): array
+    {
+        // Generate a unique key suffix for form versioning
+        $v = $version ?? (property_exists($this, 'formVersion') && isset($this->formVersion) ? $this->formVersion : 0);
+
+        return collect($groups)->map(function ($fieldModels, $group) use ($fieldResolver, $v) {
+            $resolvedFields = $fieldResolver($fieldModels);
+
+            if (empty($resolvedFields)) {
+                return null;
+            }
+
+            if (empty($group)) {
+                return \Filament\Schemas\Components\Grid::make(1)
+                    ->key('dynamic-group-default-' . $v)
+                    ->schema($resolvedFields);
+            }
+
+            return \Filament\Schemas\Components\Section::make($group)
+                ->key('dynamic-group-' . \Illuminate\Support\Str::slug($group) . '-' . $v)
+                ->collapsible()
+                ->collapsed()
+                ->compact()
+                ->label(__($group))
+                ->schema($resolvedFields);
+        })->filter()->values()->all();
     }
 
     private function resolveCustomFields(): Collection
