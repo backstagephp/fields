@@ -1,3 +1,9 @@
+/* Rich editor toolbar fix for small screens */
+.fi-fo-rich-editor-toolbar-group {
+    flex-wrap: wrap;
+    row-gap: 4px;
+}
+
 /* Jump Anchor Plugin Styles */
 .jump-anchor {
     color: var(--prose-link-color);
@@ -21,6 +27,16 @@
     margin-left: var(--spacing);
     opacity: 0.6;
     pointer-events: none;
+}
+
+/* External link indicator */
+.ProseMirror a[target="_blank"]::after {
+    content: "\2197";
+    margin-left: 2px;
+    opacity: 0.6;
+    font-size: var(--text-xs);
+    text-decoration: none;
+    display: inline-block;
 }
 
 /* Jump anchor in editor */

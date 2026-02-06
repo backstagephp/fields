@@ -54,7 +54,7 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
         return [
             Action::make('jumpAnchor')
                 ->modalHeading(__('Add Jump Anchor'))
-                ->modalDescription(__('Add an anchor to the selected text that can be used for navigation.'))
+                ->modalDescription(__('Add an anchor ID to the selected text so it can be linked to directly. For example, an anchor with ID "contact" can be reached via /page-url#contact.'))
                 ->modalWidth(Width::Medium)
                 ->modalSubmitActionLabel(__('Save'))
                 ->fillForm(fn (array $arguments): array => [
@@ -66,18 +66,38 @@ class JumpAnchorRichContentPlugin implements RichContentPlugin
                     TextInput::make('anchorId')
                         ->label(__('Anchor ID'))
                         ->placeholder(__('e.g., section-1, my-anchor'))
-                        ->required()
-                        ->rules(['regex:/^[a-zA-Z0-9-_]+$/'])
-                        // ->helperText(__('The ID that will be assigned to the span element (e.g., "section-1" for id="section-1")'))
-                        ->live()
+                        ->rules(['regex:/^[a-zA-Z0-9-_]*$/'])
+                        ->helperText(__('Allowed characters: letters, numbers, hyphens and underscores. Clear the field and save to remove the anchor.'))
+                        ->live(onBlur: true)
                         ->afterStateUpdated(function ($state, callable $set) {
-                            // Generate a slug-like ID if empty
                             if (empty($state)) {
-                                $set('anchorId', 'anchor-' . uniqid());
+                                return;
+                            }
+
+                            $safe = preg_replace(
+                                ['/\s+/', '/[^a-zA-Z0-9\-_]/', '/-{2,}/'],
+                                ['-', '', '-'],
+                                $state,
+                            );
+                            $safe = trim($safe, '-');
+
+                            if ($safe !== $state) {
+                                $set('anchorId', $safe);
                             }
                         }),
                 ])
                 ->action(function (array $arguments, array $data, RichEditor $component): void {
+                    if (empty($data['anchorId'])) {
+                        $component->runCommands(
+                            [
+                                EditorCommand::make('unsetJumpAnchor'),
+                            ],
+                            editorSelection: $arguments['editorSelection'],
+                        );
+
+                        return;
+                    }
+
                     $attributes = [
                         'anchorId' => $data['anchorId'],
                         'attributeType' => 'id',

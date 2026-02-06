@@ -45,8 +45,11 @@ export default Mark.create({
                 },
             unsetJumpAnchor:
                 () =>
-                ({ commands }) => {
-                    return commands.unsetMark(this.name)
+                ({ chain }) => {
+                    return chain()
+                        .extendMarkRange(this.name)
+                        .unsetMark(this.name)
+                        .run()
                 },
             toggleJumpAnchor:
                 (attributes) =>
@@ -95,6 +98,68 @@ export default Mark.create({
         const markType = this.type
 
         return [
+            new Plugin({
+                key: new PluginKey('externalLinkClick'),
+                props: {
+                    handleClick(view, pos, event) {
+                        const link = event.target.closest('a[target="_blank"]')
+                        if (!link) {
+                            return false
+                        }
+
+                        const range = document.createRange()
+                        range.selectNodeContents(link)
+                        const textRect = range.getBoundingClientRect()
+
+                        if (event.clientX <= textRect.right) {
+                            return false
+                        }
+
+                        const { doc, schema } = view.state
+                        const linkMarkType = schema.marks.link
+                        if (!linkMarkType) {
+                            return false
+                        }
+
+                        const $pos = doc.resolve(pos)
+                        const parent = $pos.parent
+                        const base = $pos.start()
+
+                        let start = null
+                        let end = null
+
+                        parent.forEach((child, offset) => {
+                            const childFrom = base + offset
+                            const childTo = childFrom + child.nodeSize
+
+                            if (child.marks.some(m => m.type === linkMarkType) && pos >= childFrom && pos <= childTo) {
+                                start = childFrom
+                                end = childTo
+
+                                // Expand to cover the full contiguous link mark
+                                parent.forEach((sibling, sOffset) => {
+                                    const sFrom = base + sOffset
+                                    const sTo = sFrom + sibling.nodeSize
+                                    if (!sibling.marks.some(m => m.type === linkMarkType)) return
+                                    if (sFrom < start && sTo >= start) start = sFrom
+                                    if (sFrom <= end && sTo > end) end = sTo
+                                })
+                            }
+                        })
+
+                        if (start !== null) {
+                            const { tr } = view.state
+                            view.dispatch(
+                                tr.setSelection(
+                                    view.state.selection.constructor.create(doc, start, end),
+                                ),
+                            )
+                        }
+
+                        return true
+                    },
+                },
+            }),
             new Plugin({
                 key: new PluginKey('jumpAnchorClick'),
                 props: {
