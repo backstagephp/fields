@@ -1,3 +1,15 @@
+/* Table group header styling */
+.fi-ta-group-header-cell {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-inline-start: 0 !important;
+    padding-inline-end: 0 !important;
+}
+
+.fi-ta-group-heading {
+    font-weight: 700;
+}
+
 /* Rich editor toolbar fix for small screens */
 .fi-fo-rich-editor-toolbar-group {
     flex-wrap: wrap;

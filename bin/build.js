@@ -47,7 +47,7 @@ const defaultOptions = {
 compile({
     ...defaultOptions,
     entryPoints: ['./resources/js/index.js'],
-    outfile: './resources/dist/fields.js',
+    outfile: './resources/dist/builder-scroll-fix.js',
 })
 
 await buildRichEditorPlugins();

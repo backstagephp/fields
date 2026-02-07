@@ -112,6 +112,8 @@ class FieldsServiceProvider extends PackageServiceProvider
 
             Css::make('fields-styles', __DIR__ . '/../resources/dist/fields.css'),
 
+            Js::make('builder-scroll-fix', __DIR__ . '/../resources/dist/builder-scroll-fix.js'),
+
             Js::make('rich-content-plugins/jump-anchor', __DIR__ . '/../resources/dist/filament/rich-content-plugins/jump-anchor.js')
                 ->loadedOnRequest(),
         ];

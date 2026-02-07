@@ -144,6 +144,21 @@ class FieldsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        $hasGroups = $this->ownerRecord->fields()
+            ->whereNotNull('group')
+            ->where('group', '!=', '')
+            ->exists();
+
+        if ($hasGroups) {
+            $table
+                ->defaultGroup('group')
+                ->groups([
+                    'group' => Group::make('group')
+                        ->titlePrefixedWithLabel(false)
+                        ->getTitleFromRecordUsing(fn (Model | Field $record) => $record->group ?? __('No group')),
+                ]);
+        }
+
         return $table
             ->defaultPaginationPageOption(25)
             ->paginationPageOptions([25, 50, 100])
@@ -152,12 +167,6 @@ class FieldsRelationManager extends RelationManager
             ->defaultSort('position', 'asc')
             ->modifyQueryUsing(fn ($query) => $query->with(['schema']))
             ->groupingSettingsHidden(true)
-            ->defaultGroup('group')
-            ->groups([
-                'group' => Group::make('group')
-                    ->titlePrefixedWithLabel(false)
-                    ->getTitleFromRecordUsing(fn (Model | Field $record) => $record->group ?? __('No group')),
-            ])
             ->columns([
                 TextColumn::make('name')
                     ->label(__('Name'))
